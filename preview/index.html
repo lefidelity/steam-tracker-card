@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Steam Tracker Card · Preview</title>
+  <style>
+    :root { color-scheme:dark; --primary-color:#55baf2; --primary-text-color:#e9f2fa; --secondary-text-color:#8fa4b7; --card-background-color:#172532; --ha-card-background:#172532; --divider-color:#ffffff13; --ha-card-border-radius:20px; --ha-card-border-width:1px; font-family:system-ui,sans-serif; background:#0b141d; color:#e9f2fa; }
+    * { box-sizing:border-box; } body { margin:0; } main { max-width:1220px; margin:0 auto; padding:52px 38px 70px; } header { display:flex; gap:25px; justify-content:space-between; align-items:center; margin-bottom:42px; } .brand { display:flex; align-items:center; gap:11px; font-size:12px; font-weight:650; letter-spacing:.13em; text-transform:uppercase; color:#8fa4b7; } .brand span { background:#55baf2; color:#0b141d; padding:6px 8px; border-radius:7px; font-size:11px; letter-spacing:0; } h1 { font-size:39px; line-height:1.12; letter-spacing:-.045em; margin:15px 0 10px; font-weight:720; } .intro { color:var(--secondary-text-color); font-size:14px; margin:0; line-height:1.7; max-width:620px; } .controls { display:flex; gap:8px; flex-wrap:wrap; margin:30px 0; } button,select { min-height:37px; padding:8px 12px; border:1px solid #ffffff20; border-radius:8px; background:#172532; color:inherit; font:inherit; font-size:12px; cursor:pointer; } button:focus-visible,select:focus-visible { outline:2px solid #55baf2; outline-offset:3px; } button.active { background:#55baf2; color:#081622; border-color:#55baf2; } .grid { display:grid; grid-template-columns:.92fr 1.16fr 1.16fr; gap:22px; align-items:start; } .column { min-width:0; } .label { color:#6d879e; font-size:10px; font-weight:650; text-transform:uppercase; letter-spacing:.14em; margin:0 0 13px 3px; } .note { color:#6d879e; margin-top:30px; font-size:11px; line-height:1.8; } details.editor { margin-top:40px; max-width:600px; border:1px solid #ffffff15; border-radius:16px; padding:20px; } details.editor summary { cursor:pointer; color:#8fa4b7; font-size:13px; margin-bottom:20px; } .light { color-scheme:light; --primary-color:#1685bb; --primary-text-color:#172b3e; --secondary-text-color:#63788b; --card-background-color:#fff; --ha-card-background:#fff; --divider-color:#dfe7ee; background:#eef3f7; color:#172b3e; } .light button,.light select { background:#fff; border-color:#d0dce6; } .light button.active { background:#1685bb; color:#fff; } .light details.editor { border-color:#d0dce6; } @media(max-width:950px) { .grid { grid-template-columns:1fr 1fr; } .column:last-child { grid-column:1/-1; max-width:600px; } } @media(max-width:600px) { main { padding:30px 18px; } h1 { font-size:32px; } .grid { grid-template-columns:1fr; gap:25px; } .column:last-child { grid-column:auto; } .controls { gap:6px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><div><div class="brand"><span>ST</span> Steam Tracker Card <span>Preview</span></div>
+      <h1>Your games. Your dashboard.</h1>
+      <p class="intro">Drei Ansichten, ein Konto, dein Layout. Diese Vorschau verwendet ausschließlich erfundene Beispieldaten und lokale Illustrationen.</p></div></header>
+    <nav class="controls" aria-label="Preview controls">
+      <button id="theme">Helles Theme</button><button id="appearance">Steam-Blau</button>
+      <button id="compact">Kompakt</button><button id="language">English</button>
+      <select id="scenario" aria-label="Data scenario">
+        <option value="ready">Mit Daten</option><option value="empty">Keine Spiele / Level 0</option>
+        <option value="unknown">Wartet auf Daten</option><option value="unavailable">Nicht verfügbar</option>
+        <option value="missing">Sensor fehlt</option><option value="private">Profil teilweise privat</option>
+        <option value="multi">Zwei Konten</option><option value="registry">Keine Registry-Berechtigung</option>
+      </select>
+    </nav>
+    <section class="grid" aria-label="Steam cards">
+      <div class="column"><p class="label">01 / Profile</p><steam-tracker-card id="profile"></steam-tracker-card></div>
+      <div class="column"><p class="label">02 / Now playing</p><steam-tracker-card id="current_game"></steam-tracker-card></div>
+      <div class="column"><p class="label">03 / Recently played</p><steam-tracker-card id="recent_games"></steam-tracker-card></div>
+    </section>
+    <p class="note">DEMO DATA · Kein Steam-Login, keine API-Abfragen. Die Karten lesen die gleichen Sensorattribute wie in Home Assistant.</p>
+    <details class="editor"><summary>Visuellen Karteneditor ausprobieren</summary><steam-tracker-card-editor id="editor"></steam-tracker-card-editor></details>
+  </main>
+  <script type="module" src="./preview.js"></script>
+</body>
+</html>

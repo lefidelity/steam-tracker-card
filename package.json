@@ -1,0 +1,13 @@
+{
+  "name": "steam-tracker-card",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A configurable Home Assistant dashboard card for Steam Tracker.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check dist/steam-tracker-card.js"
+  },
+  "engines": { "node": ">=20" }
+}

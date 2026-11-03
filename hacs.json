@@ -1,0 +1,6 @@
+{
+  "name": "Steam Tracker Card",
+  "filename": "steam-tracker-card.js",
+  "render_readme": true,
+  "homeassistant": "2025.10.0"
+}

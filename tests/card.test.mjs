@@ -1,0 +1,107 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  TRANSLATIONS, normalizeConfig, languageFor, sensorIdentity, discoverAccounts,
+  resolveEntities, sensorState, xpProgress, achievementProgress, recentGames, safeUrl,
+} from "../dist/steam-tracker-card.js";
+
+const entry = (overrides = {}) => ({
+  platform: "steam_tracker", entity_id: "sensor.renamed_presence", unique_id: "ACCOUNT_A_status",
+  device_id: "device-a", config_entry_id: "entry-a", disabled_by: null, ...overrides,
+});
+
+test("configuration validates choices, sensor IDs, and list bounds", () => {
+  assert.equal(normalizeConfig({}).view, "profile");
+  assert.equal(normalizeConfig({ limit: 5 }).limit, 5);
+  for (const config of [null, [], { view: "friends" }, { layout: "other" }, { limit: 0 },
+    { limit: 6 }, { limit: "3" }, { show_images: "false" }, { entities: [] },
+    { entities: { game: "light.invalid" } }, { entities: { surprise: "sensor.a" } }]) {
+    assert.throws(() => normalizeConfig(config));
+  }
+  const original = { entities: { game: "sensor.custom_game" } };
+  normalizeConfig(original).entities.game = "sensor.changed";
+  assert.equal(original.entities.game, "sensor.custom_game");
+});
+
+test("German and English expose the same labels and follow HA's language", () => {
+  assert.deepEqual(Object.keys(TRANSLATIONS.de).sort(), Object.keys(TRANSLATIONS.en).sort());
+  assert.equal(languageFor({}, { language: "de-AT" }), "de");
+  assert.equal(languageFor({ language: "en" }, { language: "de" }), "en");
+  assert.equal(languageFor({}, { language: "fr" }), "en");
+});
+
+test("discovery uses platform and unique IDs rather than entity names", () => {
+  assert.deepEqual(sensorIdentity(entry({ unique_id: "ACCOUNT_A_recent_achievements" })),
+    { account: "ACCOUNT_A", role: "recent_achievements" });
+  assert.equal(sensorIdentity(entry({ platform: "other" })), null);
+  assert.equal(sensorIdentity(entry({ unique_id: "_status" })), null);
+  const accounts = discoverAccounts([
+    entry(), entry({ unique_id: "ACCOUNT_A_profile", entity_id: "sensor.my_level" }),
+    entry({ device_id: "device-b", unique_id: "ACCOUNT_B_status", entity_id: "sensor.second" }),
+    entry({ unique_id: "ACCOUNT_A_game", disabled_by: "user", entity_id: "sensor.disabled" }),
+    entry({ platform: "unrelated", entity_id: "sensor.unrelated" }),
+  ], [{ id: "device-a", name: "Original", name_by_user: "Living room" }, { id: "device-b", name: "Other account" }]);
+  assert.equal(accounts.length, 2);
+  assert.deepEqual(accounts[0], { id: "device-a", name: "Living room",
+    entities: { status: "sensor.renamed_presence", profile: "sensor.my_level" } });
+});
+
+test("older accounts without a device group by config entry or unique ID", () => {
+  const accounts = discoverAccounts([entry({ device_id: null }),
+    entry({ device_id: null, unique_id: "ACCOUNT_A_game", entity_id: "sensor.game" }),
+    entry({ device_id: null, config_entry_id: null, unique_id: "ACCOUNT_B_status" })]);
+  assert.equal(accounts.length, 2);
+  assert.equal(accounts.find((account) => account.id === "entry-a").entities.game, "sensor.game");
+});
+
+test("multiple accounts require an explicit selection and never mix sensors", () => {
+  const accounts = [{ id: "a", entities: { status: "sensor.a" } }, { id: "b", entities: { status: "sensor.b" } }];
+  assert.deepEqual(resolveEntities(normalizeConfig({}), accounts).entities, {});
+  assert.equal(resolveEntities(normalizeConfig({}), accounts.slice(0, 1)).entities.status, "sensor.a");
+  assert.equal(resolveEntities(normalizeConfig({ account: "b" }), accounts).entities.status, "sensor.b");
+  assert.deepEqual(resolveEntities(normalizeConfig({ account: "deleted" }), accounts).entities, {});
+  assert.deepEqual(resolveEntities(normalizeConfig({ account: "b", entities: { game: "sensor.manual" } }), accounts).entities,
+    { status: "sensor.b", game: "sensor.manual" });
+});
+
+test("missing, unknown, unavailable, and genuine zero are distinct", () => {
+  assert.equal(sensorState(), "missing");
+  assert.equal(sensorState({ state: "unknown" }), "unknown");
+  assert.equal(sensorState({ state: "unavailable" }), "unavailable");
+  assert.equal(sensorState({ state: "0" }), "ready");
+  assert.equal(sensorState({ state: "none" }), "ready");
+});
+
+test("XP progress handles a new account and invalid or missing fields", () => {
+  assert.deepEqual(xpProgress({ player_xp: 0, player_xp_needed_to_level_up: 100, player_xp_needed_current_level: 0 }),
+    { value: 0, span: 100, percent: 0 });
+  assert.deepEqual(xpProgress({ player_xp: 650, player_xp_needed_to_level_up: 150, player_xp_needed_current_level: 500 }),
+    { value: 150, span: 300, percent: 50 });
+  assert.equal(xpProgress({}), null);
+  assert.equal(xpProgress({ player_xp: 0, player_xp_needed_to_level_up: 0, player_xp_needed_current_level: 0 }), null);
+  assert.equal(xpProgress({ player_xp: 5, player_xp_needed_to_level_up: -2, player_xp_needed_current_level: 0 }), null);
+});
+
+test("achievements preserve unknown progress and true zero percent", () => {
+  assert.deepEqual(achievementProgress({ unlocked: 0, total: 10 }), { unlocked: 0, total: 10, percent: 0 });
+  assert.deepEqual(achievementProgress({ unlocked: 0, total: 0 }), { unlocked: 0, total: 0, percent: null });
+  for (const value of [undefined, {}, { unlocked: null, total: 10 }, { unlocked: 11, total: 10 }, { unlocked: .5, total: 1 }]) {
+    assert.equal(achievementProgress(value), null);
+  }
+});
+
+test("recent sorting and limiting do not mutate Home Assistant attributes", () => {
+  const games = Object.freeze([Object.freeze({ name: "First", playtime_2weeks_h: 1, playtime_total_h: 500 }),
+    Object.freeze({ name: "Second", playtime_2weeks_h: 20, playtime_total_h: 50 })]);
+  assert.equal(recentGames(games, normalizeConfig({ sort: "playtime", limit: 1 }))[0].name, "Second");
+  assert.equal(recentGames(games, normalizeConfig({ sort: "total" }))[0].name, "First");
+  assert.equal(games[0].name, "First");
+  assert.equal(recentGames(undefined, normalizeConfig({})), null);
+  assert.deepEqual(recentGames([], normalizeConfig({})), []);
+});
+
+test("URLs reject script and data protocols and embedded credentials", () => {
+  for (const url of ["javascript:alert(1)", "data:image/svg+xml,<svg/>", "http://external.example/image.png",
+    "https://user:secret@example.com/image.png", "file:///tmp/image", null]) assert.equal(safeUrl(url), "");
+  assert.equal(safeUrl("https://cdn.example.test/art.jpg"), "https://cdn.example.test/art.jpg");
+});
