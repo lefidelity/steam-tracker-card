@@ -17,11 +17,20 @@ Darstellungsvorschauen: [Kompakt](preview-compact.png) · [Einzeiler](preview-si
 | Profil (`profile`) | Avatar, Spielername, Status, Level und XP-Fortschritt |
 | Aktuelles Spiel (`current_game`) | Spielbild, Titel und Gesamtspielzeit |
 | Kürzlich gespielt (`recent_games`) | Spiele der letzten zwei Wochen, Spielzeiten und optional Erfolge |
-| Bibliothek-Statistik (`library_stats`) | Spieleanzahl, Gesamtspielzeit, Top-5-Spielzeit und Spiele unter einer Stunde |
+| Bibliothek-Statistik (`library_stats`) | Spieleanzahl, Spielzeit, Spielquote, ungespielte Spiele, Top-5-Anteil und Spielzeit-Verteilung |
 | Spieler-Statistik (`player_stats`) | Erfolge, perfekte Spiele, durchschnittlicher Abschluss und Abzeichen |
 | Top-5-Spiele (`top_games`) | Die fünf meistgespielten Spiele mit Spielzeit und optional Erfolgen |
 | Freunde (`friends`) | Freunde mit Status und aktuellem Spiel; Suche und Online-Filter |
 | Spiele-Gesamtübersicht (`games`) | Vollständige Bibliothek mit Spielzeiten, Suche und Sortierung |
+
+Mit den erweiterten Sensordaten zeigt die Bibliothek-Statistik zusätzlich die
+Spielquote, gespielte und ungespielte Spiele und den Top-5-Anteil an der Gesamtzeit.
+Ausführlich und Kompakt enthalten fünf Balken: ungespielt, gespielt unter einer
+Stunde, 1–<10 Stunden, 10–<50 Stunden und mindestens 50 Stunden. Jeder Balken zeigt
+den Anteil an der gesamten Bibliothek und daneben die Spieleanzahl. Ob ein Spiel
+ungespielt ist, bestimmen die exakten Steam-Minuten. Leere Bibliotheken zeigen
+Nullwerte; bei älteren Sensoren erscheinen die Ergänzungen nach dem Update der
+Integration. Der Einzeiler behält seine drei bisherigen Hauptkennzahlen.
 
 Ausführlich, Kompakt oder Einzeiler; Home-Assistant-Theme oder Steam-Blau.
 Zusätzliche Karten wie button-card, bar-card oder card-mod werden nicht benötigt.
@@ -72,7 +81,7 @@ Tests in einer echten Home-Assistant-Instanz stehen noch aus.
    `<HA-Konfigurationsordner>/www/steam-tracker-card.js` kopieren.
 2. Wenn `www` neu angelegt wurde, Home Assistant neu starten.
 3. Unter **Einstellungen → Dashboards → Ressourcen**
-   `/local/steam-tracker-card.js?v=0.7.0` als **JavaScript-Modul** hinzufügen.
+   `/local/steam-tracker-card.js?v=0.7.2` als **JavaScript-Modul** hinzufügen.
 4. Browser neu laden und die Karte über die Kartenauswahl hinzufügen.
 
 Nur eine Ressource registrieren. Bei manuellen Updates den Versionsparameter
@@ -162,7 +171,7 @@ Die beiden Projekte heißen `steam-tracker` und `steam-tracker-card`, ohne
 Sensor-IDs und Attribute müssen wegen des Repository-Namens nicht geändert werden.
 
 Die Karte hat mit [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card)
-ein eigenes Repository und eine unabhängige Version. Version 0.7.0 wird als
+ein eigenes Repository und eine unabhängige Version. Version 0.7.2 wird als
 einzelne JavaScript-Datei im Release bereitgestellt. HACS-Installation und
 Home-Assistant-Laufzeitprüfungen stehen noch aus.
 

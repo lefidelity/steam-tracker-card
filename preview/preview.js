@@ -34,6 +34,10 @@ function data() {
     ] }),
     "sensor.demo_playtime": state("337.8", { game_count: 7, total_playtime_hours: 337.8,
       top_5_playtime_hours: 337.3, pile_of_shame_count: 2, top_5_games: topGames,
+      played_game_count: 6, unplayed_game_count: 1, played_percentage: 85.7,
+      top_5_playtime_percentage: 99.9,
+      playtime_distribution: { unplayed: 1, under_1_hour: 1, "1_to_10_hours": 0,
+        "10_to_50_hours": 3, "50_hours_or_more": 2 },
       all_games: [...topGames.map(({ name, hours }) => ({ name, hours })),
         { name: "Little Garden", hours: 0.5 }, { name: "Uncharted Pages", hours: 0 }] }),
     "sensor.demo_stats": state("40", { achievements_total: 40, achievements_possible: 84,
@@ -52,7 +56,11 @@ function data() {
     states["sensor.demo_recent"] = state("none", { recent_games: [] });
     states["sensor.demo_level"] = state("0", { player_xp: 0, player_xp_needed_to_level_up: 100, player_xp_needed_current_level: 0 });
     states["sensor.demo_playtime"] = state("0", { game_count: 0, total_playtime_hours: 0,
-      top_5_playtime_hours: 0, pile_of_shame_count: 0, top_5_games: [], all_games: [] });
+      top_5_playtime_hours: 0, pile_of_shame_count: 0, top_5_games: [], all_games: [],
+      played_game_count: 0, unplayed_game_count: 0, played_percentage: 0,
+      top_5_playtime_percentage: 0,
+      playtime_distribution: { unplayed: 0, under_1_hour: 0, "1_to_10_hours": 0,
+        "10_to_50_hours": 0, "50_hours_or_more": 0 } });
     states["sensor.demo_stats"] = state("0", { achievements_total: 0, achievements_possible: 0,
       perfect_games: 0, avg_completion_rate: 0, badge_count: 0, card_badge_count: 0 });
     states["sensor.demo_friends"] = state("0", { friends: [] });

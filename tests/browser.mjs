@@ -51,7 +51,46 @@ try {
   const top = page.locator("#top_games");
   assert.equal(await top.locator('.game-row').count(), 5);
   assert.match(await text(top), /Erfolgsdaten nicht verfügbar/);
-  assert.match(await text(page.locator("#library_stats")), /337,8/);
+  const library = page.locator("#library_stats");
+  assert.match(await text(library), /337,8/);
+  assert.match(await text(library), /Spielquote/);
+  assert.match(await text(library), /85,7 %/);
+  assert.match(await text(library), /Ungespielte Spiele/);
+  assert.match(await text(library), /99,9 %/);
+  assert.equal(await library.locator(".stat").count(), 8);
+  assert.equal(await library.locator('.stat[aria-label="Gespielte Spiele: 6"]').count(), 1);
+  assert.equal(await library.locator('.distribution [role="progressbar"]').count(), 5);
+  assert.deepEqual(await library.locator(".distribution-count").allTextContents(), ["1", "1", "0", "3", "2"]);
+  assert.deepEqual(await library.locator('.distribution [role="progressbar"]').evaluateAll(
+    (bars) => bars.map((bar) => bar.getAttribute("aria-valuenow"))), ["14", "14", "0", "43", "29"]);
+  await library.evaluate((node) => {
+    window.libraryHass = node._hass;
+    const attributes = { ...node._hass.states["sensor.demo_playtime"].attributes };
+    for (const key of ["played_percentage", "played_game_count", "unplayed_game_count", "top_5_playtime_percentage", "playtime_distribution"]) delete attributes[key];
+    node.hass = { ...node._hass, states: { ...node._hass.states,
+      "sensor.demo_playtime": { state: "337.8", attributes } } };
+  });
+  assert.equal(await library.locator(".stat").count(), 4);
+  assert.equal(await library.locator(".distribution").count(), 0);
+  assert.doesNotMatch(await text(library), /Spielquote|Ungespielte Spiele/);
+  for (const distribution of [{}, { unplayed: -1 }, { unplayed: 7 }]) {
+    await library.evaluate((node, distribution) => {
+      node.hass = { ...window.libraryHass, states: { ...window.libraryHass.states,
+        "sensor.demo_playtime": { state: "337.8", attributes: {
+          ...window.libraryHass.states["sensor.demo_playtime"].attributes,
+          playtime_distribution: distribution,
+        } } } };
+    }, distribution);
+    assert.equal(await library.locator(".distribution").count(), 0);
+  }
+  await library.evaluate((node) => {
+    node.hass = window.libraryHass;
+    node.setConfig({ ...node._config, language: "en" });
+  });
+  assert.match(await text(library), /Played library/);
+  assert.match(await text(library), /Playtime distribution/);
+  await library.evaluate((node) => node.setConfig({ ...node._config, language: "de" }));
+  console.log("PASS: new library metrics, five distribution bars, both languages and older sensor compatibility");
   assert.match(await text(page.locator("#player_stats")), /Perfekte Spiele/);
   assert.equal(await games.locator('.game-row').count(), 7);
   await games.getByRole("searchbox").fill("uncharted");
@@ -80,6 +119,8 @@ try {
   for (const card of [profile, current, page.locator("#library_stats"), page.locator("#player_stats")]) {
     assert.ok(await card.evaluate((node) => node.getBoundingClientRect().height) <= 55, "Single-line card exceeds one row");
   }
+  assert.equal(await library.locator(".stat").count(), 3);
+  assert.equal(await library.locator(".distribution").count(), 0);
   const rowHeights = await recent.locator(".game-row").evaluateAll((rows) => rows.map((row) => row.getBoundingClientRect().height));
   assert.ok(rowHeights.every((height) => height <= 40));
   await page.locator("#single_line").click();
@@ -100,6 +141,9 @@ try {
   assert.match(await text(top), /Deine Bibliothek ist leer/);
   assert.match(await text(games), /Deine Bibliothek ist leer/);
   assert.match(await text(friends), /Noch keine Freunde/);
+  assert.equal(await library.locator(".stat").count(), 8);
+  assert.equal(await library.locator('.distribution [aria-valuenow="0"]').count(), 5);
+  assert.doesNotMatch(await text(library), /NaN|Infinity/);
   assert.equal(await profile.locator('[role="progressbar"]').getAttribute("aria-valuenow"), "0");
   for (const [scenario, label] of [["unknown", "Sensordaten werden erwartet"], ["unavailable", "Steam-Daten nicht verfügbar"], ["missing", "Sensor nicht gefunden"]]) {
     await page.locator("#scenario").selectOption(scenario);

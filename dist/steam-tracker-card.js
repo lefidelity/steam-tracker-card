@@ -1,4 +1,4 @@
-/** Steam Tracker Card v0.7.0 · MIT License · No runtime dependencies. */
+/** Steam Tracker Card v0.7.2 · MIT License · No runtime dependencies. */
 
 export const ROLES = ["status", "profile", "game", "recent_games", "recent_achievements", "playtime", "global_stats", "friends"];
 export const VIEWS = ["profile", "current_game", "recent_games", "library_stats", "player_stats", "top_games", "friends", "games"];
@@ -14,6 +14,10 @@ export const TRANSLATIONS = {
     library_stats: "Library statistics", player_stats: "Player statistics", top_games: "Top 5 games",
     friends: "Friends", games: "All games", global_stats: "Global statistics", single_line: "Single line",
     game_count: "Games", total_hours: "Total playtime", top_hours: "Top 5 playtime", pile_of_shame: "Under 1 hour",
+    played_percentage: "Played library", played_games: "Played games", unplayed_games: "Unplayed games", top_share: "Top 5 share",
+    playtime_distribution: "Playtime distribution", distribution_unplayed: "Unplayed",
+    distribution_under_1_hour: "Played under 1 h", distribution_1_to_10_hours: "1–<10 h",
+    distribution_10_to_50_hours: "10–<50 h", distribution_50_hours_or_more: "≥50 h",
     unlocked: "Unlocked achievements", possible: "Possible achievements", perfect: "Perfect games",
     completion: "Average completion", badges: "Badges", card_badges: "Game badges",
     search_games: "Search games", search_friends: "Search friends", name_order: "Name A–Z",
@@ -51,6 +55,10 @@ export const TRANSLATIONS = {
     library_stats: "Bibliothek-Statistik", player_stats: "Spieler-Statistik", top_games: "Top-5-Spiele",
     friends: "Freunde", games: "Spiele-Gesamtübersicht", global_stats: "Gesamtstatistik", single_line: "Einzeiler",
     game_count: "Spiele", total_hours: "Gesamtspielzeit", top_hours: "Top-5-Spielzeit", pile_of_shame: "Unter 1 Stunde",
+    played_percentage: "Spielquote", played_games: "Gespielte Spiele", unplayed_games: "Ungespielte Spiele", top_share: "Top-5-Anteil",
+    playtime_distribution: "Spielzeit-Verteilung", distribution_unplayed: "Ungespielt",
+    distribution_under_1_hour: "Gespielt unter 1 h", distribution_1_to_10_hours: "1–<10 h",
+    distribution_10_to_50_hours: "10–<50 h", distribution_50_hours_or_more: "≥50 h",
     unlocked: "Freigeschaltete Erfolge", possible: "Mögliche Erfolge", perfect: "Perfekte Spiele",
     completion: "Durchschnittlicher Abschluss", badges: "Abzeichen", card_badges: "Spielabzeichen",
     search_games: "Spiele suchen", search_friends: "Freunde suchen", name_order: "Name A–Z",
@@ -360,6 +368,11 @@ const CARD_STYLES = `
   .stat { min-width:0; padding:15px; border-radius:12px; background:var(--st-tint); }
   .stat-value { display:block; font-size:25px; font-weight:700; letter-spacing:-.035em; }
   .stat-label { display:block; color:var(--st-muted); font-size:11px; margin-top:6px; }
+  .distribution { margin-top:20px; padding-top:16px; border-top:1px solid var(--st-line); }
+  .distribution h3 { margin:0 0 12px; font-size:12px; }
+  .distribution-row { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(45px,1fr) auto; align-items:center; gap:10px; margin-top:10px; font-size:11px; color:var(--st-muted); }
+  .distribution-label { overflow-wrap:anywhere; } .distribution-count { min-width:2ch; text-align:right; font-variant-numeric:tabular-nums; color:var(--st-ink); }
+  .distribution-row .progress { margin:0; } .compact .distribution { margin-top:12px; padding-top:10px; }
   .collection-tools { display:flex; gap:8px; margin-bottom:16px; }
   .collection-tools input,.collection-tools select { min-width:0; min-height:36px; border:1px solid var(--st-line); border-radius:8px; background:var(--st-surface); color:var(--st-ink); padding:7px 9px; font:inherit; font-size:12px; }
   .collection-tools input { flex:1; width:50%; } .collection-tools select { max-width:45%; }
@@ -634,6 +647,16 @@ export class SteamTrackerCard extends HTMLElementBase {
       ["badges", data.badge_count], ["card_badges", data.card_badge_count],
     ];
     const grid = element("div", "stat-grid");
+    if (library) {
+      for (const [attribute, label, unit] of [
+        ["played_percentage", "played_percentage", "%"],
+        ["played_game_count", "played_games"],
+        ["unplayed_game_count", "unplayed_games"],
+        ["top_5_playtime_percentage", "top_share", "%"],
+      ]) {
+        if (nonnegative(data[attribute]) !== null) stats.push([label, data[attribute], unit]);
+      }
+    }
     for (const [label, value, unit] of this._config.layout === "single_line" ? stats.slice(0, 3) : stats) {
       const tile = element("div", "stat");
       const formatted = `${this._number(nonnegative(value), unit ? 1 : 0)}${unit ? ` ${unit}` : ""}`;
@@ -646,6 +669,29 @@ export class SteamTrackerCard extends HTMLElementBase {
       grid.append(tile);
     }
     body.append(grid);
+    if (library && this._config.layout !== "single_line") this._libraryDistribution(body, data);
+  }
+
+  _libraryDistribution(body, data) {
+    const buckets = ["unplayed", "under_1_hour", "1_to_10_hours", "10_to_50_hours", "50_hours_or_more"];
+    const total = nonnegative(data.game_count);
+    const counts = buckets.map((key) => nonnegative(data.playtime_distribution?.[key]));
+    if (!Number.isInteger(total) || !counts.every(Number.isInteger)
+      || counts.reduce((sum, count) => sum + count, 0) !== total) return;
+    const section = element("section", "distribution");
+    section.setAttribute("aria-label", this._t.playtime_distribution);
+    section.append(element("h3", "", this._t.playtime_distribution));
+    buckets.forEach((key, index) => {
+      const label = this._t[`distribution_${key}`];
+      const count = counts[index];
+      const row = element("div", "distribution-row");
+      row.append(element("span", "distribution-label", label));
+      this._progress(row, total ? count / total * 100 : 0,
+        `${label}: ${this._number(count)} / ${this._number(total)}`);
+      row.append(element("span", "distribution-count", this._number(count)));
+      section.append(row);
+    });
+    body.append(section);
   }
 
   _topGames(body, state) {

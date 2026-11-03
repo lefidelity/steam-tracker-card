@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.7.2 - 2026-11-03
+
+### Changes
+
+- Extend library statistics with played percentage, played and unplayed game
+  counts, and the top-five share of lifetime playtime.
+- Add five playtime-distribution bars in detailed and compact layouts, with
+  exact game counts and accessible progress labels. Keep the single-line
+  summary's existing three primary metrics.
+- Read the new attributes from Steam Tracker 0.7.1 without additional API
+  calls or runtime dependencies. Older sensors retain the original statistics;
+  missing or inconsistent distributions are hidden instead of fabricated.
+- Update German and English labels and documentation, synthetic preview data,
+  and browser regression checks. Existing card configurations remain valid.
+
+### Installation and update
+
+- Update Steam Tracker to 0.7.1 and restart Home Assistant to populate the new
+  library attributes. Install this card release separately and reload the browser.
+- For manual installation, replace `steam-tracker-card.js` and use the resource
+  `/local/steam-tracker-card.js?v=0.7.2` as a JavaScript module to refresh the cache.
+- For HACS, use the custom dashboard repository `lefidelity/steam-tracker-card`.
+- Minimum supported Home Assistant version remains 2025.10.0.
+
+### Validation
+
+- JavaScript syntax check and 13 automated logic tests.
+- Browser checks for new library metrics, distribution bars, German and English,
+  zero and empty values, older sensor compatibility, malformed distributions,
+  all layouts, mobile sizes, and existing views/editor behavior.
+- No external requests were made by the preview. Installation through HACS and
+  behavior in a live Home Assistant frontend remain to be verified.
+
 ## 0.7.0 - 2026-11-03
 
 ### Changes

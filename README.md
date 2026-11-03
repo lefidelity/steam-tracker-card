@@ -13,11 +13,20 @@ dashboard. Includes a visual editor, English and German, and light/dark theme su
 | `profile` | Avatar, player name, presence, level, and XP progress |
 | `current_game` | Game artwork, title, and total playtime |
 | `recent_games` | Games played in the last two weeks, hours, and optional achievement progress |
-| `library_stats` | Game count, total hours, top-five hours, and games played for less than one hour |
+| `library_stats` | Game count, hours, played percentage, unplayed games, top-five share, and playtime distribution |
 | `player_stats` | Unlocked/possible achievements, perfect games, average completion, and badges |
 | `top_games` | Up to five most-played games, hours, and optional achievement progress |
 | `friends` | Friends, presence and current game; search and online-only filter |
 | `games` | Complete library with hours; search and sorting by name or playtime |
+
+With updated Steam Tracker sensor data, library statistics also show the played
+percentage, played and unplayed game counts, and the top-five share of total time.
+Detailed and compact layouts include five bars for unplayed games, played under
+one hour, 1–<10 hours, 10–<50 hours, and 50 hours or more. Bars show the share of
+the entire library, with the game count alongside. Exact Steam minutes determine
+whether a game is unplayed; rounded hours are not used. Empty libraries show
+zero values. Older sensors omit these additions until the integration is updated.
+The single-line layout keeps its existing three primary metrics.
 
 Use a detailed, compact, or single-line layout, follow your Home Assistant theme, or enable
 the optional Steam blue appearance. The card has **no runtime dependencies** and
@@ -69,7 +78,7 @@ Assistant instance are still pending.
 1. Copy `dist/steam-tracker-card.js` to
    `<HA configuration>/www/steam-tracker-card.js`.
 2. If `www` was just created, restart Home Assistant.
-3. Add `/local/steam-tracker-card.js?v=0.7.0` as a **JavaScript module** under
+3. Add `/local/steam-tracker-card.js?v=0.7.2` as a **JavaScript module** under
    **Settings → Dashboards → Resources**.
 4. Reload the browser, then select **Steam Tracker Card** in the card picker.
 
@@ -211,7 +220,7 @@ Integration and card are separate repositories with independent versions:
 prefix does not require changes to sensor IDs or attributes.
 
 The card repository is [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card).
-Version 0.7.0 is distributed as a standalone JavaScript release asset. HACS
+Version 0.7.2 is distributed as a standalone JavaScript release asset. HACS
 installation and Home Assistant frontend checks remain pending. The matching
 `dist/steam-tracker-card.js` and `hacs.json` use the card's
 repository layout. No CI or publishing configuration is included.
