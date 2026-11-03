@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   TRANSLATIONS, normalizeConfig, languageFor, sensorIdentity, discoverAccounts,
   resolveEntities, sensorState, xpProgress, achievementProgress, recentGames, safeUrl,
+  VIEWS, VIEW_ROLES, ROLES, collectionItems,
 } from "../dist/steam-tracker-card.js";
 
 const entry = (overrides = {}) => ({
@@ -13,7 +14,7 @@ const entry = (overrides = {}) => ({
 test("configuration validates choices, sensor IDs, and list bounds", () => {
   assert.equal(normalizeConfig({}).view, "profile");
   assert.equal(normalizeConfig({ limit: 5 }).limit, 5);
-  for (const config of [null, [], { view: "friends" }, { layout: "other" }, { limit: 0 },
+  for (const config of [null, [], { view: "invalid" }, { layout: "other" }, { limit: 0 },
     { limit: 6 }, { limit: "3" }, { show_images: "false" }, { entities: [] },
     { entities: { game: "light.invalid" } }, { entities: { surprise: "sensor.a" } }]) {
     assert.throws(() => normalizeConfig(config));
@@ -21,6 +22,38 @@ test("configuration validates choices, sensor IDs, and list bounds", () => {
   const original = { entities: { game: "sensor.custom_game" } };
   normalizeConfig(original).entities.game = "sensor.changed";
   assert.equal(original.entities.game, "sensor.custom_game");
+});
+
+test("all eight views and three layouts support their required sensor assignments", () => {
+  assert.equal(VIEWS.length, 8);
+  for (const view of VIEWS) {
+    for (const layout of ["detailed", "compact", "single_line"]) {
+      assert.equal(normalizeConfig({ view, layout }).layout, layout);
+    }
+    for (const role of VIEW_ROLES[view]) assert.ok(ROLES.includes(role), role);
+  }
+  assert.deepEqual(normalizeConfig({ entities: { playtime: "sensor.my_library", friends: "sensor.my_friends",
+    global_stats: "sensor.my_stats" } }).entities, {
+    playtime: "sensor.my_library", friends: "sensor.my_friends", global_stats: "sensor.my_stats",
+  });
+});
+
+test("library search and sorting preserve zero, unknown hours and input order", () => {
+  const games = [{ name: "Unplayed", hours: 0 }, { name: "Big Game", hours: 10 },
+    { name: "Unknown", hours: null }, { name: "Small Game", hours: 2 }];
+  assert.equal(collectionItems(null), null);
+  assert.deepEqual(collectionItems([]), []);
+  assert.deepEqual(collectionItems(games, { query: " GAME ", sort: "hours" }).map((item) => item.name), ["Big Game", "Small Game"]);
+  assert.deepEqual(collectionItems(games, { sort: "hours" }).map((item) => item.hours), [10, 2, 0, null]);
+  assert.equal(games[0].name, "Unplayed");
+});
+
+test("friends filter includes active presence states without inventing offline status", () => {
+  const friends = [{ personaname: "Zoe", status: "Online" }, { personaname: "Alex", status: "Offline" },
+    { personaname: "Jamie", status: "Away" }, { personaname: "Unknown" }];
+  assert.deepEqual(collectionItems(friends, { sort: "status", onlineOnly: true }).map((item) => item.personaname), ["Jamie", "Zoe"]);
+  assert.equal(collectionItems(friends, { query: "missing" }).length, 0);
+  assert.equal(friends[0].personaname, "Zoe");
 });
 
 test("German and English expose the same labels and follow HA's language", () => {

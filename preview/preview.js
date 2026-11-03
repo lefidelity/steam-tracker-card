@@ -14,6 +14,11 @@ const sampleGames = [
   { appid: 102, name: "The Last Outpost", playtime_2weeks_h: 8.2, playtime_total_h: 42.5, logo: art("mountain") },
   { appid: 103, name: "Neon Circuit", playtime_2weeks_h: 3.6, playtime_total_h: 76.2, logo: art("neon") },
 ];
+const topGames = [...sampleGames, { appid: 104, name: "Paper Kingdom", logo: art("mountain") },
+  { appid: 105, name: "Orbit Runner", logo: art("space") }].map((game, index) => ({
+  ...game, hours: [168.6, 42.5, 76.2, 32, 18][index],
+  achievements_unlocked: [32, 0, 0, null, 8][index], achievements_total: [50, 24, 0, null, 10][index],
+}));
 
 function state(state, attributes = {}) { return { state, attributes }; }
 
@@ -27,6 +32,17 @@ function data() {
       { appid: 101, unlocked: 32, total: 50, percent: 64 }, { appid: 102, unlocked: 0, total: 24, percent: 0 },
       { appid: 103, unlocked: 0, total: 0, percent: null },
     ] }),
+    "sensor.demo_playtime": state("337.8", { game_count: 7, total_playtime_hours: 337.8,
+      top_5_playtime_hours: 337.3, pile_of_shame_count: 2, top_5_games: topGames,
+      all_games: [...topGames.map(({ name, hours }) => ({ name, hours })),
+        { name: "Little Garden", hours: 0.5 }, { name: "Uncharted Pages", hours: 0 }] }),
+    "sensor.demo_stats": state("40", { achievements_total: 40, achievements_possible: 84,
+      perfect_games: 0, avg_completion_rate: 48, badge_count: 12, card_badge_count: 5 }),
+    "sensor.demo_friends": state("3", { friends: [
+      { personaname: "Alex", status: "Online", avatar: art("avatar"), game: "Beyond the Blue" },
+      { personaname: "Jamie", status: "Away", avatar: art("avatar"), game: null },
+      { personaname: "Morgan", status: "Offline", avatar: art("avatar"), game: null },
+    ] }),
   };
   if (["unknown", "unavailable"].includes(scenario)) {
     for (const id of Object.keys(states)) states[id] = state(scenario);
@@ -35,13 +51,21 @@ function data() {
     states["sensor.demo_current"] = state("none");
     states["sensor.demo_recent"] = state("none", { recent_games: [] });
     states["sensor.demo_level"] = state("0", { player_xp: 0, player_xp_needed_to_level_up: 100, player_xp_needed_current_level: 0 });
+    states["sensor.demo_playtime"] = state("0", { game_count: 0, total_playtime_hours: 0,
+      top_5_playtime_hours: 0, pile_of_shame_count: 0, top_5_games: [], all_games: [] });
+    states["sensor.demo_stats"] = state("0", { achievements_total: 0, achievements_possible: 0,
+      perfect_games: 0, avg_completion_rate: 0, badge_count: 0, card_badge_count: 0 });
+    states["sensor.demo_friends"] = state("0", { friends: [] });
   }
   if (scenario === "missing") for (const id of Object.keys(states)) delete states[id];
   if (scenario === "private") {
     states["sensor.demo_level"] = state("unavailable");
     states["sensor.demo_achievements"] = state("unavailable");
+    states["sensor.demo_stats"] = state("unavailable");
+    states["sensor.demo_friends"] = state("unavailable");
   }
-  const roleMap = { status: "presence", profile: "level", game: "current", recent_games: "recent", recent_achievements: "achievements" };
+  const roleMap = { status: "presence", profile: "level", game: "current", recent_games: "recent", recent_achievements: "achievements",
+    playtime: "playtime", global_stats: "stats", friends: "friends" };
   const entries = Object.entries(roleMap).map(([role, suffix]) => ({
     entity_id: `sensor.demo_${suffix}`, platform: "steam_tracker", unique_id: `DEMO_ACCOUNT_${role}`,
     device_id: "demo-account", config_entry_id: "demo-entry", disabled_by: null,
@@ -99,6 +123,13 @@ document.querySelector("#appearance").addEventListener("click", (event) => {
 document.querySelector("#compact").addEventListener("click", (event) => {
   options.layout = options.layout === "detailed" ? "compact" : "detailed";
   event.currentTarget.classList.toggle("active", options.layout === "compact");
+  document.querySelector("#single_line").classList.remove("active");
+  update();
+});
+document.querySelector("#single_line").addEventListener("click", (event) => {
+  options.layout = options.layout === "single_line" ? "detailed" : "single_line";
+  event.currentTarget.classList.toggle("active", options.layout === "single_line");
+  document.querySelector("#compact").classList.remove("active");
   update();
 });
 document.querySelector("#language").addEventListener("click", (event) => {

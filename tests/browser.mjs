@@ -46,7 +46,44 @@ try {
   assert.match(await text(recent), /0 \/ 24/);
   assert.match(await text(recent), /Keine Erfolge vorhanden/);
   assert.equal(await profile.locator('[role="progressbar"]').getAttribute("aria-valuenow"), "40");
-  console.log("PASS: three views, XP, zero achievements, and artwork");
+  const friends = page.locator("#friends");
+  const games = page.locator("#games");
+  const top = page.locator("#top_games");
+  assert.equal(await top.locator('.game-row').count(), 5);
+  assert.match(await text(top), /Erfolgsdaten nicht verfügbar/);
+  assert.match(await text(page.locator("#library_stats")), /337,8/);
+  assert.match(await text(page.locator("#player_stats")), /Perfekte Spiele/);
+  assert.equal(await games.locator('.game-row').count(), 7);
+  await games.getByRole("searchbox").fill("uncharted");
+  assert.equal(await games.locator('.game-row').count(), 1);
+  assert.match(await text(games), /0 h/);
+  await games.getByRole("searchbox").fill("nothing matches");
+  assert.match(await text(games), /Keine passenden Ergebnisse/);
+  await games.getByRole("searchbox").fill("");
+  await games.locator("select").selectOption("name");
+  assert.equal(await games.locator("h3").first().innerText(), "Beyond the Blue");
+  await friends.locator("select").selectOption("online");
+  assert.equal(await friends.locator('.game-row').count(), 2);
+  assert.doesNotMatch(await text(friends), /Morgan/);
+  await friends.locator("select").selectOption("all");
+  await friends.getByRole("searchbox").fill("Morgan");
+  assert.match(await text(friends), /Offline/);
+  await friends.getByRole("searchbox").fill("");
+  console.log("PASS: eight views, five top games, full library, search, sorting, friend filtering and zero values");
+  const detailedHeight = await current.evaluate((node) => node.getBoundingClientRect().height);
+  await page.locator("#compact").click();
+  if (values.screenshot) await page.screenshot({ path: values.screenshot.replace(/(\.[^.]+)$/, "-compact$1"), fullPage: true });
+  const compactHeight = await current.evaluate((node) => node.getBoundingClientRect().height);
+  assert.ok(compactHeight < detailedHeight * 0.6, `Compact height ${compactHeight} versus detailed ${detailedHeight}`);
+  await page.locator("#single_line").click();
+  if (values.screenshot) await page.screenshot({ path: values.screenshot.replace(/(\.[^.]+)$/, "-single-line$1"), fullPage: true });
+  for (const card of [profile, current, page.locator("#library_stats"), page.locator("#player_stats")]) {
+    assert.ok(await card.evaluate((node) => node.getBoundingClientRect().height) <= 55, "Single-line card exceeds one row");
+  }
+  const rowHeights = await recent.locator(".game-row").evaluateAll((rows) => rows.map((row) => row.getBoundingClientRect().height));
+  assert.ok(rowHeights.every((height) => height <= 40));
+  await page.locator("#single_line").click();
+  console.log("PASS: compact mode is substantially smaller; single-line summaries and list rows fit one line");
   if (values.screenshot) await page.screenshot({ path: values.screenshot, fullPage: true });
 
   await page.evaluate(() => {
@@ -60,10 +97,16 @@ try {
   await page.locator("#scenario").selectOption("empty");
   await current.getByText("Zeit für eine Pause", { exact: true }).waitFor();
   assert.match(await text(recent), /Eine ruhige Zeit/);
+  assert.match(await text(top), /Deine Bibliothek ist leer/);
+  assert.match(await text(games), /Deine Bibliothek ist leer/);
+  assert.match(await text(friends), /Noch keine Freunde/);
   assert.equal(await profile.locator('[role="progressbar"]').getAttribute("aria-valuenow"), "0");
   for (const [scenario, label] of [["unknown", "Sensordaten werden erwartet"], ["unavailable", "Steam-Daten nicht verfügbar"], ["missing", "Sensor nicht gefunden"]]) {
     await page.locator("#scenario").selectOption(scenario);
     await current.getByText(label, { exact: true }).waitFor();
+    for (const id of ["library_stats", "player_stats", "top_games", "friends", "games"]) {
+      assert.match(await text(page.locator(`#${id}`)), new RegExp(label));
+    }
   }
   await page.locator("#scenario").selectOption("private");
   await profile.getByText("Player One", { exact: true }).waitFor();
@@ -82,6 +125,13 @@ try {
   await profile.getByText("Beyond the Blue", { exact: true }).waitFor();
   await editor.locator('[data-field="language"]').selectOption("en");
   assert.match(await text(profile), /Now playing/);
+  await editor.locator('[data-field="view"]').selectOption("friends");
+  await editor.locator('[data-field="layout"]').selectOption("single_line");
+  assert.equal(await profile.locator("ha-card").getAttribute("class"), "theme single_line");
+  assert.match(await text(profile), /Alex/);
+  assert.equal(await editor.locator('[data-field="entities.playtime"]').count(), 1);
+  assert.equal(await editor.locator('[data-field="entities.global_stats"]').count(), 1);
+  assert.equal(await editor.locator('[data-field="entities.friends"]').count(), 1);
   console.log("PASS: visual editor, account selection, view switch, and language");
 
   await page.locator("#scenario").selectOption("registry");
@@ -112,8 +162,12 @@ try {
   await page.setViewportSize({ width: 390, height: 900 });
   await profile.getByText("Player One", { exact: true }).waitFor();
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-  for (const card of [profile, current, recent]) {
-    assert.equal(await card.evaluate((node) => node.shadowRoot.querySelector("ha-card").scrollWidth <= node.clientWidth), true);
+  for (const layout of ["detailed", "compact", "single_line"]) {
+    for (const id of ["profile", "current_game", "recent_games", "library_stats", "player_stats", "top_games", "friends", "games"]) {
+      const card = page.locator(`#${id}`);
+      await card.evaluate((node, layout) => node.setConfig({ ...node._config, layout }), layout);
+      assert.equal(await card.evaluate((node) => node.shadowRoot.querySelector("ha-card").scrollWidth <= node.clientWidth), true, `${id} overflows in ${layout}`);
+    }
   }
   await page.locator("#theme").click();
   await page.locator("#compact").click();

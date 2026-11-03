@@ -6,7 +6,9 @@ Mit visuellem Editor, Deutsch/Englisch und Unterstützung für helle und dunkle 
 
 [English documentation and full configuration reference](../README.md)
 
-![Drei Ansichten mit erfundenen Beispieldaten](preview.png)
+![Acht Ansichten mit erfundenen Beispieldaten](preview.png)
+
+Darstellungsvorschauen: [Kompakt](preview-compact.png) · [Einzeiler](preview-single-line.png).
 
 ## Ansichten
 
@@ -15,14 +17,28 @@ Mit visuellem Editor, Deutsch/Englisch und Unterstützung für helle und dunkle 
 | Profil (`profile`) | Avatar, Spielername, Status, Level und XP-Fortschritt |
 | Aktuelles Spiel (`current_game`) | Spielbild, Titel und Gesamtspielzeit |
 | Kürzlich gespielt (`recent_games`) | Spiele der letzten zwei Wochen, Spielzeiten und optional Erfolge |
+| Bibliothek-Statistik (`library_stats`) | Spieleanzahl, Gesamtspielzeit, Top-5-Spielzeit und Spiele unter einer Stunde |
+| Spieler-Statistik (`player_stats`) | Erfolge, perfekte Spiele, durchschnittlicher Abschluss und Abzeichen |
+| Top-5-Spiele (`top_games`) | Die fünf meistgespielten Spiele mit Spielzeit und optional Erfolgen |
+| Freunde (`friends`) | Freunde mit Status und aktuellem Spiel; Suche und Online-Filter |
+| Spiele-Gesamtübersicht (`games`) | Vollständige Bibliothek mit Spielzeiten, Suche und Sortierung |
 
-Kompakte oder ausführliche Darstellung, Home-Assistant-Theme oder Steam-Blau.
+Ausführlich, Kompakt oder Einzeiler; Home-Assistant-Theme oder Steam-Blau.
 Zusätzliche Karten wie button-card, bar-card oder card-mod werden nicht benötigt.
+
+**Kompakt** zeigt kleine Bilder, engere Abstände und Profil beziehungsweise
+aktuelles Spiel nebeneinander statt untereinander. **Einzeiler** reduziert Profil,
+aktuelles Spiel und Statistiken auf eine Zeile; Listen zeigen eine Zeile pro
+Eintrag. Bei Statistiken bleiben die drei wichtigsten Kennzahlen sichtbar,
+XP-Details und Erfolgsaufschlüsselungen entfallen. Freunde und Spiele behalten
+ihre Suchfelder und werden bei langen Listen scrollbar. Die Begrenzung für
+kürzlich gespielte Spiele kürzt diese vollständigen Listen nicht. Suche und
+Listenfilter gelten lokal für die Karte und werden beim Neuladen zurückgesetzt.
 
 ## Voraussetzungen
 
-- Home Assistant ab 2025.10. Ein Test in einer echten Home-Assistant-Instanz steht
-  vor der ersten Veröffentlichung noch aus; Browserprüfungen nutzen eine Simulation.
+- Home Assistant ab 2025.10. Browserprüfungen nutzen eine Simulation;
+  die Installation in einer echten Home-Assistant-Oberfläche muss noch geprüft werden.
 - Die [Steam-Tracker-Integration](https://github.com/lefidelity/steam-tracker).
   Die automatische Kontozuordnung nutzt Sensor-Unique-IDs und Kontogeräte
   (Integrationsstand `89b2fb8` oder neuer). Ältere registrierte Sensoren können
@@ -56,7 +72,7 @@ Tests in einer echten Home-Assistant-Instanz stehen noch aus.
    `<HA-Konfigurationsordner>/www/steam-tracker-card.js` kopieren.
 2. Wenn `www` neu angelegt wurde, Home Assistant neu starten.
 3. Unter **Einstellungen → Dashboards → Ressourcen**
-   `/local/steam-tracker-card.js?v=0.1.0` als **JavaScript-Modul** hinzufügen.
+   `/local/steam-tracker-card.js?v=0.7.0` als **JavaScript-Modul** hinzufügen.
 4. Browser neu laden und die Karte über die Kartenauswahl hinzufügen.
 
 Nur eine Ressource registrieren. Bei manuellen Updates den Versionsparameter
@@ -71,6 +87,8 @@ Kontonamen hilft ein eindeutiger Name für das jeweilige Kontogerät.
 
 Titel, Darstellung, Aussehen, Sprache und Bilder sind einstellbar. Für kürzlich
 gespielte Spiele gibt es zusätzlich Anzahl (1–5), Sortierung und Erfolge.
+Auch bei den Top-5-Spielen lassen sich Erfolge ein- und ausblenden; diese Ansicht
+zeigt immer bis zu fünf Spiele. Alle acht Sensorrollen können manuell zugewiesen werden.
 Die Integration liefert derzeit höchstens fünf kürzlich gespielte Spiele;
 Sortierung und Begrenzung wirken nur auf diese Liste. „Steam-Reihenfolge“ behält
 die Reihenfolge der API bei.
@@ -88,6 +106,18 @@ entities:
 ```
 
 Alle Optionen und weitere Beispiele stehen in der [englischen Referenz](../README.md#configure-in-the-visual-editor).
+
+```yaml
+type: custom:steam-tracker-card
+view: friends
+layout: compact
+```
+
+```yaml
+type: custom:steam-tracker-card
+view: library_stats
+layout: single_line
+```
 
 ## Fehlende Daten
 
@@ -120,7 +150,7 @@ node --test tests/card.test.mjs
 ```
 
 Die optionale Browserprüfung mit Playwright ist in der englischen Anleitung
-beschrieben. Vor der Veröffentlichung sind Tests in Home Assistant nötig,
+beschrieben. Für die Laufzeitprüfung sind Tests in Home Assistant nötig,
 insbesondere Speichern/Neuladen des Editors, Kontoauswahl, umbenannte Entitäten,
 eingeschränkte Benutzer sowie Sections- und Masonry-Dashboards.
 
@@ -128,12 +158,12 @@ eingeschränkte Benutzer sowie Sections- und Masonry-Dashboards.
 
 Die beiden Projekte heißen `steam-tracker` und `steam-tracker-card`, ohne
 `hacs-`-Präfix. Das Integrationsrepository ist unter
-`https://github.com/lefidelity/steam-tracker` erreichbar. Es gibt keine bestehenden
-Installationen zu migrieren. Die technische Domain bleibt `steam_tracker`;
+`https://github.com/lefidelity/steam-tracker` erreichbar. Die technische Domain bleibt `steam_tracker`;
 Sensor-IDs und Attribute müssen wegen des Repository-Namens nicht geändert werden.
 
 Die Karte hat mit [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card)
-ein eigenes Repository und eine unabhängige Version. HACS-Validierung und
-Home-Assistant-Laufzeitprüfungen stehen vor dem ersten Release noch aus.
+ein eigenes Repository und eine unabhängige Version. Version 0.7.0 wird als
+einzelne JavaScript-Datei im Release bereitgestellt. HACS-Installation und
+Home-Assistant-Laufzeitprüfungen stehen noch aus.
 
 MIT-Lizenz. Kein offizielles Produkt von Valve, Steam, Home Assistant oder HACS.

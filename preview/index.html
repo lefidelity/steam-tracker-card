@@ -13,10 +13,10 @@
   <main>
     <header><div><div class="brand"><span>ST</span> Steam Tracker Card <span>Preview</span></div>
       <h1>Your games. Your dashboard.</h1>
-      <p class="intro">Drei Ansichten, ein Konto, dein Layout. Diese Vorschau verwendet ausschließlich erfundene Beispieldaten und lokale Illustrationen.</p></div></header>
+      <p class="intro">Acht Ansichten, ein Konto, dein Layout. Diese Vorschau verwendet ausschließlich erfundene Beispieldaten und lokale Illustrationen.</p></div></header>
     <nav class="controls" aria-label="Preview controls">
       <button id="theme">Helles Theme</button><button id="appearance">Steam-Blau</button>
-      <button id="compact">Kompakt</button><button id="language">English</button>
+      <button id="compact">Kompakt</button><button id="single_line">Einzeiler</button><button id="language">English</button>
       <select id="scenario" aria-label="Data scenario">
         <option value="ready">Mit Daten</option><option value="empty">Keine Spiele / Level 0</option>
         <option value="unknown">Wartet auf Daten</option><option value="unavailable">Nicht verfügbar</option>
@@ -28,6 +28,11 @@
       <div class="column"><p class="label">01 / Profile</p><steam-tracker-card id="profile"></steam-tracker-card></div>
       <div class="column"><p class="label">02 / Now playing</p><steam-tracker-card id="current_game"></steam-tracker-card></div>
       <div class="column"><p class="label">03 / Recently played</p><steam-tracker-card id="recent_games"></steam-tracker-card></div>
+      <div class="column"><p class="label">04 / Library statistics</p><steam-tracker-card id="library_stats"></steam-tracker-card></div>
+      <div class="column"><p class="label">05 / Player statistics</p><steam-tracker-card id="player_stats"></steam-tracker-card></div>
+      <div class="column"><p class="label">06 / Top 5 games</p><steam-tracker-card id="top_games"></steam-tracker-card></div>
+      <div class="column"><p class="label">07 / Friends</p><steam-tracker-card id="friends"></steam-tracker-card></div>
+      <div class="column"><p class="label">08 / All games</p><steam-tracker-card id="games"></steam-tracker-card></div>
     </section>
     <p class="note">DEMO DATA · Kein Steam-Login, keine API-Abfragen. Die Karten lesen die gleichen Sensorattribute wie in Home Assistant.</p>
     <details class="editor"><summary>Visuellen Karteneditor ausprobieren</summary><steam-tracker-card-editor id="editor"></steam-tracker-card-editor></details>
