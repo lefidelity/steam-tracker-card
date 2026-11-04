@@ -6,9 +6,17 @@ Mit visuellem Editor, Deutsch/Englisch und Unterstützung für helle und dunkle 
 
 [English documentation and full configuration reference](../README.md)
 
-![Acht Ansichten mit erfundenen Beispieldaten](preview.png)
+![Alle acht Karten in Steam-Blau, Voll, Englisch mit erfundenen Beispieldaten](preview.png)
 
-Darstellungsvorschauen: [Kompakt](preview-compact.png) · [Einzeiler](preview-single-line.png).
+[Bild-Dokumentation: alle Ansichten, Darstellungen, Sprachen und Layouts](visual-guide.md).
+Direkt zu [Steam-Blau / Deutsch](visual-guide/steam-de.md),
+[Home-Assistant-Theme / Deutsch](visual-guide/theme-de.md),
+[Steam-Blau / Englisch](visual-guide/steam-en.md) oder
+[Home-Assistant-Theme / Englisch](visual-guide/theme-en.md).
+Die Galerie zeigt 96 Einzelbilder: Voll (`detailed`), Kompakt (`compact`) und
+Einzeilig (`single_line`) für jede Ansicht nebeneinander. Ein Klick auf das Bild
+öffnet die volle Auflösung. Das Home-Assistant-Theme nutzt eine helle Referenz;
+die Farben im eigenen Dashboard hängen vom gewählten Theme ab.
 
 ## Ansichten
 

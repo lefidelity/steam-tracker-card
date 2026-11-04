@@ -41,9 +41,15 @@ Use a detailed, compact, or single-line layout, follow your Home Assistant theme
 the optional Steam blue appearance. The card has **no runtime dependencies** and
 does not require button-card, card-mod, or other custom cards.
 
-![Eight Steam Tracker Card views with fictional demo data](docs/preview.png)
+![Eight Steam Tracker Card views in Steam blue, full layout, English, with fictional demo data](docs/preview.png)
 
-Layout previews: [Compact](docs/preview-compact.png) · [Single line](docs/preview-single-line.png).
+[Visual guide: all eight views, appearances, languages, and layouts](docs/visual-guide.md).
+Compare [Steam blue / English](docs/visual-guide/steam-en.md),
+[Home Assistant theme / English](docs/visual-guide/theme-en.md),
+[Steam blue / German](docs/visual-guide/steam-de.md), and
+[Home Assistant theme / German](docs/visual-guide/theme-de.md).
+The guide contains 96 individual images, with Full, Compact, and Single line
+shown side by side for every view. Click a card image to open it at full resolution.
 
 Compact mode uses small thumbnails, tighter spacing, and a horizontal profile and
 current-game summary. Single-line mode reduces profiles, current games, and
