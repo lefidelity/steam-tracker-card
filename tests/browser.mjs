@@ -29,6 +29,8 @@ let browser;
 try {
   browser = await chromium.launch({ headless: true, ...(values.browser ? { executablePath: values.browser } : {}) });
   const page = await browser.newPage({ viewport: { width: 1240, height: 1000 }, deviceScaleFactor: 1 });
+  await page.clock.install({ time: new Date("2026-11-04T12:00:00Z") });
+  await page.clock.pauseAt(new Date("2026-11-04T12:00:01Z"));
   const errors = [];
   const externalRequests = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -40,16 +42,134 @@ try {
   const current = page.locator("#current_game");
   const recent = page.locator("#recent_games");
   const text = async (locator) => locator.locator("ha-card").innerText();
+  const checkGameRows = async (card) => {
+    const rows = await card.locator(".games .game-row").evaluateAll((rows) => rows.map((row) => ({
+      border: getComputedStyle(row).borderTopWidth,
+      imageTop: row.querySelector(".game-art")?.getBoundingClientRect().top,
+      titleTop: row.querySelector("h3").getBoundingClientRect().top,
+    })));
+    assert.ok(rows.length > 1);
+    rows.forEach((row, index) => {
+      assert.equal(row.border, index ? "1px" : "0px");
+      if (row.imageTop !== undefined) assert.ok(Math.abs(row.imageTop - row.titleTop) < 1, "Game image and title must align at the top");
+    });
+  };
   await profile.getByText("Player One", { exact: true }).waitFor();
   assert.match(await text(current), /Beyond the Blue/);
+  assert.equal(await current.locator(".game-kicker").count(), 0);
+  assert.equal(await current.locator(".heading svg path").getAttribute("d"),
+    await current.locator(".hero > svg path").getAttribute("d"));
+  const steamPath = await profile.locator(".heading svg path").getAttribute("d");
+  const headingPaths = [];
+  for (const id of ["current_game", "recent_games", "library_stats", "top_games", "friends", "games"]) {
+    const path = await page.locator(`#${id}`).locator(".heading svg path").getAttribute("d");
+    assert.notEqual(path, steamPath);
+    headingPaths.push(path);
+  }
+  assert.equal(new Set(headingPaths).size, 6);
   assert.match(await text(recent), /The Last Outpost/);
   assert.match(await text(recent), /0 \/ 24/);
   assert.match(await text(recent), /Keine Erfolge vorhanden/);
   assert.equal(await profile.locator('[role="progressbar"]').getAttribute("aria-valuenow"), "40");
+  assert.match(await text(profile), /Fortschritt zu Level 25/);
+  assert.equal(await profile.locator(".last-online").count(), 0);
+  assert.equal(await profile.locator(".playing").innerText(), "Spielt: Beyond the Blue");
+  assert.equal(await profile.evaluate((node) => node.shadowRoot.querySelector(".playing").previousElementSibling.classList.contains("status")), true);
+  await profile.evaluate((node) => { window.profileHass = node._hass; });
+  const setPresence = async (state, lastlogoff) => profile.evaluate((node, { state, lastlogoff }) => {
+    node.hass = { ...window.profileHass, states: { ...window.profileHass.states,
+      "sensor.demo_presence": { state, attributes: {
+        ...window.profileHass.states["sensor.demo_presence"].attributes, lastlogoff,
+      } },
+    } };
+  }, { state, lastlogoff });
+  const now = await page.evaluate(() => Math.floor(Date.now() / 1000));
+  await setPresence("Offline", now - 59);
+  assert.equal(await profile.locator(".playing").count(), 0);
+  assert.equal(await profile.locator(".last-online").innerText(), "Zuletzt online gerade eben");
+  assert.equal(await profile.evaluate((node) => node.shadowRoot.querySelector(".last-online").previousElementSibling.classList.contains("status")), true);
+  await page.clock.fastForward(60000);
+  assert.equal(await profile.locator(".last-online").innerText(), "Zuletzt online vor 1 Minute");
+  await profile.evaluate((node) => {
+    window.lastSeen = node.shadowRoot.querySelector(".last-online");
+    window.offlineCard = node;
+    window.offlineParent = node.parentNode;
+    window.offlineNext = node.nextSibling;
+    node.remove();
+  });
+  await page.clock.fastForward(120000);
+  assert.equal(await page.evaluate(() => window.lastSeen.textContent), "Zuletzt online vor 1 Minute");
+  await page.evaluate(() => window.offlineParent.insertBefore(window.offlineCard, window.offlineNext));
+  assert.equal(await profile.locator(".last-online").innerText(), "Zuletzt online vor 3 Minuten");
+  await page.clock.fastForward(60000);
+  assert.equal(await profile.locator(".last-online").innerText(), "Zuletzt online vor 4 Minuten");
+  for (const layout of ["compact", "detailed"]) {
+    await profile.evaluate((node, layout) => node.setConfig({ ...node._config, layout }), layout);
+    assert.equal(await profile.locator(".last-online").isVisible(), true);
+  }
+  await profile.evaluate((node) => node.setConfig({ ...node._config, language: "en" }));
+  assert.match(await text(profile), /Last online 4 minutes ago/);
+  assert.match(await text(profile), /Progress to level 25/);
+  await profile.evaluate((node) => node.setConfig({ ...node._config, layout: "single_line" }));
+  assert.equal(await profile.locator(".last-online").count(), 0);
+  await profile.evaluate((node) => node.setConfig({ ...node._config, language: "de", layout: "detailed" }));
+  for (const timestamp of [undefined, null, 0, -1, "invalid", "1800000000", true, now + 86400]) {
+    await setPresence("Offline", timestamp);
+    assert.equal(await profile.locator(".last-online").count(), 0);
+  }
+  for (const state of ["Online", "Busy", "Away", "Unknown", "unknown", "unavailable"]) {
+    await setPresence(state, now - 7200);
+    assert.equal(await profile.locator(".last-online").count(), 0);
+    assert.equal(await profile.locator(".playing").count(), ["Online", "Busy", "Away"].includes(state) ? 1 : 0);
+  }
+  await setPresence("Online", now - 7200);
+  const setGame = async (game) => profile.evaluate((node, game) => {
+    const states = { ...node._hass.states };
+    if (game) states["sensor.demo_current"] = game;
+    else delete states["sensor.demo_current"];
+    node.hass = { ...node._hass, states };
+  }, game);
+  await setGame({ state: "A new game", attributes: { name: "Different game name" } });
+  assert.equal(await profile.locator(".playing").innerText(), "Spielt: Different game name");
+  for (const layout of ["compact", "detailed"]) {
+    await profile.evaluate((node, layout) => node.setConfig({ ...node._config, layout }), layout);
+    assert.equal(await profile.locator(".playing").isVisible(), true);
+  }
+  await profile.evaluate((node) => node.setConfig({ ...node._config, language: "en" }));
+  assert.equal(await profile.locator(".playing").innerText(), "Playing: Different game name");
+  await profile.evaluate((node) => node.setConfig({ ...node._config, layout: "single_line" }));
+  assert.equal(await profile.locator(".playing").count(), 0);
+  await profile.evaluate((node) => node.setConfig({ ...node._config, language: "de", layout: "detailed" }));
+  await setGame({ state: "State name fallback", attributes: {} });
+  assert.equal(await profile.locator(".playing").innerText(), "Spielt: State name fallback");
+  await setGame({ state: "Safe game", attributes: { name: '<img src=x onerror="window.injected=true">' } });
+  assert.equal(await profile.locator(".playing").textContent(), 'Spielt: <img src=x onerror="window.injected=true">');
+  assert.equal(await profile.locator(".playing img").count(), 0);
+  assert.equal(await page.evaluate(() => window.injected), undefined);
+  for (const game of [null, { state: "none", attributes: { name: "Stale game" } },
+    { state: "unknown", attributes: {} }, { state: "unavailable", attributes: {} },
+    { state: "", attributes: {} }]) {
+    await setGame(game);
+    assert.equal(await profile.locator(".playing").count(), 0);
+    assert.equal(await profile.locator(".last-online").count(), 0);
+    assert.match(await text(profile), /Player One/);
+    assert.match(await text(profile), /Fortschritt zu Level 25/);
+  }
+  await profile.evaluate((node) => { node.hass = window.profileHass; });
+  await page.clock.resume();
+  console.log("PASS: last-online localization, placement, ticking, invalid data and timer cleanup/reconnect");
+  console.log("PASS: online game display, game-only updates, both languages, idle/missing data and safe text");
   const friends = page.locator("#friends");
   const games = page.locator("#games");
   const top = page.locator("#top_games");
   assert.equal(await top.locator('.game-row').count(), 5);
+  for (const card of [recent, top]) {
+    await checkGameRows(card);
+    await card.evaluate((node) => node.setConfig({ ...node._config, show_images: false }));
+    assert.equal(await card.locator(".game-art").count(), 0);
+    await checkGameRows(card);
+    await card.evaluate((node) => node.setConfig({ ...node._config, show_images: true }));
+  }
   assert.match(await text(top), /Erfolgsdaten nicht verfügbar/);
   const library = page.locator("#library_stats");
   assert.match(await text(library), /337,8/);
@@ -58,6 +178,13 @@ try {
   assert.match(await text(library), /Ungespielte Spiele/);
   assert.match(await text(library), /99,9 %/);
   assert.equal(await library.locator(".stat").count(), 8);
+  assert.deepEqual(await library.locator(".stat-label").allTextContents(), [
+    "Spiele", "Gesamtspielzeit", "Unter 1 Stunde", "Top-5-Spielzeit", "Spielquote",
+    "Top-5-Anteil", "Ungespielte Spiele", "Gespielte Spiele",
+  ]);
+  assert.deepEqual(await library.locator(".distribution-label").allTextContents(), [
+    "Ungespielt", "Gespielt unter 1 h", "unter 10 h", "unter 50 h", "über 50 h",
+  ]);
   assert.equal(await library.locator('.stat[aria-label="Gespielte Spiele: 6"]').count(), 1);
   assert.equal(await library.locator('.distribution [role="progressbar"]').count(), 5);
   assert.deepEqual(await library.locator(".distribution-count").allTextContents(), ["1", "1", "0", "3", "2"]);
@@ -89,6 +216,9 @@ try {
   });
   assert.match(await text(library), /Played library/);
   assert.match(await text(library), /Playtime distribution/);
+  assert.deepEqual((await library.locator(".distribution-label").allTextContents()).slice(2), [
+    "Under 10 h", "Under 50 h", "Over 50 h",
+  ]);
   await library.evaluate((node) => node.setConfig({ ...node._config, language: "de" }));
   console.log("PASS: new library metrics, five distribution bars, both languages and older sensor compatibility");
   assert.match(await text(page.locator("#player_stats")), /Perfekte Spiele/);
@@ -111,10 +241,12 @@ try {
   console.log("PASS: eight views, five top games, full library, search, sorting, friend filtering and zero values");
   const detailedHeight = await current.evaluate((node) => node.getBoundingClientRect().height);
   await page.locator("#compact").click();
+  for (const card of [recent, top]) await checkGameRows(card);
   if (values.screenshot) await page.screenshot({ path: values.screenshot.replace(/(\.[^.]+)$/, "-compact$1"), fullPage: true });
   const compactHeight = await current.evaluate((node) => node.getBoundingClientRect().height);
   assert.ok(compactHeight < detailedHeight * 0.6, `Compact height ${compactHeight} versus detailed ${detailedHeight}`);
   await page.locator("#single_line").click();
+  for (const card of [recent, top]) await checkGameRows(card);
   if (values.screenshot) await page.screenshot({ path: values.screenshot.replace(/(\.[^.]+)$/, "-single-line$1"), fullPage: true });
   for (const card of [profile, current, page.locator("#library_stats"), page.locator("#player_stats")]) {
     assert.ok(await card.evaluate((node) => node.getBoundingClientRect().height) <= 55, "Single-line card exceeds one row");
@@ -125,6 +257,7 @@ try {
   assert.ok(rowHeights.every((height) => height <= 40));
   await page.locator("#single_line").click();
   console.log("PASS: compact mode is substantially smaller; single-line summaries and list rows fit one line");
+  console.log("PASS: view icons, current-game heading, list separators/alignment, tile order and distribution labels");
   if (values.screenshot) await page.screenshot({ path: values.screenshot, fullPage: true });
 
   await page.evaluate(() => {
@@ -137,6 +270,10 @@ try {
 
   await page.locator("#scenario").selectOption("empty");
   await current.getByText("Zeit für eine Pause", { exact: true }).waitFor();
+  assert.match(await text(current), /Aktuell wird kein Spiel gespielt\./);
+  assert.equal(await current.locator(".hero,.current-summary").count(), 0);
+  assert.equal(await current.locator(".empty-icon svg path").getAttribute("d"),
+    await current.locator(".heading svg path").getAttribute("d"));
   assert.match(await text(recent), /Eine ruhige Zeit/);
   assert.match(await text(top), /Deine Bibliothek ist leer/);
   assert.match(await text(games), /Deine Bibliothek ist leer/);
@@ -165,14 +302,60 @@ try {
   await editor.locator('[data-field="account"]').selectOption("second-account");
   await profile.getByText("Player Two", { exact: true }).waitFor();
   assert.match(await text(profile), /Offline/);
+  assert.match(await text(profile), /Zuletzt online vor 2 Stunden/);
+  assert.equal(await profile.locator(".playing").count(), 0);
+  await profile.evaluate((node) => {
+    window.secondProfileHass = node._hass;
+    node.hass = { ...node._hass, states: { ...node._hass.states,
+      "sensor.second_presence": { state: "Online", attributes: { personaname: "Player Two" } },
+      "sensor.second_current": { state: "Another account's game", attributes: {} },
+    } };
+  });
+  assert.equal(await profile.locator(".playing").innerText(), "Spielt: Another account's game");
+  assert.doesNotMatch(await text(profile), /Beyond the Blue|Zuletzt online/);
+  await profile.evaluate((node) => { node.hass = window.secondProfileHass; });
+  await editor.locator('[data-field="title"]').fill("My saved title");
+  await editor.locator('[data-field="title"]').dispatchEvent("change");
+  assert.equal(await profile.locator(".eyebrow").textContent(), "My saved title");
+  await editor.locator('[data-field="show_title"]').uncheck();
+  assert.equal(await profile.locator(".eyebrow").count(), 0);
+  assert.equal(await profile.locator(".heading > svg").count(), 0);
+  assert.equal(await profile.locator(".account-label").innerText(), "Steam Account B");
+  assert.equal(await editor.locator('[data-field="title"]').inputValue(), "My saved title");
+  await editor.locator('[data-field="show_username"]').uncheck();
+  assert.equal(await profile.locator(".heading").count(), 0);
+  assert.match(await text(profile), /Player Two/);
+  for (const view of ["library_stats", "player_stats", "games", "friends", "top_games", "recent_games", "current_game", "profile"]) {
+    await editor.locator('[data-field="view"]').selectOption(view);
+    assert.equal(await editor.locator('[data-field="show_username"]').count(), 1);
+    assert.equal(await editor.locator('[data-field="show_title"]').count(), 1);
+    assert.equal(await profile.locator(".heading").count(), 0);
+    assert.equal(await editor.locator('[data-field="title"]').inputValue(), "My saved title");
+  }
+  await editor.locator('[data-field="show_title"]').check();
+  assert.equal(await profile.locator(".eyebrow").textContent(), "My saved title");
+  assert.equal(await profile.locator(".account-label").count(), 0);
+  await editor.locator('[data-field="show_username"]').check();
+  assert.equal(await profile.locator(".account-label").innerText(), "Steam Account B");
+  await profile.evaluate((node) => {
+    const saved = JSON.parse(JSON.stringify(node._config));
+    node.setConfig(saved);
+  });
+  assert.equal(await profile.locator(".eyebrow").textContent(), "My saved title");
+  await editor.locator('[data-field="title"]').fill("");
+  await editor.locator('[data-field="title"]').dispatchEvent("change");
+  console.log("PASS: independent heading checkboxes in all views and custom-title preservation");
   await editor.locator('[data-field="view"]').selectOption("current_game");
   await profile.getByText("Beyond the Blue", { exact: true }).waitFor();
   await editor.locator('[data-field="language"]').selectOption("en");
-  assert.match(await text(profile), /Now playing/);
+  assert.equal(await profile.locator(".eyebrow").textContent(), "Now playing");
   await editor.locator('[data-field="view"]').selectOption("friends");
   await editor.locator('[data-field="layout"]').selectOption("single_line");
   assert.equal(await profile.locator("ha-card").getAttribute("class"), "theme single_line");
   assert.match(await text(profile), /Alex/);
+  await editor.locator('[data-field="show_title"]').uncheck();
+  assert.equal(await profile.locator(".body").getAttribute("title"), "");
+  await editor.locator('[data-field="show_title"]').check();
   assert.equal(await editor.locator('[data-field="entities.playtime"]').count(), 1);
   assert.equal(await editor.locator('[data-field="entities.global_stats"]').count(), 1);
   assert.equal(await editor.locator('[data-field="entities.friends"]').count(), 1);
@@ -211,6 +394,7 @@ try {
       const card = page.locator(`#${id}`);
       await card.evaluate((node, layout) => node.setConfig({ ...node._config, layout }), layout);
       assert.equal(await card.evaluate((node) => node.shadowRoot.querySelector("ha-card").scrollWidth <= node.clientWidth), true, `${id} overflows in ${layout}`);
+      if (["recent_games", "top_games"].includes(id)) await checkGameRows(card);
     }
   }
   await page.locator("#theme").click();

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   TRANSLATIONS, normalizeConfig, languageFor, sensorIdentity, discoverAccounts,
   resolveEntities, sensorState, xpProgress, achievementProgress, recentGames, safeUrl,
-  VIEWS, VIEW_ROLES, ROLES, collectionItems,
+  VIEWS, VIEW_ROLES, ROLES, collectionItems, lastOnlineText,
 } from "../dist/steam-tracker-card.js";
 
 const entry = (overrides = {}) => ({
@@ -14,14 +14,41 @@ const entry = (overrides = {}) => ({
 test("configuration validates choices, sensor IDs, and list bounds", () => {
   assert.equal(normalizeConfig({}).view, "profile");
   assert.equal(normalizeConfig({ limit: 5 }).limit, 5);
+  assert.equal(normalizeConfig({}).show_username, true);
+  assert.equal(normalizeConfig({}).show_title, true);
+  const hidden = normalizeConfig({ show_username: false, show_title: false, title: "My profile" });
+  assert.equal(hidden.show_username, false);
+  assert.equal(hidden.show_title, false);
+  assert.equal(hidden.title, "My profile");
   for (const config of [null, [], { view: "invalid" }, { layout: "other" }, { limit: 0 },
-    { limit: 6 }, { limit: "3" }, { show_images: "false" }, { entities: [] },
+    { limit: 6 }, { limit: "3" }, { show_images: "false" }, { show_username: "false" },
+    { show_title: null }, { entities: [] },
     { entities: { game: "light.invalid" } }, { entities: { surprise: "sensor.a" } }]) {
     assert.throws(() => normalizeConfig(config));
   }
   const original = { entities: { game: "sensor.custom_game" } };
   normalizeConfig(original).entities.game = "sensor.changed";
   assert.equal(original.entities.game, "sensor.custom_game");
+});
+
+test("last online formats Steam timestamps and rejects missing, invalid or future data", () => {
+  const timestamp = 1800000000;
+  const now = timestamp * 1000;
+  assert.equal(lastOnlineText(timestamp, "de", now), "Zuletzt online gerade eben");
+  assert.equal(lastOnlineText(timestamp, "en", now + 59000), "Last online just now");
+  for (const [seconds, de, en] of [
+    [60, "vor 1 Minute", "1 minute ago"], [120, "vor 2 Minuten", "2 minutes ago"],
+    [3600, "vor 1 Stunde", "1 hour ago"], [7200, "vor 2 Stunden", "2 hours ago"],
+    [86400, "vor 1 Tag", "1 day ago"], [2592000, "vor 1 Monat", "1 month ago"],
+    [31536000, "vor 1 Jahr", "1 year ago"],
+  ]) {
+    assert.equal(lastOnlineText(timestamp, "de", now + seconds * 1000), `Zuletzt online ${de}`);
+    assert.equal(lastOnlineText(timestamp, "en", now + seconds * 1000), `Last online ${en}`);
+  }
+  for (const value of [undefined, null, false, true, "1800000000", "invalid", 0, -1,
+    1.5, NaN, Infinity, timestamp + 1, now]) {
+    assert.equal(lastOnlineText(value, "en", now), null);
+  }
 });
 
 test("all eight views and three layouts support their required sensor assignments", () => {

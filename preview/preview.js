@@ -84,7 +84,9 @@ function data() {
       unique_id: entry.unique_id.replace("DEMO_ACCOUNT", "SECOND_ACCOUNT"), device_id: "second-account", config_entry_id: "second-entry" })));
     devices.push({ id: "second-account", name: "Steam Account B" });
     for (const [id, value] of Object.entries(states)) states[id.replace("demo_", "second_")] = value;
-    states["sensor.second_presence"] = state("Offline", { personaname: "Player Two" });
+    states["sensor.second_presence"] = state("Offline", {
+      personaname: "Player Two", lastlogoff: Math.floor(Date.now() / 1000) - 7200,
+    });
   }
   return { states, entries, devices };
 }

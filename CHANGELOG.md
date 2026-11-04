@@ -1,5 +1,55 @@
 # Changelog
 
+## 0.8.0 - 2026-11-04
+
+### Changes
+
+- Use view-specific heading icons for current game, recent games, library
+  statistics, top-five games, friends, and the full library. Remove the repeated
+  current-game label/icon below the artwork while preserving the idle content.
+- Separate recent and top-five game entries with lines and align artwork with
+  game titles at the top, including compact, single-line, and mobile layouts.
+- Swap the played-games and top-five-share tiles. Shorten German/English
+  distribution labels to under 10 h, under 50 h, and over 50 h without changing
+  the underlying lifetime-minute groups.
+- Add editor checkboxes for the upper-right account label (`show_username`) and
+  the title/icon (`show_title`). Both default to visible; hiding a custom title
+  preserves it for later use.
+- Show the relative last-online time below the status of offline profiles in
+  detailed and compact layouts when a valid `lastlogoff` timestamp is available.
+  Refresh it every minute and stop the timer when the card is removed.
+- Show “Playing: <game name>” / “Spielt: <Spielname>” in the same position for
+  online players with a current game. Read the selected account's existing game
+  sensor, react to game-only changes, and hide absent or unavailable game data.
+- Change the XP label to “Progress to level” / “Fortschritt zu Level” and update
+  English/German documentation and regression checks.
+- Refresh detailed, compact, and single-line previews using fictional accounts
+  and English labels.
+
+### Installation and update
+
+- Install this card separately from Steam Tracker 0.9.0 and reload the browser.
+  Existing card configurations remain valid; both new heading options default
+  to enabled. Custom titles remain editable and saved when hidden.
+- For manual installation, replace `steam-tracker-card.js` and register
+  `/local/steam-tracker-card.js?v=0.8.0` as a JavaScript module to refresh the cache.
+- The card reads the existing status, profile, and current-game sensors for the
+  profile details. Library additions require integration 0.7.1 or newer; older
+  sensors retain the original library statistics. No new Steam requests or
+  dependencies are introduced.
+- Minimum supported Home Assistant version remains 2025.10.0.
+
+### Validation
+
+- JavaScript syntax check, card metadata JSON validation, 14 automated logic
+  tests, and Git whitespace checks.
+- Browser checks for all eight views, custom-title preservation, heading
+  options, offline last-online time and timer cleanup, online game changes,
+  account isolation, safe rendering, view icons, list separators/alignment,
+  tile order, both languages, three layouts, and mobile sizes.
+- No external requests were made by the preview. Installation through HACS and
+  behavior in a live Home Assistant frontend remain to be verified.
+
 ## 0.7.2 - 2026-11-03
 
 ### Changes

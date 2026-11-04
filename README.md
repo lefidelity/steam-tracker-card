@@ -27,6 +27,15 @@ the entire library, with the game count alongside. Exact Steam minutes determine
 whether a game is unplayed; rounded hours are not used. Empty libraries show
 zero values. Older sensors omit these additions until the integration is updated.
 The single-line layout keeps its existing three primary metrics.
+The shorter distribution labels are **Under 10 h**, **Under 50 h**, and
+**Over 50 h**; the underlying groups remain 1–<10, 10–<50, and ≥50 hours.
+The top-five share tile appears next to played percentage, above played games.
+
+View headings use a controller for the current game, a clock for recently played,
+a chart for library statistics, a trophy for top-five games, people for friends,
+and books for the full library. Current-game artwork leads directly into the
+game name and playtime. Recently played and top-five lists have separators
+between entries, with artwork aligned to the top of each game title.
 
 Use a detailed, compact, or single-line layout, follow your Home Assistant theme, or enable
 the optional Steam blue appearance. The card has **no runtime dependencies** and
@@ -50,7 +59,7 @@ card and reset when the page reloads.
   installation in the actual Home Assistant frontend still needs verification.
 - The [Steam Tracker integration](https://github.com/lefidelity/steam-tracker).
   Automatic account discovery uses its sensor unique IDs and account devices
-  (integration commit `89b2fb8` or later). Older registered sensors can also be
+  (integration 0.6.0 or later). Older registered sensors can also be
   grouped by configuration entry; legacy YAML sensors can be assigned manually.
 - Steam data must be accessible to the integration. This card does not fix API
   credentials or private profiles, and does not call the Steam API itself.
@@ -78,7 +87,7 @@ Assistant instance are still pending.
 1. Copy `dist/steam-tracker-card.js` to
    `<HA configuration>/www/steam-tracker-card.js`.
 2. If `www` was just created, restart Home Assistant.
-3. Add `/local/steam-tracker-card.js?v=0.7.2` as a **JavaScript module** under
+3. Add `/local/steam-tracker-card.js?v=0.8.0` as a **JavaScript module** under
    **Settings → Dashboards → Resources**.
 4. Reload the browser, then select **Steam Tracker Card** in the card picker.
 
@@ -95,9 +104,23 @@ confusing, rename the account device in Home Assistant.
 
 The editor also provides a custom title, layout, appearance, language, and image
 visibility where applicable. Recent games adds a limit (1–5), sorting, and achievement visibility.
+**Show username** controls the account label in the upper-right corner; the
+player name in the profile remains visible. **Show title** controls the heading
+and its icon independently. Hiding the title keeps your custom title saved.
+Both options default to enabled; single-line layouts retain their hidden heading.
 Top games also supports achievement visibility and always shows up to five games.
 The integration currently supplies at most five recent games; sorting only applies
 to that supplied list. “Steam order” preserves the API's order.
+
+Offline profiles show **Last online …** directly below the presence status in
+detailed and compact layouts, using the status sensor's `lastlogoff` timestamp.
+The relative time refreshes every minute without Steam requests. Missing, invalid,
+or future timestamps are hidden. Online profiles do not show a previous logout time.
+When an online player is in a game, the same position shows **Playing: <game name>**
+from that account's current-game sensor instead. This also covers active presence
+states such as Away or Busy. Missing, unknown, unavailable, or idle game data hides
+the line without affecting the rest of the profile; no extra Steam requests are needed.
+The XP label reads **Progress to level …**.
 
 If discovery is unavailable or you use legacy YAML sensors, open **Manual sensor
 assignment** in the editor. Manual assignments override automatic assignments.
@@ -129,6 +152,8 @@ entities:
 | `view` | `profile` | `profile`, `current_game`, `recent_games`, `library_stats`, `player_stats`, `top_games`, `friends`, `games` |
 | `account` | Automatic for one account | Account ID written by the visual editor |
 | `title` | View title | Custom text |
+| `show_title` | `true` | Boolean; hide the heading and icon while preserving `title` |
+| `show_username` | `true` | Boolean; account label in the upper-right corner |
 | `layout` | `detailed` | `detailed`, `compact`, `single_line` |
 | `appearance` | `theme` | `theme`, `steam` |
 | `language` | `auto` | `auto`, `de`, `en`; other HA languages fall back to English |
@@ -220,7 +245,8 @@ Integration and card are separate repositories with independent versions:
 prefix does not require changes to sensor IDs or attributes.
 
 The card repository is [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card).
-Version 0.7.2 is distributed as a standalone JavaScript release asset. HACS
+Integration 0.9.0 and card 0.8.0 are installed and updated separately.
+Version 0.8.0 is distributed as a standalone JavaScript release asset. HACS
 installation and Home Assistant frontend checks remain pending. The matching
 `dist/steam-tracker-card.js` and `hacs.json` use the card's
 repository layout. No CI or publishing configuration is included.

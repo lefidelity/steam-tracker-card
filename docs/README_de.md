@@ -31,6 +31,16 @@ den Anteil an der gesamten Bibliothek und daneben die Spieleanzahl. Ob ein Spiel
 ungespielt ist, bestimmen die exakten Steam-Minuten. Leere Bibliotheken zeigen
 Nullwerte; bei älteren Sensoren erscheinen die Ergänzungen nach dem Update der
 Integration. Der Einzeiler behält seine drei bisherigen Hauptkennzahlen.
+Die kürzeren Verteilungsbeschriftungen lauten **unter 10 h**, **unter 50 h** und
+**über 50 h**. Die Zeitgruppen bleiben 1–<10, 10–<50 und ≥50 Stunden.
+Die Kachel Top-5-Anteil steht neben der Spielquote, oberhalb der gespielten Spiele.
+
+Die Überschriften nutzen Controller für das aktuelle Spiel, Uhr für kürzlich
+gespielte Spiele, Diagramm für Bibliothek-Statistik, Pokal für Top-5-Spiele,
+Personen für Freunde und Bücher für die Spiele-Gesamtübersicht. Unter dem
+aktuellen Spielbild folgen direkt Spielname und Spielzeit. Kürzlich gespielte
+und Top-5-Spiele haben Trennlinien zwischen den Einträgen; Bilder und Spieltitel
+sind oben bündig ausgerichtet.
 
 Ausführlich, Kompakt oder Einzeiler; Home-Assistant-Theme oder Steam-Blau.
 Zusätzliche Karten wie button-card, bar-card oder card-mod werden nicht benötigt.
@@ -50,7 +60,7 @@ Listenfilter gelten lokal für die Karte und werden beim Neuladen zurückgesetzt
   die Installation in einer echten Home-Assistant-Oberfläche muss noch geprüft werden.
 - Die [Steam-Tracker-Integration](https://github.com/lefidelity/steam-tracker).
   Die automatische Kontozuordnung nutzt Sensor-Unique-IDs und Kontogeräte
-  (Integrationsstand `89b2fb8` oder neuer). Ältere registrierte Sensoren können
+  (Integration 0.6.0 oder neuer). Ältere registrierte Sensoren können
   über den Konfigurationseintrag gruppiert werden; YAML-Sensoren lassen sich
   manuell zuweisen.
 - Die Integration muss auf die Steam-Daten zugreifen können. Die Karte behebt
@@ -81,7 +91,7 @@ Tests in einer echten Home-Assistant-Instanz stehen noch aus.
    `<HA-Konfigurationsordner>/www/steam-tracker-card.js` kopieren.
 2. Wenn `www` neu angelegt wurde, Home Assistant neu starten.
 3. Unter **Einstellungen → Dashboards → Ressourcen**
-   `/local/steam-tracker-card.js?v=0.7.2` als **JavaScript-Modul** hinzufügen.
+   `/local/steam-tracker-card.js?v=0.8.0` als **JavaScript-Modul** hinzufügen.
 4. Browser neu laden und die Karte über die Kartenauswahl hinzufügen.
 
 Nur eine Ressource registrieren. Bei manuellen Updates den Versionsparameter
@@ -96,11 +106,27 @@ Kontonamen hilft ein eindeutiger Name für das jeweilige Kontogerät.
 
 Titel, Darstellung, Aussehen, Sprache und Bilder sind einstellbar. Für kürzlich
 gespielte Spiele gibt es zusätzlich Anzahl (1–5), Sortierung und Erfolge.
+**Benutzernamen anzeigen** steuert den Kontonamen rechts oben; der Spielername
+im Profil bleibt sichtbar. **Titel anzeigen** blendet Überschrift und Symbol
+unabhängig davon ein oder aus. Ein eigener Titel bleibt beim Ausblenden gespeichert.
+Beide Optionen sind standardmäßig aktiv (`show_username: true`, `show_title: true`).
+Im Einzeiler bleibt die Kopfzeile wie bisher verborgen.
 Auch bei den Top-5-Spielen lassen sich Erfolge ein- und ausblenden; diese Ansicht
 zeigt immer bis zu fünf Spiele. Alle acht Sensorrollen können manuell zugewiesen werden.
 Die Integration liefert derzeit höchstens fünf kürzlich gespielte Spiele;
 Sortierung und Begrenzung wirken nur auf diese Liste. „Steam-Reihenfolge“ behält
 die Reihenfolge der API bei.
+
+Bei Offline-Profilen steht in Ausführlich und Kompakt **Zuletzt online vor …**
+direkt unter dem Status. Dafür nutzt die Karte `lastlogoff` aus dem Statussensor
+und aktualisiert die relative Zeit jede Minute ohne Steam-Abfragen. Fehlende,
+ungültige oder zukünftige Zeitstempel werden ausgeblendet; bei Online-Profilen
+erscheint keine frühere Abmeldezeit. Läuft bei einem online verbundenen Spieler
+ein Spiel, steht an derselben Stelle **Spielt: <Spielname>** aus dem Spielsensor
+dieses Kontos. Das gilt auch für Status wie Abwesend oder Beschäftigt. Ohne
+laufendes Spiel oder bei fehlenden, unbekannten beziehungsweise nicht verfügbaren
+Spieldaten entfällt die Zeile. Dafür sind keine zusätzlichen Steam-Abfragen nötig.
+Der XP-Text lautet **Fortschritt zu Level …**.
 
 Unter **Sensoren manuell zuweisen** können einzelne Zuordnungen überschrieben
 werden. Das funktioniert auch bei älteren YAML-Sensoren oder fehlendem Zugriff
@@ -171,7 +197,8 @@ Die beiden Projekte heißen `steam-tracker` und `steam-tracker-card`, ohne
 Sensor-IDs und Attribute müssen wegen des Repository-Namens nicht geändert werden.
 
 Die Karte hat mit [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card)
-ein eigenes Repository und eine unabhängige Version. Version 0.7.2 wird als
+ein eigenes Repository und eine unabhängige Version. Integration 0.9.0 und
+Karte 0.8.0 werden separat installiert und aktualisiert. Version 0.8.0 wird als
 einzelne JavaScript-Datei im Release bereitgestellt. HACS-Installation und
 Home-Assistant-Laufzeitprüfungen stehen noch aus.
 

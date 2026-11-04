@@ -1,9 +1,9 @@
-/** Steam Tracker Card v0.7.2 · MIT License · No runtime dependencies. */
+/** Steam Tracker Card v0.8.0 · MIT License · No runtime dependencies. */
 
 export const ROLES = ["status", "profile", "game", "recent_games", "recent_achievements", "playtime", "global_stats", "friends"];
 export const VIEWS = ["profile", "current_game", "recent_games", "library_stats", "player_stats", "top_games", "friends", "games"];
 export const VIEW_ROLES = {
-  profile: ["status", "profile"], current_game: ["game"],
+  profile: ["status", "profile", "game"], current_game: ["game"],
   recent_games: ["recent_games", "recent_achievements"], library_stats: ["playtime"],
   player_stats: ["global_stats"], top_games: ["playtime"], friends: ["friends"], games: ["playtime"],
 };
@@ -16,8 +16,8 @@ export const TRANSLATIONS = {
     game_count: "Games", total_hours: "Total playtime", top_hours: "Top 5 playtime", pile_of_shame: "Under 1 hour",
     played_percentage: "Played library", played_games: "Played games", unplayed_games: "Unplayed games", top_share: "Top 5 share",
     playtime_distribution: "Playtime distribution", distribution_unplayed: "Unplayed",
-    distribution_under_1_hour: "Played under 1 h", distribution_1_to_10_hours: "1–<10 h",
-    distribution_10_to_50_hours: "10–<50 h", distribution_50_hours_or_more: "≥50 h",
+    distribution_under_1_hour: "Played under 1 h", distribution_1_to_10_hours: "Under 10 h",
+    distribution_10_to_50_hours: "Under 50 h", distribution_50_hours_or_more: "Over 50 h",
     unlocked: "Unlocked achievements", possible: "Possible achievements", perfect: "Perfect games",
     completion: "Average completion", badges: "Badges", card_badges: "Game badges",
     search_games: "Search games", search_friends: "Search friends", name_order: "Name A–Z",
@@ -29,7 +29,7 @@ export const TRANSLATIONS = {
     title: "Custom title", layout: "Layout", detailed: "Detailed", compact: "Compact",
     appearance: "Appearance", theme: "Home Assistant theme", steam: "Steam blue",
     language: "Language", auto: "Automatic", show_images: "Show images",
-    show_achievements: "Show achievements", limit: "Number of games",
+    show_achievements: "Show achievements", show_username: "Show username", show_title: "Show title", limit: "Number of games",
     sort: "Sort games by", recent: "Steam order", playtime: "Last two weeks", total: "Total playtime",
     advanced: "Manual sensor assignment", default_entity: "Automatic assignment",
     loading: "Loading Steam accounts…", choose_account: "Select a Steam account in the card editor.",
@@ -42,7 +42,8 @@ export const TRANSLATIONS = {
     unknown_hint: "The integration has not provided a value yet.",
     no_game: "Taking a break", no_game_hint: "No game is currently being played.",
     no_recent: "A quiet fortnight", no_recent_hint: "No games played in the last two weeks.",
-    level: "Level", next_level: "Next level", xp: "XP", hours: "h", last_two_weeks: "Last 2 weeks",
+    level: "Level", next_level: "Progress to level", last_online: "Last online", just_now: "just now", playing: "Playing",
+    xp: "XP", hours: "h", last_two_weeks: "Last 2 weeks",
     lifetime: "All time", achievements: "Achievements", no_achievements: "No achievements",
     unknown_achievements: "Achievement data unavailable", profile_link: "Open Steam profile",
     player: "Steam player", online: "Online", offline: "Offline", busy: "Busy", away: "Away",
@@ -57,8 +58,8 @@ export const TRANSLATIONS = {
     game_count: "Spiele", total_hours: "Gesamtspielzeit", top_hours: "Top-5-Spielzeit", pile_of_shame: "Unter 1 Stunde",
     played_percentage: "Spielquote", played_games: "Gespielte Spiele", unplayed_games: "Ungespielte Spiele", top_share: "Top-5-Anteil",
     playtime_distribution: "Spielzeit-Verteilung", distribution_unplayed: "Ungespielt",
-    distribution_under_1_hour: "Gespielt unter 1 h", distribution_1_to_10_hours: "1–<10 h",
-    distribution_10_to_50_hours: "10–<50 h", distribution_50_hours_or_more: "≥50 h",
+    distribution_under_1_hour: "Gespielt unter 1 h", distribution_1_to_10_hours: "unter 10 h",
+    distribution_10_to_50_hours: "unter 50 h", distribution_50_hours_or_more: "über 50 h",
     unlocked: "Freigeschaltete Erfolge", possible: "Mögliche Erfolge", perfect: "Perfekte Spiele",
     completion: "Durchschnittlicher Abschluss", badges: "Abzeichen", card_badges: "Spielabzeichen",
     search_games: "Spiele suchen", search_friends: "Freunde suchen", name_order: "Name A–Z",
@@ -70,7 +71,7 @@ export const TRANSLATIONS = {
     title: "Eigener Titel", layout: "Darstellung", detailed: "Ausführlich", compact: "Kompakt",
     appearance: "Aussehen", theme: "Home-Assistant-Theme", steam: "Steam-Blau",
     language: "Sprache", auto: "Automatisch", show_images: "Bilder anzeigen",
-    show_achievements: "Erfolge anzeigen", limit: "Anzahl der Spiele",
+    show_achievements: "Erfolge anzeigen", show_username: "Benutzernamen anzeigen", show_title: "Titel anzeigen", limit: "Anzahl der Spiele",
     sort: "Spiele sortieren nach", recent: "Steam-Reihenfolge", playtime: "Letzte zwei Wochen", total: "Gesamtspielzeit",
     advanced: "Sensoren manuell zuweisen", default_entity: "Automatische Zuordnung",
     loading: "Steam-Konten werden geladen…", choose_account: "Wähle ein Steam-Konto im Karteneditor aus.",
@@ -83,7 +84,8 @@ export const TRANSLATIONS = {
     unknown_hint: "Die Integration hat noch keinen Wert geliefert.",
     no_game: "Zeit für eine Pause", no_game_hint: "Aktuell wird kein Spiel gespielt.",
     no_recent: "Eine ruhige Zeit", no_recent_hint: "In den letzten zwei Wochen wurde kein Spiel gespielt.",
-    level: "Level", next_level: "Nächstes Level", xp: "XP", hours: "h", last_two_weeks: "Letzte 2 Wochen",
+    level: "Level", next_level: "Fortschritt zu Level", last_online: "Zuletzt online", just_now: "gerade eben", playing: "Spielt",
+    xp: "XP", hours: "h", last_two_weeks: "Letzte 2 Wochen",
     lifetime: "Insgesamt", achievements: "Erfolge", no_achievements: "Keine Erfolge vorhanden",
     unknown_achievements: "Erfolgsdaten nicht verfügbar", profile_link: "Steam-Profil öffnen",
     player: "Steam-Spieler", online: "Online", offline: "Offline", busy: "Beschäftigt", away: "Abwesend",
@@ -101,13 +103,14 @@ export function languageFor(config = {}, hass = {}) {
 export function normalizeConfig(config) {
   if (!config || typeof config !== "object" || Array.isArray(config)) throw new Error("Invalid configuration");
   const result = { view: "profile", layout: "detailed", appearance: "theme", language: "auto",
-    show_images: true, show_achievements: true, limit: 3, sort: "recent", ...config };
+    show_images: true, show_achievements: true, show_username: true, show_title: true,
+    limit: 3, sort: "recent", ...config };
   for (const [key, options] of Object.entries({ view: VIEWS, layout: ["compact", "detailed", "single_line"],
     appearance: ["theme", "steam"], language: ["auto", "de", "en"], sort: ["recent", "playtime", "total"] })) {
     if (!options.includes(result[key])) throw new Error(`Invalid ${key}: ${String(result[key])}`);
   }
   if (!Number.isInteger(result.limit) || result.limit < 1 || result.limit > 5) throw new Error("limit must be 1–5");
-  for (const key of ["show_images", "show_achievements"]) {
+  for (const key of ["show_images", "show_achievements", "show_username", "show_title"]) {
     if (typeof result[key] !== "boolean") throw new Error(`${key} must be a boolean`);
   }
   for (const key of ["account", "title"]) {
@@ -210,6 +213,19 @@ export function collectionItems(items, { query = "", sort = "name", onlineOnly =
 
 function isOnline(status) {
   return ["Online", "Busy", "Away", "Snooze", "Looking to trade", "Looking to play"].includes(status);
+}
+
+export function lastOnlineText(timestamp, language, now = Date.now()) {
+  if (!Number.isInteger(timestamp) || timestamp <= 0 || timestamp * 1000 > now) return null;
+  const seconds = Math.floor((now - timestamp * 1000) / 1000);
+  const t = TRANSLATIONS[language];
+  let relative = t.just_now;
+  if (seconds >= 60) {
+    const [unit, size] = [["year", 31536000], ["month", 2592000], ["day", 86400],
+      ["hour", 3600], ["minute", 60]].find(([, size]) => seconds >= size);
+    relative = new Intl.RelativeTimeFormat(language, { numeric: "always" }).format(-Math.floor(seconds / size), unit);
+  }
+  return `${t.last_online} ${relative}`;
 }
 
 export function safeUrl(value, allowLocal = false) {
@@ -321,6 +337,9 @@ const ICONS = {
   steam: "M17.5 3a4.5 4.5 0 0 0-4.46 5.1l-4.38 6.37a3.7 3.7 0 0 0-2.17.12L1 12.3v4.4l3.47 1.44a3.75 3.75 0 0 0 7.25-1.3l6.35-4.4A4.5 4.5 0 0 0 17.5 3Zm0 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM8 15a1.75 1.75 0 1 1-1.62 2.4l1.47.61a1 1 0 0 0 .76-1.85l-1.42-.59c.24-.32.52-.57.81-.57Z",
   game: "M7 7h10a4 4 0 0 1 3.9 3.1l1.2 5.4A3.7 3.7 0 0 1 16 19l-2-2h-4l-2 2a3.7 3.7 0 0 1-6.1-3.5l1.2-5.4A4 4 0 0 1 7 7Zm0 3v2H5v2h2v2h2v-2h2v-2H9v-2H7Zm9 1a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Zm3 3a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z",
   clock: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm-1 2v7l5 3 1-1.7-4-2.3V6Z",
+  chart: "M3 3h2v16h16v2H3V3Zm4 9h3v5H7v-5Zm5-5h3v10h-3V7Zm5 3h3v7h-3v-7Z",
+  users: "M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 10c-4 0-7 2-7 5v3h14v-3c0-3-3-5-7-5Zm9-9v2a2 2 0 0 1 0 4v2a4 4 0 0 0 0-8Zm0 10v2c1.5.5 2 1.2 2 2v3h2v-3c0-2-1.5-3.5-4-4Z",
+  library: "M3 3h4v18H3V3Zm6 0h4v18H9V3Zm6.3.5 3.8-1 4.6 17.4-3.8 1L15.3 3.5Z",
   trophy: "M7 2h10v3h4v3a5 5 0 0 1-5 5h-.1a5 5 0 0 1-2.9 1.9V18h4v3H7v-3h4v-3.1A5 5 0 0 1 8.1 13H8a5 5 0 0 1-5-5V5h4V2ZM5 7v1a3 3 0 0 0 2.2 2.9A5 5 0 0 1 7 9V7H5Zm12 0v2c0 .7-.1 1.3-.2 1.9A3 3 0 0 0 19 8V7h-2Z",
   info: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1 4h2v2h-2V6Zm0 4h2v8h-2v-8Z",
   arrow: "M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h6v2H5v12h12v-6h2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z",
@@ -357,12 +376,13 @@ const CARD_STYLES = `
   * { box-sizing:border-box; } ha-card { display:block; background:var(--st-surface); color:var(--st-ink); border-radius:var(--ha-card-border-radius,20px); border:var(--ha-card-border-width,1px) solid var(--ha-card-border-color,var(--st-line)); box-shadow:var(--ha-card-box-shadow,none); overflow:hidden; }
   ha-card.steam { --st-accent:#66c9f4; --st-ink:#edf6ff; --st-muted:#a1b7ca; --st-surface:#142535; --st-line:rgba(170,205,230,.13); background:linear-gradient(135deg,#1b354a,#101d2c); }
   .body { padding:22px; } .heading { display:flex; align-items:center; gap:9px; margin-bottom:22px; } .heading svg { width:19px; color:var(--st-accent); } .eyebrow { margin:0; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; flex:1; } svg { width:20px; height:20px; fill:currentColor; flex-shrink:0; }
-  .account-label { max-width:44%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--st-muted); font-size:11px; } .identity { display:flex; align-items:center; gap:17px; min-width:0; } .identity-text { min-width:0; flex:1; } h2,h3,p { margin:0; } h2 { font-size:25px; font-weight:750; line-height:1.15; letter-spacing:-.035em; overflow-wrap:anywhere; } h3 { font-size:16px; line-height:1.35; font-weight:650; overflow-wrap:anywhere; } .picture { position:relative; background:var(--st-tint); display:grid; place-items:center; overflow:hidden; color:var(--st-accent); flex-shrink:0; } .picture>svg { width:32px; height:32px; opacity:.65; } .picture img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; } .avatar { width:72px; height:72px; border-radius:20px; border:1px solid var(--st-line); }
+  .account-label { margin-left:auto; max-width:44%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--st-muted); font-size:11px; } .identity { display:flex; align-items:center; gap:17px; min-width:0; } .identity-text { min-width:0; flex:1; } h2,h3,p { margin:0; } h2 { font-size:25px; font-weight:750; line-height:1.15; letter-spacing:-.035em; overflow-wrap:anywhere; } h3 { font-size:16px; line-height:1.35; font-weight:650; overflow-wrap:anywhere; } .picture { position:relative; background:var(--st-tint); display:grid; place-items:center; overflow:hidden; color:var(--st-accent); flex-shrink:0; } .picture>svg { width:32px; height:32px; opacity:.65; } .picture img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; } .avatar { width:72px; height:72px; border-radius:20px; border:1px solid var(--st-line); }
+  .last-online,.playing { margin-top:5px; color:var(--st-muted); font-size:11px; overflow-wrap:anywhere; }
   .status { display:inline-flex; align-items:center; gap:7px; margin-top:10px; font-size:12px; color:var(--st-muted); } .dot { width:7px; height:7px; background:var(--st-muted); border-radius:50%; } .status.online { color:#21a77a; } .status.online .dot { background:#21a77a; box-shadow:0 0 0 4px #21a77a14; } .steam .status.online { color:#77e3b6; } .steam .status.online .dot { background:#77e3b6; }
   .level { display:flex; align-items:baseline; gap:6px; margin-top:24px; } .level strong { font-size:34px; font-weight:700; letter-spacing:-.06em; } .level span { color:var(--st-muted); font-size:12px; } .level .xp-total { margin-left:auto; } .progress-meta { display:flex; justify-content:space-between; gap:8px; color:var(--st-muted); font-size:11px; margin-top:13px; } .progress { height:6px; border-radius:20px; overflow:hidden; background:var(--st-line); margin-top:9px; } .progress-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--st-accent),color-mix(in srgb,var(--st-accent) 50%,#5ddfbc)); }
   a { color:var(--st-accent); text-decoration:none; } .profile-link { display:inline-flex; gap:7px; align-items:center; font-size:11px; margin-top:21px; } .profile-link svg { width:13px; height:13px; } .notice { color:var(--st-muted); font-size:12px; margin-top:15px; display:flex; gap:8px; align-items:flex-start; } .notice svg { width:15px; height:15px; } .notice p { line-height:1.5; } .notice strong { font-weight:600; }
-  .hero { width:100%; aspect-ratio:460/215; margin-bottom:19px; border-radius:13px; } .hero>svg { width:48px; height:48px; } .game-title { font-size:27px; } .game-kicker { display:flex; align-items:center; gap:7px; margin-bottom:9px; color:var(--st-accent); font-size:11px; } .game-kicker svg { width:15px; height:15px; } .metrics { display:flex; gap:24px; margin-top:17px; } .metric strong { font-size:20px; font-weight:650; letter-spacing:-.03em; } .metric small { font-size:11px; color:var(--st-muted); margin-left:4px; } .metric p { font-size:10px; color:var(--st-muted); margin-top:4px; }
-  .games { display:flex; flex-direction:column; gap:17px; } .game-row { display:flex; gap:13px; align-items:center; min-width:0; } .game-art { width:110px; aspect-ratio:460/215; border-radius:9px; } .game-content { flex:1; min-width:0; } .row-times { display:flex; flex-wrap:wrap; gap:5px 12px; margin-top:7px; color:var(--st-muted); font-size:11px; line-height:1.4; } .row-times strong { color:var(--st-ink); font-weight:600; } .row-achievements { display:flex; align-items:center; gap:6px; margin-top:9px; font-size:10px; color:var(--st-muted); } .row-achievements svg { width:13px; height:13px; color:var(--st-accent); } .achievement-bar { width:48px; height:3px; margin:0 0 0 auto; } .footnote { margin-top:18px; padding-top:12px; border-top:1px solid var(--st-line); font-size:10px; color:var(--st-muted); }
+  .hero { width:100%; aspect-ratio:460/215; margin-bottom:19px; border-radius:13px; } .hero>svg { width:48px; height:48px; } .game-title { font-size:27px; } .metrics { display:flex; gap:24px; margin-top:17px; } .metric strong { font-size:20px; font-weight:650; letter-spacing:-.03em; } .metric small { font-size:11px; color:var(--st-muted); margin-left:4px; } .metric p { font-size:10px; color:var(--st-muted); margin-top:4px; }
+  .games { display:flex; flex-direction:column; } .game-row { display:flex; gap:13px; align-items:center; min-width:0; } .games .game-row { align-items:flex-start; } .games .game-row + .game-row { margin-top:11px; padding-top:11px; border-top:1px solid var(--st-line); } .game-art { width:110px; aspect-ratio:460/215; border-radius:9px; } .game-content { flex:1; min-width:0; } .row-times { display:flex; flex-wrap:wrap; gap:5px 12px; margin-top:7px; color:var(--st-muted); font-size:11px; line-height:1.4; } .row-times strong { color:var(--st-ink); font-weight:600; } .row-achievements { display:flex; align-items:center; gap:6px; margin-top:9px; font-size:10px; color:var(--st-muted); } .row-achievements svg { width:13px; height:13px; color:var(--st-accent); } .achievement-bar { width:48px; height:3px; margin:0 0 0 auto; } .footnote { margin-top:18px; padding-top:12px; border-top:1px solid var(--st-line); font-size:10px; color:var(--st-muted); }
   .empty { display:flex; flex-direction:column; align-items:center; text-align:center; padding:20px 8px 23px; gap:10px; } .empty-icon { display:grid; place-items:center; width:56px; height:56px; border-radius:18px; background:var(--st-tint); color:var(--st-accent); margin-bottom:5px; } .empty p { color:var(--st-muted); font-size:12px; line-height:1.6; max-width:280px; } .details { display:inline-flex; align-items:center; gap:5px; border:0; background:transparent; color:var(--st-accent); cursor:pointer; font:inherit; font-size:11px; margin-top:3px; padding:8px; border-radius:6px; } button:focus-visible,a:focus-visible { outline:2px solid var(--st-accent); outline-offset:4px; } .details svg { width:14px; height:14px; }
   .stat-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
   .stat { min-width:0; padding:15px; border-radius:12px; background:var(--st-tint); }
@@ -391,9 +411,9 @@ const CARD_STYLES = `
   .compact .level strong { font-size:22px; } .compact .xp-total,.compact .profile-link { display:none; }
   .compact .progress-meta { margin-top:9px; font-size:10px; } .compact .progress { margin-top:5px; height:4px; }
   .compact .current-summary { display:flex; gap:12px; align-items:center; } .compact .current-content { flex:1; min-width:0; }
-  .compact .hero { width:86px; height:48px; margin:0; border-radius:8px; } .compact .game-kicker { display:none; }
+  .compact .hero { width:86px; height:48px; margin:0; border-radius:8px; }
   .compact .metrics { margin-top:5px; } .compact .metric strong { font-size:15px; } .compact .metric p { display:none; }
-  .compact .games { gap:10px; } .compact .game-art { width:60px; } .compact h3 { font-size:13px; }
+  .compact .games .game-row + .game-row { margin-top:7px; padding-top:7px; } .compact .game-art { width:60px; } .compact h3 { font-size:13px; }
   .compact .row-times { margin-top:3px; font-size:10px; } .compact .row-achievements { margin-top:4px; }
   .compact .achievement-bar,.compact .footnote { display:none; } .compact .stat-grid { gap:6px; }
   .compact .stat { padding:9px 10px; border-radius:8px; } .compact .stat-value { font-size:19px; }
@@ -407,12 +427,12 @@ const CARD_STYLES = `
   .single_line h2,.single_line h3 { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:0; }
   .single_line .avatar { width:26px; height:26px; border-radius:7px; } .single_line .status { margin:0; font-size:11px; white-space:nowrap; }
   .single_line .level { margin:0 0 0 auto; gap:4px; white-space:nowrap; } .single_line .level strong { font-size:14px; }
-  .single_line .xp-total,.single_line .progress-meta,.single_line .progress,.single_line .profile-link,.single_line .game-kicker,.single_line .footnote { display:none; }
+  .single_line .xp-total,.single_line .progress-meta,.single_line .progress,.single_line .profile-link,.single_line .footnote { display:none; }
   .single_line .current-summary { display:flex; align-items:center; gap:9px; }
   .single_line .hero { width:45px; height:26px; margin:0; border-radius:5px; } .single_line .current-content { display:flex; flex:1; min-width:0; gap:9px; align-items:center; }
   .single_line .game-title { flex:1; } .single_line .metrics { margin:0; flex-shrink:0; } .single_line .metric { white-space:nowrap; }
   .single_line .metric strong { font-size:13px; } .single_line .metric p { display:none; }
-  .single_line .games { gap:0; } .single_line .game-row { gap:9px; min-height:31px; padding:5px 0; }
+  .single_line .game-row { gap:9px; min-height:31px; padding:5px 0; } .single_line .games .game-row + .game-row { margin-top:0; padding-top:5px; }
   .single_line .game-art { width:45px; height:26px; border-radius:5px; } .single_line .game-content { display:flex; gap:9px; align-items:center; }
   .single_line .game-content h3 { flex:1; } .single_line .row-times { flex-shrink:0; margin:0; font-size:11px; }
   .single_line .row-achievements,.single_line .friend-game { display:none; }
@@ -455,7 +475,7 @@ export class SteamTrackerCard extends HTMLElementBase {
   }
 
   connectedCallback() { connectRegistry(this); this._render(true); }
-  disconnectedCallback() { disconnectRegistry(this); }
+  disconnectedCallback() { disconnectRegistry(this); clearInterval(this._lastOnlineTimer); }
   getGridOptions() { return { columns: 12, rows: "auto", min_columns: 6 }; }
   getCardSize() {
     const list = ["recent_games", "top_games", "friends", "games"].includes(this._config?.view);
@@ -471,9 +491,11 @@ export class SteamTrackerCard extends HTMLElementBase {
 
   _heading(body, label, account) {
     const heading = element("div", "heading");
-    heading.append(icon("steam"), element("p", "eyebrow", this._config.title || label));
-    if (account) heading.append(element("span", "account-label", account.name));
-    body.append(heading);
+    const symbol = { current_game: "game", recent_games: "clock", library_stats: "chart",
+      top_games: "trophy", friends: "users", games: "library" }[this._config.view] || "steam";
+    if (this._config.show_title) heading.append(icon(symbol), element("p", "eyebrow", this._config.title || label));
+    if (this._config.show_username && account) heading.append(element("span", "account-label", account.name));
+    if (heading.childElementCount) body.append(heading);
   }
 
   _empty(body, title, hint, symbol = "info", entityId) {
@@ -535,6 +557,25 @@ export class SteamTrackerCard extends HTMLElementBase {
       const indicator = element("div", `status ${status.state !== "Offline" && names[status.state] ? "online" : ""}`);
       indicator.append(element("span", "dot"), element("span", "", this._t[names[status.state] || "unexpected_status"]));
       text.append(indicator);
+      const lastOnline = status.state === "Offline" && this._config.layout !== "single_line"
+        ? lastOnlineText(status.attributes.lastlogoff, this._language) : null;
+      if (lastOnline) {
+        const lastSeen = element("p", "last-online", lastOnline);
+        text.append(lastSeen);
+        if (this.isConnected) this._lastOnlineTimer = setInterval(() => {
+          lastSeen.textContent = lastOnlineText(status.attributes.lastlogoff, this._language) || "";
+        }, 60000);
+      }
+      if (isOnline(status.state) && this._config.layout !== "single_line") {
+        const game = this._hass.states[entities.game];
+        if (sensorState(game) === "ready" && game.state !== "none") {
+          const name = typeof game.attributes?.name === "string" && game.attributes.name.trim()
+            ? game.attributes.name.trim() : game.state;
+          if (typeof name === "string" && name.trim()) {
+            text.append(element("p", "playing", `${this._t.playing}: ${name.trim()}`));
+          }
+        }
+      }
       identity.append(text);
       summary.append(identity);
     } else this._sensorNotice(body, status, this._t.status);
@@ -549,7 +590,7 @@ export class SteamTrackerCard extends HTMLElementBase {
       const progress = xpProgress(profile.attributes);
       if (progress) {
         const meta = element("div", "progress-meta");
-        meta.append(element("span", "", `${this._t.next_level} · ${this._number(level + 1)}`),
+        meta.append(element("span", "", `${this._t.next_level} ${this._number(level + 1)}`),
           element("span", "", `${this._number(progress.value)} / ${this._number(progress.span)} ${this._t.xp}`));
         body.append(meta);
         this._progress(body, progress.percent, this._t.next_level);
@@ -575,9 +616,7 @@ export class SteamTrackerCard extends HTMLElementBase {
     const summary = element("div", "current-summary");
     const content = element("div", "current-content");
     if (this._config.show_images) summary.append(picture(state.attributes.logo, "hero"));
-    const kicker = element("div", "game-kicker", this._t.current_game);
-    kicker.prepend(icon("game"));
-    content.append(kicker, element("h2", "game-title", state.attributes.name || state.state));
+    content.append(element("h2", "game-title", state.attributes.name || state.state));
     const metrics = element("div", "metrics");
     const metric = element("div", "metric");
     metric.append(element("strong", "", this._number(nonnegative(state.attributes.total_playtime_hours), 1)),
@@ -650,9 +689,9 @@ export class SteamTrackerCard extends HTMLElementBase {
     if (library) {
       for (const [attribute, label, unit] of [
         ["played_percentage", "played_percentage", "%"],
-        ["played_game_count", "played_games"],
-        ["unplayed_game_count", "unplayed_games"],
         ["top_5_playtime_percentage", "top_share", "%"],
+        ["unplayed_game_count", "unplayed_games"],
+        ["played_game_count", "played_games"],
       ]) {
         if (nonnegative(data[attribute]) !== null) stats.push([label, data[attribute], unit]);
       }
@@ -800,12 +839,15 @@ export class SteamTrackerCard extends HTMLElementBase {
     if (!force && this._language === language && this._watched?.length === watched.length
       && this._watched.every((value, index) => value === watched[index])) return;
     this._watched = watched;
+    clearInterval(this._lastOnlineTimer);
+    this._lastOnlineTimer = undefined;
     this._language = language;
     this._t = TRANSLATIONS[language];
     this._card.className = `${this._config.appearance} ${this._config.layout}`;
     const body = element("div", "body");
     this._heading(body, this._t[this._config.view], account);
-    body.title = this._config.layout === "single_line" ? this._config.title || this._t[this._config.view] : "";
+    body.title = this._config.layout === "single_line" && this._config.show_title
+      ? this._config.title || this._t[this._config.view] : "";
     const manual = roles.some((role) => this._config.entities[role]);
     if (!account && !manual) {
       const registry = this._registry;
@@ -905,7 +947,7 @@ export class SteamTrackerCardEditor extends HTMLElementBase {
     form.append(fields);
     const options = ["library_stats", "player_stats", "games"].includes(this._config.view) ? []
       : ["recent_games", "top_games"].includes(this._config.view) ? ["show_images", "show_achievements"] : ["show_images"];
-    for (const key of options) {
+    for (const key of ["show_username", "show_title", ...options]) {
       const label = element("label", "check");
       const check = element("input");
       check.type = "checkbox";
