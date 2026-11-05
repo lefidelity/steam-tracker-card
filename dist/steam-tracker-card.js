@@ -1,7 +1,8 @@
-/** Steam Tracker Card v0.8.0 · MIT License · No runtime dependencies. */
+/** Steam Tracker Card v0.9.5 · MIT License · No runtime dependencies. */
 
 export const ROLES = ["status", "profile", "game", "recent_games", "recent_achievements", "playtime", "global_stats", "friends"];
 export const VIEWS = ["profile", "current_game", "recent_games", "library_stats", "player_stats", "top_games", "friends", "games"];
+export const LIBRARY_FILTERS = ["all", "played", "unplayed", "under_1_hour", "1_to_10_hours", "10_to_50_hours", "50_hours_or_more"];
 export const VIEW_ROLES = {
   profile: ["status", "profile", "game"], current_game: ["game"],
   recent_games: ["recent_games", "recent_achievements"], library_stats: ["playtime"],
@@ -17,11 +18,21 @@ export const TRANSLATIONS = {
     played_percentage: "Played library", played_games: "Played games", unplayed_games: "Unplayed games", top_share: "Top 5 share",
     playtime_distribution: "Playtime distribution", distribution_unplayed: "Unplayed",
     distribution_under_1_hour: "Played under 1 h", distribution_1_to_10_hours: "Under 10 h",
-    distribution_10_to_50_hours: "Under 50 h", distribution_50_hours_or_more: "Over 50 h",
+    distribution_10_to_50_hours: "Under 50 h", distribution_50_hours_or_more: "At least 50 h",
+    distribution_1_to_10_hours_hint: "1 to under 10 hours", distribution_10_to_50_hours_hint: "10 to under 50 hours",
+    distribution_50_hours_or_more_hint: "50 hours or more",
+    show_data_status: "Show data freshness", successfully_updated: "Successfully updated",
+    data_status_hint: "Oldest successful update of the displayed sensors",
     unlocked: "Unlocked achievements", possible: "Possible achievements", perfect: "Perfect games",
     completion: "Average completion", badges: "Badges", card_badges: "Game badges",
     search_games: "Search games", search_friends: "Search friends", name_order: "Name A–Z",
     hours_order: "Most played", all_friends: "All friends", online_only: "Online only",
+    library_sort: "Default library sort", library_filter: "Default library filter", playtime_filter: "Playtime filter",
+    filter_all: "All games", filter_played: "Played", filter_unplayed: "Unplayed",
+    filter_under_1_hour: "Played under 1 h", filter_1_to_10_hours: "1–<10 h",
+    filter_10_to_50_hours: "10–<50 h", filter_50_hours_or_more: "At least 50 h",
+    filter_unavailable: "Playtime filters are unavailable for these data. All games are shown.",
+    item_action: "Name click action", action_none: "No action", action_steam: "Open Steam", action_more_info: "Sensor details",
     no_library: "Your library is empty", no_friends: "No friends yet", no_matches: "No matching results",
     results: "Shown", online_count: "Online",
     status: "Status", game: "Current game", recent_achievements: "Recent achievements",
@@ -59,11 +70,21 @@ export const TRANSLATIONS = {
     played_percentage: "Spielquote", played_games: "Gespielte Spiele", unplayed_games: "Ungespielte Spiele", top_share: "Top-5-Anteil",
     playtime_distribution: "Spielzeit-Verteilung", distribution_unplayed: "Ungespielt",
     distribution_under_1_hour: "Gespielt unter 1 h", distribution_1_to_10_hours: "unter 10 h",
-    distribution_10_to_50_hours: "unter 50 h", distribution_50_hours_or_more: "über 50 h",
+    distribution_10_to_50_hours: "unter 50 h", distribution_50_hours_or_more: "ab 50 h",
+    distribution_1_to_10_hours_hint: "1 bis unter 10 Stunden", distribution_10_to_50_hours_hint: "10 bis unter 50 Stunden",
+    distribution_50_hours_or_more_hint: "50 Stunden oder mehr",
+    show_data_status: "Datenstand anzeigen", successfully_updated: "Erfolgreich aktualisiert",
+    data_status_hint: "Ältester erfolgreicher Abruf der angezeigten Sensoren",
     unlocked: "Freigeschaltete Erfolge", possible: "Mögliche Erfolge", perfect: "Perfekte Spiele",
     completion: "Durchschnittlicher Abschluss", badges: "Abzeichen", card_badges: "Spielabzeichen",
     search_games: "Spiele suchen", search_friends: "Freunde suchen", name_order: "Name A–Z",
     hours_order: "Meistgespielt", all_friends: "Alle Freunde", online_only: "Nur online",
+    library_sort: "Standardsortierung der Bibliothek", library_filter: "Standardfilter der Bibliothek", playtime_filter: "Spielzeitfilter",
+    filter_all: "Alle Spiele", filter_played: "Bereits gespielt", filter_unplayed: "Ungespielt",
+    filter_under_1_hour: "Gespielt unter 1 h", filter_1_to_10_hours: "1 bis unter 10 h",
+    filter_10_to_50_hours: "10 bis unter 50 h", filter_50_hours_or_more: "Ab 50 h",
+    filter_unavailable: "Spielzeitfilter sind für diese Daten nicht verfügbar. Alle Spiele werden angezeigt.",
+    item_action: "Klickaktion für Namen", action_none: "Keine Aktion", action_steam: "Steam öffnen", action_more_info: "Sensordetails",
     no_library: "Deine Bibliothek ist leer", no_friends: "Noch keine Freunde", no_matches: "Keine passenden Ergebnisse",
     results: "Angezeigt", online_count: "Online",
     status: "Status", game: "Aktuelles Spiel", recent_achievements: "Kürzliche Erfolge",
@@ -103,14 +124,15 @@ export function languageFor(config = {}, hass = {}) {
 export function normalizeConfig(config) {
   if (!config || typeof config !== "object" || Array.isArray(config)) throw new Error("Invalid configuration");
   const result = { view: "profile", layout: "detailed", appearance: "theme", language: "auto",
-    show_images: true, show_achievements: true, show_username: true, show_title: true,
-    limit: 3, sort: "recent", ...config };
+    show_images: true, show_achievements: true, show_username: true, show_title: true, show_data_status: false,
+    limit: 3, sort: "recent", library_sort: "hours", library_filter: "all", item_action: "none", ...config };
   for (const [key, options] of Object.entries({ view: VIEWS, layout: ["compact", "detailed", "single_line"],
-    appearance: ["theme", "steam"], language: ["auto", "de", "en"], sort: ["recent", "playtime", "total"] })) {
+    appearance: ["theme", "steam"], language: ["auto", "de", "en"], sort: ["recent", "playtime", "total"],
+    library_sort: ["hours", "name"], library_filter: LIBRARY_FILTERS, item_action: ["none", "steam", "more-info"] })) {
     if (!options.includes(result[key])) throw new Error(`Invalid ${key}: ${String(result[key])}`);
   }
   if (!Number.isInteger(result.limit) || result.limit < 1 || result.limit > 5) throw new Error("limit must be 1–5");
-  for (const key of ["show_images", "show_achievements", "show_username", "show_title"]) {
+  for (const key of ["show_images", "show_achievements", "show_username", "show_title", "show_data_status"]) {
     if (typeof result[key] !== "boolean") throw new Error(`${key} must be a boolean`);
   }
   for (const key of ["account", "title"]) {
@@ -198,26 +220,69 @@ export function recentGames(games, config) {
   return items.slice(0, config.limit);
 }
 
-export function collectionItems(items, { query = "", sort = "name", onlineOnly = false } = {}) {
+export function libraryMinutes(item) {
+  const value = item?.playtime_minutes;
+  return Number.isSafeInteger(value) && value >= 0 ? value : null;
+}
+
+export function libraryFiltersAvailable(items) {
+  return Array.isArray(items) && items.every((item) => libraryMinutes(item) !== null);
+}
+
+function matchesPlaytime(item, filter) {
+  if (filter === "all") return true;
+  const minutes = libraryMinutes(item);
+  if (minutes === null) return false;
+  if (filter === "played") return minutes > 0;
+  if (filter === "unplayed") return minutes === 0;
+  if (filter === "under_1_hour") return minutes > 0 && minutes < 60;
+  if (filter === "1_to_10_hours") return minutes >= 60 && minutes < 600;
+  if (filter === "10_to_50_hours") return minutes >= 600 && minutes < 3000;
+  if (filter === "50_hours_or_more") return minutes >= 3000;
+  return false;
+}
+
+export function collectionItems(items, { query = "", sort = "name", onlineOnly = false, playtimeFilter = "all" } = {}) {
   if (!Array.isArray(items)) return null;
   const search = query.trim().toLocaleLowerCase();
+  const minutes = (item) => libraryMinutes(item) ?? (nonnegative(item.hours) === null ? -1 : item.hours * 60);
   return items.filter((item) => item && typeof item === "object")
     .filter((item) => String(item.personaname || item.name || "").toLocaleLowerCase().includes(search))
     .filter((item) => !onlineOnly || isOnline(item.status))
+    .filter((item) => matchesPlaytime(item, playtimeFilter))
     .sort((a, b) => {
-      const order = sort === "hours" ? (nonnegative(b.hours) ?? -1) - (nonnegative(a.hours) ?? -1)
+      const order = sort === "hours" ? minutes(b) - minutes(a)
         : sort === "status" ? Number(isOnline(b.status)) - Number(isOnline(a.status)) : 0;
       return order || String(a.personaname || a.name || "").localeCompare(String(b.personaname || b.name || ""));
     });
+}
+
+export function steamItemUrl(item, friend = false) {
+  if (!item || typeof item !== "object") return "";
+  if (!friend) {
+    const appid = item.appid ?? item.gameid;
+    if (!["string", "number"].includes(typeof appid) || !/^[1-9]\d*$/.test(String(appid))
+      || !Number.isSafeInteger(Number(appid))) return "";
+    return `https://store.steampowered.com/app/${appid}/`;
+  }
+  const profile = safeUrl(item.profileurl);
+  if (profile) {
+    const url = new URL(profile);
+    if (url.origin === "https://steamcommunity.com" && !url.search && !url.hash
+      && /^\/(?:profiles\/\d{17}|id\/[a-zA-Z0-9_-]+)\/?$/.test(url.pathname)) return url.href;
+  }
+  if (typeof item.steamid === "string" && /^[1-9]\d{16}$/.test(item.steamid)) {
+    return `https://steamcommunity.com/profiles/${item.steamid}/`;
+  }
+  return "";
 }
 
 function isOnline(status) {
   return ["Online", "Busy", "Away", "Snooze", "Looking to trade", "Looking to play"].includes(status);
 }
 
-export function lastOnlineText(timestamp, language, now = Date.now()) {
-  if (!Number.isInteger(timestamp) || timestamp <= 0 || timestamp * 1000 > now) return null;
-  const seconds = Math.floor((now - timestamp * 1000) / 1000);
+function relativeTimeText(timestamp, language, now) {
+  const seconds = Math.floor((now - timestamp) / 1000);
   const t = TRANSLATIONS[language];
   let relative = t.just_now;
   if (seconds >= 60) {
@@ -225,7 +290,31 @@ export function lastOnlineText(timestamp, language, now = Date.now()) {
       ["hour", 3600], ["minute", 60]].find(([, size]) => seconds >= size);
     relative = new Intl.RelativeTimeFormat(language, { numeric: "always" }).format(-Math.floor(seconds / size), unit);
   }
-  return `${t.last_online} ${relative}`;
+  return relative;
+}
+
+export function lastOnlineText(timestamp, language, now = Date.now()) {
+  if (!Number.isInteger(timestamp) || timestamp <= 0 || timestamp * 1000 > now) return null;
+  return `${TRANSLATIONS[language].last_online} ${relativeTimeText(timestamp * 1000, language, now)}`;
+}
+
+function successfulUpdateTime(timestamp, now) {
+  if (typeof timestamp !== "string"
+    || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(timestamp)) return null;
+  const value = Date.parse(timestamp);
+  return Number.isFinite(value) && value > 0 && value <= now ? value : null;
+}
+
+export function successfulUpdateText(timestamp, language, now = Date.now()) {
+  const value = successfulUpdateTime(timestamp, now);
+  return value === null ? null : `${TRANSLATIONS[language].successfully_updated} ${relativeTimeText(value, language, now)}`;
+}
+
+export function oldestSuccessfulUpdate(states, now = Date.now()) {
+  if (!states.length || states.some((state) => sensorState(state) !== "ready")) return null;
+  const timestamps = states.map((state) => successfulUpdateTime(state.attributes?.last_successful_update, now));
+  if (timestamps.some((value) => value === null)) return null;
+  return new Date(Math.min(...timestamps)).toISOString();
 }
 
 export function safeUrl(value, allowLocal = false) {
@@ -378,6 +467,9 @@ const CARD_STYLES = `
   .body { padding:22px; } .heading { display:flex; align-items:center; gap:9px; margin-bottom:22px; } .heading svg { width:19px; color:var(--st-accent); } .eyebrow { margin:0; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; flex:1; } svg { width:20px; height:20px; fill:currentColor; flex-shrink:0; }
   .account-label { margin-left:auto; max-width:44%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--st-muted); font-size:11px; } .identity { display:flex; align-items:center; gap:17px; min-width:0; } .identity-text { min-width:0; flex:1; } h2,h3,p { margin:0; } h2 { font-size:25px; font-weight:750; line-height:1.15; letter-spacing:-.035em; overflow-wrap:anywhere; } h3 { font-size:16px; line-height:1.35; font-weight:650; overflow-wrap:anywhere; } .picture { position:relative; background:var(--st-tint); display:grid; place-items:center; overflow:hidden; color:var(--st-accent); flex-shrink:0; } .picture>svg { width:32px; height:32px; opacity:.65; } .picture img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; } .avatar { width:72px; height:72px; border-radius:20px; border:1px solid var(--st-line); }
   .last-online,.playing { margin-top:5px; color:var(--st-muted); font-size:11px; overflow-wrap:anywhere; }
+  .data-status { display:block; margin-top:16px; padding-top:10px; border-top:1px solid var(--st-line); color:var(--st-muted); font-size:10px; overflow-wrap:anywhere; }
+  .data-status:focus-visible,.distribution-label:focus-visible { outline:2px solid var(--st-accent); outline-offset:3px; }
+  .single_line .data-status { margin-top:7px; padding-top:6px; font-size:9px; }
   .status { display:inline-flex; align-items:center; gap:7px; margin-top:10px; font-size:12px; color:var(--st-muted); } .dot { width:7px; height:7px; background:var(--st-muted); border-radius:50%; } .status.online { color:#21a77a; } .status.online .dot { background:#21a77a; box-shadow:0 0 0 4px #21a77a14; } .steam .status.online { color:#77e3b6; } .steam .status.online .dot { background:#77e3b6; }
   .level { display:flex; align-items:baseline; gap:6px; margin-top:24px; } .level strong { font-size:34px; font-weight:700; letter-spacing:-.06em; } .level span { color:var(--st-muted); font-size:12px; } .level .xp-total { margin-left:auto; } .progress-meta { display:flex; justify-content:space-between; gap:8px; color:var(--st-muted); font-size:11px; margin-top:13px; } .progress { height:6px; border-radius:20px; overflow:hidden; background:var(--st-line); margin-top:9px; } .progress-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--st-accent),color-mix(in srgb,var(--st-accent) 50%,#5ddfbc)); }
   a { color:var(--st-accent); text-decoration:none; } .profile-link { display:inline-flex; gap:7px; align-items:center; font-size:11px; margin-top:21px; } .profile-link svg { width:13px; height:13px; } .notice { color:var(--st-muted); font-size:12px; margin-top:15px; display:flex; gap:8px; align-items:flex-start; } .notice svg { width:15px; height:15px; } .notice p { line-height:1.5; } .notice strong { font-weight:600; }
@@ -402,6 +494,12 @@ const CARD_STYLES = `
   .collection-list .game-row:last-child { border:0; } .collection-list .avatar { width:40px; height:40px; border-radius:12px; }
   .collection-list .status { margin-top:5px; } .collection-total { color:var(--st-muted); font-size:11px; margin-bottom:12px; }
   .row-value { color:var(--st-accent); font-size:13px; white-space:nowrap; flex-shrink:0; }
+  .library-tools { flex-wrap:wrap; } .library-tools input { width:100%; flex:1 0 100%; }
+  .library-tools select { width:calc(50% - 4px); max-width:none; flex:1; }
+  .collection-tools select:disabled { opacity:.65; cursor:not-allowed; }
+  .item-action { color:inherit; font:inherit; letter-spacing:inherit; text-align:inherit; overflow-wrap:anywhere; }
+  button.item-action { display:inline; padding:0; border:0; background:none; cursor:pointer; }
+  .item-action:hover { text-decoration:underline; }
   .friend-game { color:var(--st-muted); font-size:11px; margin-top:5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .compact .body { padding:12px; } .compact .heading { margin-bottom:10px; gap:6px; }
   .compact .heading svg { width:15px; height:15px; } .compact .eyebrow { font-size:10px; letter-spacing:.08em; }
@@ -464,7 +562,11 @@ export class SteamTrackerCard extends HTMLElementBase {
   static getStubConfig() { return { view: "profile" }; }
 
   setConfig(config) {
-    this._config = normalizeConfig(config);
+    const next = normalizeConfig(config);
+    if (this._config?.account !== next.account || this._config?.library_sort !== next.library_sort
+      || this._config?.library_filter !== next.library_filter
+      || ROLES.some((role) => this._config?.entities?.[role] !== next.entities[role])) this._filters = {};
+    this._config = next;
     this._render(true);
   }
 
@@ -475,7 +577,7 @@ export class SteamTrackerCard extends HTMLElementBase {
   }
 
   connectedCallback() { connectRegistry(this); this._render(true); }
-  disconnectedCallback() { disconnectRegistry(this); clearInterval(this._lastOnlineTimer); }
+  disconnectedCallback() { disconnectRegistry(this); clearInterval(this._lastOnlineTimer); clearInterval(this._dataStatusTimer); }
   getGridOptions() { return { columns: 12, rows: "auto", min_columns: 6 }; }
   getCardSize() {
     const list = ["recent_games", "top_games", "friends", "games"].includes(this._config?.view);
@@ -487,6 +589,29 @@ export class SteamTrackerCard extends HTMLElementBase {
   _number(value, digits = 0) {
     if (nonnegative(value) === null) return "—";
     return new Intl.NumberFormat(this._language, { maximumFractionDigits: digits }).format(value);
+  }
+
+  _itemName(name, item, entityId, friend = false) {
+    if (this._config.item_action === "steam") {
+      const url = steamItemUrl(item, friend);
+      if (url) {
+        const link = element("a", "item-action", name);
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.title = this._t.action_steam;
+        return link;
+      }
+    } else if (this._config.item_action === "more-info" && entityId && this._hass.states[entityId]) {
+      const button = element("button", "item-action", name);
+      button.type = "button";
+      button.title = this._t.more_info;
+      button.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", {
+        detail: { entityId }, bubbles: true, composed: true,
+      })));
+      return button;
+    }
+    return document.createTextNode(String(name));
   }
 
   _heading(body, label, account) {
@@ -520,6 +645,25 @@ export class SteamTrackerCard extends HTMLElementBase {
     const notice = element("div", "notice");
     notice.append(icon("info"), element("p", "", text));
     body.append(notice);
+  }
+
+  _dataStatus(body, entities) {
+    if (!this._config.show_data_status) return;
+    let roles = VIEW_ROLES[this._config.view];
+    if (this._config.view === "profile") roles = ["status", "profile", ...(body.querySelector(".playing") ? ["game"] : [])];
+    if (this._config.view === "recent_games") roles = ["recent_games", ...(body.querySelector(".row-achievements") ? ["recent_achievements"] : [])];
+    const timestamp = oldestSuccessfulUpdate(roles.map((role) => this._hass.states[entities[role]]));
+    const text = successfulUpdateText(timestamp, this._language);
+    if (!text) return;
+    const status = element("time", "data-status", text);
+    status.dateTime = timestamp;
+    status.tabIndex = 0;
+    const absolute = new Intl.DateTimeFormat(this._language, { dateStyle: "medium", timeStyle: "medium" }).format(new Date(timestamp));
+    status.title = `${this._t.data_status_hint}: ${absolute}`;
+    body.append(status);
+    if (this.isConnected) this._dataStatusTimer = setInterval(() => {
+      status.textContent = successfulUpdateText(timestamp, this._language) || "";
+    }, 60000);
   }
 
   _sensorNotice(body, state, label) {
@@ -608,7 +752,7 @@ export class SteamTrackerCard extends HTMLElementBase {
     }
   }
 
-  _currentGame(body, state) {
+  _currentGame(body, state, entityId) {
     if (state.state === "none") {
       this._empty(body, this._t.no_game, this._t.no_game_hint, "game");
       return;
@@ -616,7 +760,9 @@ export class SteamTrackerCard extends HTMLElementBase {
     const summary = element("div", "current-summary");
     const content = element("div", "current-content");
     if (this._config.show_images) summary.append(picture(state.attributes.logo, "hero"));
-    content.append(element("h2", "game-title", state.attributes.name || state.state));
+    const title = element("h2", "game-title");
+    title.append(this._itemName(state.attributes.name || state.state, state.attributes, entityId));
+    content.append(title);
     const metrics = element("div", "metrics");
     const metric = element("div", "metric");
     metric.append(element("strong", "", this._number(nonnegative(state.attributes.total_playtime_hours), 1)),
@@ -649,7 +795,9 @@ export class SteamTrackerCard extends HTMLElementBase {
       row.setAttribute("role", "listitem");
       if (this._config.show_images) row.append(picture(game.logo, "game-art"));
       const content = element("div", "game-content");
-      content.append(element("h3", "", game.name || "—"));
+      const title = element("h3");
+      title.append(this._itemName(game.name || "—", game, entities.recent_games));
+      content.append(title);
       const times = element("div", "row-times");
       const recent = element("span");
       recent.append(element("strong", "", `${this._number(nonnegative(game.playtime_2weeks_h), 1)} ${this._t.hours}`));
@@ -724,16 +872,23 @@ export class SteamTrackerCard extends HTMLElementBase {
       const label = this._t[`distribution_${key}`];
       const count = counts[index];
       const row = element("div", "distribution-row");
-      row.append(element("span", "distribution-label", label));
+      const caption = element("span", "distribution-label", label);
+      const hint = this._t[`distribution_${key}_hint`];
+      if (hint) {
+        caption.title = hint;
+        caption.setAttribute("aria-label", hint);
+        caption.tabIndex = 0;
+      }
+      row.append(caption);
       this._progress(row, total ? count / total * 100 : 0,
-        `${label}: ${this._number(count)} / ${this._number(total)}`);
+        `${hint || label}: ${this._number(count)} / ${this._number(total)}`);
       row.append(element("span", "distribution-count", this._number(count)));
       section.append(row);
     });
     body.append(section);
   }
 
-  _topGames(body, state) {
+  _topGames(body, state, entityId) {
     const games = collectionItems(state.attributes.top_5_games, { sort: "hours" });
     if (games === null) return this._empty(body, this._t.unavailable, this._t.unavailable_hint);
     if (!games.length) return this._empty(body, this._t.no_library, "", "game");
@@ -744,7 +899,9 @@ export class SteamTrackerCard extends HTMLElementBase {
       row.setAttribute("role", "listitem");
       if (this._config.show_images) row.append(picture(game.logo, "game-art"));
       const content = element("div", "game-content");
-      content.append(element("h3", "", game.name || "—"));
+      const title = element("h3");
+      title.append(this._itemName(game.name || "—", game, entityId));
+      content.append(title);
       content.append(element("div", "row-times", `${this._number(nonnegative(game.hours), 1)} ${this._t.hours}`));
       if (this._config.show_achievements && this._config.layout !== "single_line") {
         const progress = achievementProgress(game, "achievements_");
@@ -762,20 +919,23 @@ export class SteamTrackerCard extends HTMLElementBase {
     body.append(list);
   }
 
-  _collection(body, state) {
+  _collection(body, state, entityId) {
     const friends = this._config.view === "friends";
     const source = state.attributes[friends ? "friends" : "all_games"];
     if (!Array.isArray(source)) return this._empty(body, this._t.unavailable, this._t.unavailable_hint);
     if (!source.length) return this._empty(body, this._t[friends ? "no_friends" : "no_library"], "", friends ? "steam" : "game");
     this._filters ||= {};
-    const filters = this._filters[this._config.view] ||= { query: "", sort: friends ? "status" : "hours", onlineOnly: false };
-    const tools = element("div", "collection-tools");
+    const filters = this._filters[this._config.view] ||= { query: "", sort: friends ? "status" : this._config.library_sort,
+      onlineOnly: false, playtimeFilter: this._config.library_filter };
+    const canFilter = friends || libraryFiltersAvailable(source);
+    const tools = element("div", friends ? "collection-tools" : "collection-tools library-tools");
     const search = element("input");
     search.type = "search";
     search.placeholder = this._t[friends ? "search_friends" : "search_games"];
     search.setAttribute("aria-label", search.placeholder);
     search.value = filters.query;
     const select = element("select");
+    select.dataset.control = friends ? "friends_filter" : "library_sort";
     select.setAttribute("aria-label", this._t[friends ? "friends" : "sort"]);
     for (const [value, label] of friends ? [["all", "all_friends"], ["online", "online_only"]]
       : [["hours", "hours_order"], ["name", "name_order"]]) {
@@ -785,12 +945,27 @@ export class SteamTrackerCard extends HTMLElementBase {
     }
     select.value = friends ? (filters.onlineOnly ? "online" : "all") : filters.sort;
     tools.append(search, select);
+    if (!friends) {
+      const filter = element("select");
+      filter.dataset.control = "library_filter";
+      filter.setAttribute("aria-label", this._t.playtime_filter);
+      for (const value of LIBRARY_FILTERS) {
+        const option = element("option", "", this._t[`filter_${value}`]);
+        option.value = value;
+        filter.append(option);
+      }
+      filter.value = canFilter ? filters.playtimeFilter : "all";
+      filter.disabled = !canFilter;
+      if (!canFilter) filter.title = this._t.filter_unavailable;
+      filter.addEventListener("change", () => { filters.playtimeFilter = filter.value; renderItems(); });
+      tools.append(filter);
+    }
     const total = element("div", "collection-total");
     total.setAttribute("aria-live", "polite");
     const list = element("div", "collection-list");
     list.setAttribute("role", "list");
     const renderItems = () => {
-      const items = collectionItems(source, filters);
+      const items = collectionItems(source, { ...filters, playtimeFilter: friends || !canFilter ? "all" : filters.playtimeFilter });
       total.textContent = `${this._t.results}: ${this._number(items.length)} / ${this._number(source.length)}`;
       if (friends) total.textContent += ` · ${this._t.online_count}: ${this._number(source.filter((item) => item && isOnline(item.status)).length)}`;
       list.replaceChildren();
@@ -804,7 +979,8 @@ export class SteamTrackerCard extends HTMLElementBase {
         row.setAttribute("role", "listitem");
         if (friends && this._config.show_images) row.append(picture(item.avatar, "avatar", "steam"));
         const content = element("div", "game-content");
-        const name = element("h3", "", item.personaname || item.name || "—");
+        const name = element("h3");
+        name.append(this._itemName(item.personaname || item.name || "—", item, entityId, friends));
         name.title = name.textContent;
         content.append(name);
         if (friends) {
@@ -827,6 +1003,7 @@ export class SteamTrackerCard extends HTMLElementBase {
       renderItems();
     });
     body.append(tools, total, list);
+    if (!canFilter) this._notice(body, this._t.filter_unavailable);
     renderItems();
   }
 
@@ -841,6 +1018,8 @@ export class SteamTrackerCard extends HTMLElementBase {
     this._watched = watched;
     clearInterval(this._lastOnlineTimer);
     this._lastOnlineTimer = undefined;
+    clearInterval(this._dataStatusTimer);
+    this._dataStatusTimer = undefined;
     this._language = language;
     this._t = TRANSLATIONS[language];
     this._card.className = `${this._config.appearance} ${this._config.layout}`;
@@ -860,12 +1039,13 @@ export class SteamTrackerCard extends HTMLElementBase {
       const state = this._hass.states[entities[role]];
       const kind = sensorState(state);
       if (kind !== "ready") this._empty(body, this._t[kind], this._t[`${kind}_hint`], "info", entities[role]);
-      else if (this._config.view === "current_game") this._currentGame(body, state);
+      else if (this._config.view === "current_game") this._currentGame(body, state, entities.game);
       else if (this._config.view === "recent_games") this._recentGames(body, state, entities);
       else if (["library_stats", "player_stats"].includes(this._config.view)) this._statistics(body, state);
-      else if (this._config.view === "top_games") this._topGames(body, state);
-      else this._collection(body, state);
+      else if (this._config.view === "top_games") this._topGames(body, state, entities.playtime);
+      else this._collection(body, state, entities[role]);
     }
+    if (account || manual) this._dataStatus(body, entities);
     this._card.replaceChildren(body);
   }
 }
@@ -944,10 +1124,17 @@ export class SteamTrackerCardEditor extends HTMLElementBase {
         (value) => this._change("limit", Number(value)));
       this._select(fields, t.sort, "sort", [["recent", t.recent], ["playtime", t.playtime], ["total", t.total]], this._config.sort);
     }
+    if (this._config.view === "games") {
+      this._select(fields, t.library_sort, "library_sort", [["hours", t.hours_order], ["name", t.name_order]], this._config.library_sort);
+      this._select(fields, t.library_filter, "library_filter", LIBRARY_FILTERS.map((value) => [value, t[`filter_${value}`]]), this._config.library_filter);
+    }
+    if (["current_game", "recent_games", "top_games", "friends", "games"].includes(this._config.view)) {
+      this._select(fields, t.item_action, "item_action", [["none", t.action_none], ["steam", t.action_steam], ["more-info", t.action_more_info]], this._config.item_action);
+    }
     form.append(fields);
     const options = ["library_stats", "player_stats", "games"].includes(this._config.view) ? []
       : ["recent_games", "top_games"].includes(this._config.view) ? ["show_images", "show_achievements"] : ["show_images"];
-    for (const key of ["show_username", "show_title", ...options]) {
+    for (const key of ["show_username", "show_title", "show_data_status", ...options]) {
       const label = element("label", "check");
       const check = element("input");
       check.type = "checkbox";

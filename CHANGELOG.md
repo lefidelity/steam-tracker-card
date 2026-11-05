@@ -1,5 +1,55 @@
 # Changelog
 
+## 0.9.5 - 2026-11-05
+
+### Changes
+
+- Add full-library filters for played/unplayed games and exact lifetime-minute
+  ranges. Search, sorting, and filtering work together in every layout. Save
+  default library sorting/filtering in the editor; reset temporary choices when
+  changing the account or manual sensor assignments.
+- Add configurable game/friend name actions: **No action**, **Open Steam**, or
+  **Sensor details**. Keep no action as the default, support keyboard navigation,
+  restrict external links to Steam app/profile URLs, and preserve account isolation.
+- Consume integration 0.9.5 `all_games` IDs/minutes without making Steam requests.
+  Older/incomplete minute data disables range filtering and keeps all games
+  visible; existing search/sort and sensor details remain usable.
+- Add **Show data freshness** (`show_data_status`, off by default) for every view
+  and layout. Display localized relative time and an absolute-time tooltip using
+  only confirmed successful-fetch timestamps. Combined views use the oldest
+  displayed source; missing/invalid/future/unavailable data hides the footer.
+- Keep the integration's original summary timestamp on cache hits. Refresh relative
+  text locally each minute and stop its timer when the card is removed.
+- Correct the inclusive final library group to **At least 50 h** / **ab 50 h**.
+  Tooltips and accessible labels explain 1–<10 h, 10–<50 h, and ≥50 h; exact-minute
+  boundaries and counts are unchanged.
+- Update English/German editor text and instructions, fictional preview data,
+  library screenshots, the complete overview, and data-freshness documentation.
+
+### Installation and update
+
+- Install Steam Tracker Card 0.9.5 separately from integration 0.9.5 and reload
+  the browser. Existing card configurations remain valid; name actions and the
+  freshness footer are disabled by default.
+- For manual installation, replace the JavaScript file and register
+  `/local/steam-tracker-card.js?v=0.9.5` as a JavaScript module to refresh the cache.
+- Integration 0.9.5 supplies the IDs, exact minutes, and successful-fetch times
+  needed by the new library filters, full-library Steam links, and freshness footer.
+  Older sensors keep their supported features without fabricated replacement data.
+- The card never calls Steam and needs no API key or runtime dependencies.
+
+### Validation
+
+- JavaScript syntax and 18 logic tests passed.
+- Playwright browser checks passed for German/English, all eight views and three
+  layouts, older/empty/malformed/unavailable data, mobile, editor/account selection,
+  exact-minute filters, secure links, keyboard actions, and untrusted text/URLs.
+- Freshness checks cover source selection, all views/layouts, localization,
+  ticking, reconnect, and timer cleanup. Registry subscriptions also clean up.
+- Documentation links and Git whitespace checks passed. Preview images use
+  fictional accounts/games and local artwork; no external preview requests occurred.
+- Live Home Assistant frontend behavior and HACS installation remain unverified.
+
 ## 0.8.0 - 2026-11-04
 
 ### Changes

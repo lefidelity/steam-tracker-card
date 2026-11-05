@@ -20,13 +20,15 @@ const topGames = [...sampleGames, { appid: 104, name: "Paper Kingdom", logo: art
   achievements_unlocked: [32, 0, 0, null, 8][index], achievements_total: [50, 24, 0, null, 10][index],
 }));
 
-function state(state, attributes = {}) { return { state, attributes }; }
+function state(state, attributes = {}) {
+  return { state, attributes: { last_successful_update: new Date(Date.now() - 180000).toISOString(), ...attributes } };
+}
 
 function data() {
   const states = {
     "sensor.demo_presence": state("Online", { personaname: "Player One", avatar: art("avatar"), profileurl: "https://steamcommunity.com/" }),
     "sensor.demo_level": state("24", { player_xp: 4200, player_xp_needed_to_level_up: 300, player_xp_needed_current_level: 4000 }),
-    "sensor.demo_current": state("Beyond the Blue", { name: "Beyond the Blue", logo: art("space"), total_playtime_hours: 168.6 }),
+    "sensor.demo_current": state("Beyond the Blue", { gameid: "101", name: "Beyond the Blue", logo: art("space"), total_playtime_hours: 168.6 }),
     "sensor.demo_recent": state("Beyond the Blue", { recent_games: sampleGames }),
     "sensor.demo_achievements": state("3", { recent_achievements: [
       { appid: 101, unlocked: 32, total: 50, percent: 64 }, { appid: 102, unlocked: 0, total: 24, percent: 0 },
@@ -38,14 +40,15 @@ function data() {
       top_5_playtime_percentage: 99.9,
       playtime_distribution: { unplayed: 1, under_1_hour: 1, "1_to_10_hours": 0,
         "10_to_50_hours": 3, "50_hours_or_more": 2 },
-      all_games: [...topGames.map(({ name, hours }) => ({ name, hours })),
-        { name: "Little Garden", hours: 0.5 }, { name: "Uncharted Pages", hours: 0 }] }),
+      all_games: [...topGames.map(({ appid, name, hours }) => ({ appid, name, hours, playtime_minutes: Math.round(hours * 60) })),
+        { appid: 106, name: "Little Garden", hours: 0.5, playtime_minutes: 30 },
+        { appid: 107, name: "Uncharted Pages", hours: 0, playtime_minutes: 0 }] }),
     "sensor.demo_stats": state("40", { achievements_total: 40, achievements_possible: 84,
       perfect_games: 0, avg_completion_rate: 48, badge_count: 12, card_badge_count: 5 }),
     "sensor.demo_friends": state("3", { friends: [
-      { personaname: "Alex", status: "Online", avatar: art("avatar"), game: "Beyond the Blue" },
-      { personaname: "Jamie", status: "Away", avatar: art("avatar"), game: null },
-      { personaname: "Morgan", status: "Offline", avatar: art("avatar"), game: null },
+      { personaname: "Alex", status: "Online", avatar: art("avatar"), game: "Beyond the Blue", profileurl: "https://steamcommunity.com/id/fictional-steam-tracker-alex/" },
+      { personaname: "Jamie", status: "Away", avatar: art("avatar"), game: null, profileurl: "https://steamcommunity.com/id/fictional-steam-tracker-jamie/" },
+      { personaname: "Morgan", status: "Offline", avatar: art("avatar"), game: null, profileurl: "https://steamcommunity.com/id/fictional-steam-tracker-morgan/" },
     ] }),
   };
   if (["unknown", "unavailable"].includes(scenario)) {

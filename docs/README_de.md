@@ -40,7 +40,10 @@ ungespielt ist, bestimmen die exakten Steam-Minuten. Leere Bibliotheken zeigen
 Nullwerte; bei älteren Sensoren erscheinen die Ergänzungen nach dem Update der
 Integration. Der Einzeiler behält seine drei bisherigen Hauptkennzahlen.
 Die kürzeren Verteilungsbeschriftungen lauten **unter 10 h**, **unter 50 h** und
-**über 50 h**. Die Zeitgruppen bleiben 1–<10, 10–<50 und ≥50 Stunden.
+**ab 50 h**. Die Zeitgruppen bleiben 1–<10, 10–<50 und ≥50 Stunden.
+Tooltips und zugängliche Beschriftungen erklären **1 bis unter 10 Stunden**,
+**10 bis unter 50 Stunden** und **50 Stunden oder mehr**. Genau 50 Stunden
+gehören bereits zur letzten Gruppe.
 Die Kachel Top-5-Anteil steht neben der Spielquote, oberhalb der gespielten Spiele.
 
 Die Überschriften nutzen Controller für das aktuelle Spiel, Uhr für kürzlich
@@ -60,7 +63,8 @@ Eintrag. Bei Statistiken bleiben die drei wichtigsten Kennzahlen sichtbar,
 XP-Details und Erfolgsaufschlüsselungen entfallen. Freunde und Spiele behalten
 ihre Suchfelder und werden bei langen Listen scrollbar. Die Begrenzung für
 kürzlich gespielte Spiele kürzt diese vollständigen Listen nicht. Suche und
-Listenfilter gelten lokal für die Karte und werden beim Neuladen zurückgesetzt.
+Listenfilter gelten lokal für die Karte. Nach dem Neuladen gelten wieder die
+im Editor gespeicherten Bibliotheksvorgaben.
 
 ## Voraussetzungen
 
@@ -99,7 +103,7 @@ Tests in einer echten Home-Assistant-Instanz stehen noch aus.
    `<HA-Konfigurationsordner>/www/steam-tracker-card.js` kopieren.
 2. Wenn `www` neu angelegt wurde, Home Assistant neu starten.
 3. Unter **Einstellungen → Dashboards → Ressourcen**
-   `/local/steam-tracker-card.js?v=0.8.0` als **JavaScript-Modul** hinzufügen.
+   `/local/steam-tracker-card.js?v=0.9.5` als **JavaScript-Modul** hinzufügen.
 4. Browser neu laden und die Karte über die Kartenauswahl hinzufügen.
 
 Nur eine Ressource registrieren. Bei manuellen Updates den Versionsparameter
@@ -136,6 +140,33 @@ laufendes Spiel oder bei fehlenden, unbekannten beziehungsweise nicht verfügbar
 Spieldaten entfällt die Zeile. Dafür sind keine zusätzlichen Steam-Abfragen nötig.
 Der XP-Text lautet **Fortschritt zu Level …**.
 
+### Datenstand
+
+Die Checkbox **Datenstand anzeigen** (`show_data_status: true`) ergänzt in jeder
+Ansicht und Darstellung eine Zeile wie **Erfolgreich aktualisiert vor 3 Minuten**.
+Sie ist standardmäßig aus. Der Tooltip zeigt Datum und Uhrzeit; die relative Zeit
+aktualisiert sich lokal jede Minute ohne Steam-Abfragen. Beim Entfernen der Karte
+stoppt der Timer.
+
+Dafür muss auch die Integration aktualisiert werden: Ihr neues Attribut
+`last_successful_update` enthält den Zeitpunkt eines erfolgreichen, geprüften
+Abrufs, auch bei unveränderten Werten und bestätigt leeren Ergebnissen.
+Das Attribut ist ab Integration 0.9.5 verfügbar.
+`last_changed` und `last_updated` werden nicht als Ersatz verwendet.
+Der 15-Sekunden-Cache der Integration für Status und aktuelles Spiel behält
+den ursprünglichen Abrufzeitpunkt. Ein Cache-Treffer setzt den Datenstand nicht neu.
+
+Bei mehreren Datenquellen gilt der älteste erfolgreiche Abruf der angezeigten
+Sensoren: im Profil Status und Level sowie das eingeblendete aktuelle Spiel;
+bei kürzlich gespielten Spielen zusätzlich die eingeblendeten Erfolge.
+Fehlt einer beteiligten Quelle ein gültiger Zeitstempel oder ist sie unbekannt
+beziehungsweise nicht verfügbar, bleibt die Zeile verborgen. Ältere Sensoren
+können weiterhin ohne Datenstand genutzt werden.
+
+![Optional data freshness with fictional player statistics](images/data-status.png)
+
+### Manuelle Sensorzuweisung
+
 Unter **Sensoren manuell zuweisen** können einzelne Zuordnungen überschrieben
 werden. Das funktioniert auch bei älteren YAML-Sensoren oder fehlendem Zugriff
 auf die Registrierungen. Ein API-Key gehört nicht in die Kartenkonfiguration.
@@ -160,6 +191,48 @@ layout: compact
 type: custom:steam-tracker-card
 view: library_stats
 layout: single_line
+```
+
+## Bibliotheksfilter und Klickaktionen
+
+Version 0.9.5 ergänzt die **Spiele-Gesamtübersicht** um einen
+**Spielzeitfilter**. Suche, Sortierung und Filter lassen sich in allen drei
+Layouts kombinieren. Im Editor legen **Standardsortierung der Bibliothek** und
+**Standardfilter der Bibliothek** die Vorgaben nach dem Laden fest. Eine Auswahl
+direkt auf der Karte gilt bis zum Neuladen; ein Kontowechsel oder eine geänderte
+manuelle Sensorzuordnung setzt diese vorübergehende Auswahl zurück.
+
+Ungespielt bedeutet genau 0 Minuten, bereits gespielt mindestens 1 Minute.
+Die Zeitbereiche sind 1–59, 60–599, 600–2999 und ab 3000 Minuten. Auch eine
+Minute zählt als gespielt, selbst wenn die gerundete Stundenanzeige `0,0` zeigt.
+
+Für aktuelles Spiel, kürzlich gespielte Spiele, Top-5-Spiele, die gesamte
+Bibliothek und Freunde gibt es **Klickaktion für Namen**: **Keine Aktion**,
+**Steam öffnen** oder **Sensordetails**. Spielenamen öffnen den Steam-Shop,
+Freundesnamen das Steam-Community-Profil, jeweils in einem neuen Tab.
+Sensordetails öffnet den zugehörigen Spiel-, Kürzlich-gespielt-, Spielzeit- oder
+Freundes-Sensor des gewählten Kontos, auch bei manueller Zuordnung. Die Aktionen
+lassen sich per Tastatur bedienen und sind standardmäßig deaktiviert.
+
+Bibliothekslinks benötigen `appid`, die Spielzeitfilter exakte `playtime_minutes`
+in allen `all_games`-Einträgen. Diese Felder liefert Integration 0.9.5 oder neuer;
+dafür müssen Integration und Karte gemeinsam aktualisiert werden. Mit älteren oder unvollständigen Daten bleiben alle Spiele
+sichtbar und die Spielzeitfilter sind deaktiviert. Suche, Sortierung und
+Sensordetails bleiben nutzbar. Fehlt eine gültige Spiel-ID oder Profiladresse,
+bleibt der Name bei der Steam-Aktion ohne Link sichtbar.
+
+```yaml
+type: custom:steam-tracker-card
+view: games
+library_sort: name
+library_filter: unplayed
+item_action: steam
+```
+
+```yaml
+type: custom:steam-tracker-card
+view: friends
+item_action: more-info
 ```
 
 ## Fehlende Daten
@@ -205,8 +278,8 @@ Die beiden Projekte heißen `steam-tracker` und `steam-tracker-card`, ohne
 Sensor-IDs und Attribute müssen wegen des Repository-Namens nicht geändert werden.
 
 Die Karte hat mit [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card)
-ein eigenes Repository und eine unabhängige Version. Integration 0.9.0 und
-Karte 0.8.0 werden separat installiert und aktualisiert. Version 0.8.0 wird als
+ein eigenes Repository und eine unabhängige Version. Integration 0.9.5 und
+Karte 0.9.5 werden separat installiert und aktualisiert. Version 0.9.5 wird als
 einzelne JavaScript-Datei im Release bereitgestellt. HACS-Installation und
 Home-Assistant-Laufzeitprüfungen stehen noch aus.
 

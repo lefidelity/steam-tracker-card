@@ -28,7 +28,9 @@ whether a game is unplayed; rounded hours are not used. Empty libraries show
 zero values. Older sensors omit these additions until the integration is updated.
 The single-line layout keeps its existing three primary metrics.
 The shorter distribution labels are **Under 10 h**, **Under 50 h**, and
-**Over 50 h**; the underlying groups remain 1–<10, 10–<50, and ≥50 hours.
+**At least 50 h**; the underlying groups remain 1–<10, 10–<50, and ≥50 hours.
+Tooltips and accessible labels explain **1 to under 10 hours**, **10 to under
+50 hours**, and **50 hours or more**. Exactly 50 hours belongs to the final group.
 The top-five share tile appears next to played percentage, above played games.
 
 View headings use a controller for the current game, a clock for recently played,
@@ -56,8 +58,8 @@ current-game summary. Single-line mode reduces profiles, current games, and
 statistics to one row; lists use one row per entry. It shows the three primary
 statistics and omits XP details and achievement breakdowns. Friends and the full
 library retain their search controls and scroll when long; neither list is
-truncated to the recent-games limit. Search and list filters are local to the
-card and reset when the page reloads.
+truncated to the recent-games limit. Temporary search, sorting, and filter choices
+are local to the card; reloading restores the configured library defaults.
 
 ## Requirements
 
@@ -93,7 +95,7 @@ Assistant instance are still pending.
 1. Copy `dist/steam-tracker-card.js` to
    `<HA configuration>/www/steam-tracker-card.js`.
 2. If `www` was just created, restart Home Assistant.
-3. Add `/local/steam-tracker-card.js?v=0.8.0` as a **JavaScript module** under
+3. Add `/local/steam-tracker-card.js?v=0.9.5` as a **JavaScript module** under
    **Settings → Dashboards → Resources**.
 4. Reload the browser, then select **Steam Tracker Card** in the card picker.
 
@@ -160,6 +162,7 @@ entities:
 | `title` | View title | Custom text |
 | `show_title` | `true` | Boolean; hide the heading and icon while preserving `title` |
 | `show_username` | `true` | Boolean; account label in the upper-right corner |
+| `show_data_status` | `false` | Boolean; last successful fetch, available in every view and layout |
 | `layout` | `detailed` | `detailed`, `compact`, `single_line` |
 | `appearance` | `theme` | `theme`, `steam` |
 | `language` | `auto` | `auto`, `de`, `en`; other HA languages fall back to English |
@@ -167,6 +170,9 @@ entities:
 | `show_achievements` | `true` | Boolean, recent and top games; hidden in single-line mode |
 | `limit` | `3` | Integer, 1–5 recent games |
 | `sort` | `recent` | `recent`, `playtime` (two weeks), `total` |
+| `library_sort` | `hours` | `hours` (most played first), `name` (A–Z); full-library default |
+| `library_filter` | `all` | `all`, `played`, `unplayed`, `under_1_hour`, `1_to_10_hours`, `10_to_50_hours`, `50_hours_or_more`; full-library default |
+| `item_action` | `none` | `none`, `steam`, `more-info`; click a game or friend name |
 | `entities` | Automatic | Overrides for `status`, `profile`, `game`, `recent_games`, `recent_achievements`, `playtime`, `global_stats`, `friends` |
 
 All view values are listed in the views table above. For example, a compact
@@ -182,6 +188,70 @@ layout: compact
 type: custom:steam-tracker-card
 view: library_stats
 layout: single_line
+```
+
+## Data freshness
+
+In version 0.9.5, enable **Show data freshness** in the visual
+editor, or add `show_data_status: true` to the card YAML. Every view and layout can
+show a footer such as **Successfully updated 3 minutes ago**. Its tooltip gives
+the absolute date/time. Relative text refreshes locally each minute, with no
+Steam requests, and stops updating when the card is removed.
+
+This requires the `last_successful_update` attribute from integration 0.9.5
+or newer. The timestamp records a successful,
+validated sensor fetch, including unchanged values and confirmed empty results.
+It does not use Home Assistant's `last_changed` or `last_updated`.
+The integration's 15-second player-summary cache keeps the original fetch time
+for status and current game. A cache hit does not advance the footer timestamp.
+
+When a view combines sensors, the footer uses the oldest successful timestamp
+of the displayed sources. Profiles include status and level, plus the game
+when playing is shown; recent games include achievements when displayed.
+If any participating source lacks a valid timestamp or is unknown/unavailable,
+the footer stays hidden. Older sensors remain usable with no footer.
+The checkbox is off by default. Update both integration and card to use it.
+
+![Optional data freshness with fictional player statistics](docs/images/data-status.png)
+
+## Library filters and name click actions
+
+These options are available from card 0.9.5. For **All games**,
+choose **Default library sort** and **Default library filter** in the editor.
+The card's search, sort selector, and playtime filter work together in all layouts.
+Runtime choices last until reload; editor defaults remain saved in the card YAML.
+Changing the account or manual sensor assignment resets temporary choices.
+
+Filters use exact lifetime minutes: unplayed is 0; played is at least 1; the
+range groups are 1–59, 60–599, 600–2999, and at least 3000 minutes. A one-minute
+session counts as played even when the displayed hours are `0.0`.
+
+For current, recent, top-five and full-library games, and for friends, choose
+**Name click action**: **No action**, **Open Steam**, or **Sensor details**.
+Game names open the Steam store; friend names open their Steam Community profile.
+Steam links open a new tab. Sensor details opens the current-game, recent-games,
+playtime, or friends sensor of the configured account, including manual assignments.
+Names support keyboard navigation when an action is available.
+
+Full-library Steam links require `appid` and playtime filters require
+`playtime_minutes` on every `all_games` entry. Both fields require integration
+0.9.5 or newer. Update the integration and card together to use them. With older or incomplete data, the filter is
+disabled and all games stay visible; searching, sorting and sensor details still
+work. Missing game IDs or valid profile links keep the name readable without
+opening an external page.
+
+```yaml
+type: custom:steam-tracker-card
+view: games
+library_sort: name
+library_filter: unplayed
+item_action: steam
+```
+
+```yaml
+type: custom:steam-tracker-card
+view: friends
+item_action: more-info
 ```
 
 ## Data states and privacy
@@ -251,8 +321,8 @@ Integration and card are separate repositories with independent versions:
 prefix does not require changes to sensor IDs or attributes.
 
 The card repository is [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card).
-Integration 0.9.0 and card 0.8.0 are installed and updated separately.
-Version 0.8.0 is distributed as a standalone JavaScript release asset. HACS
+Integration 0.9.5 and card 0.9.5 are installed and updated separately.
+Version 0.9.5 is distributed as a standalone JavaScript release asset. HACS
 installation and Home Assistant frontend checks remain pending. The matching
 `dist/steam-tracker-card.js` and `hacs.json` use the card's
 repository layout. No CI or publishing configuration is included.

@@ -4,6 +4,8 @@ import {
   TRANSLATIONS, normalizeConfig, languageFor, sensorIdentity, discoverAccounts,
   resolveEntities, sensorState, xpProgress, achievementProgress, recentGames, safeUrl,
   VIEWS, VIEW_ROLES, ROLES, collectionItems, lastOnlineText,
+  LIBRARY_FILTERS, libraryFiltersAvailable, steamItemUrl,
+  successfulUpdateText, oldestSuccessfulUpdate,
 } from "../dist/steam-tracker-card.js";
 
 const entry = (overrides = {}) => ({
@@ -16,13 +18,20 @@ test("configuration validates choices, sensor IDs, and list bounds", () => {
   assert.equal(normalizeConfig({ limit: 5 }).limit, 5);
   assert.equal(normalizeConfig({}).show_username, true);
   assert.equal(normalizeConfig({}).show_title, true);
+  assert.equal(normalizeConfig({}).show_data_status, false);
+  assert.equal(normalizeConfig({ show_data_status: true }).show_data_status, true);
+  assert.equal(normalizeConfig({}).library_sort, "hours");
+  assert.equal(normalizeConfig({}).library_filter, "all");
+  assert.equal(normalizeConfig({}).item_action, "none");
+  for (const library_filter of LIBRARY_FILTERS) assert.equal(normalizeConfig({ library_filter }).library_filter, library_filter);
   const hidden = normalizeConfig({ show_username: false, show_title: false, title: "My profile" });
   assert.equal(hidden.show_username, false);
   assert.equal(hidden.show_title, false);
   assert.equal(hidden.title, "My profile");
   for (const config of [null, [], { view: "invalid" }, { layout: "other" }, { limit: 0 },
     { limit: 6 }, { limit: "3" }, { show_images: "false" }, { show_username: "false" },
-    { show_title: null }, { entities: [] },
+    { show_title: null }, { show_data_status: "true" }, { entities: [] }, { library_sort: "recent" }, { library_filter: "invalid" },
+    { item_action: "javascript:alert(1)" }, { item_action: { action: "url" } },
     { entities: { game: "light.invalid" } }, { entities: { surprise: "sensor.a" } }]) {
     assert.throws(() => normalizeConfig(config));
   }
@@ -48,6 +57,27 @@ test("last online formats Steam timestamps and rejects missing, invalid or futur
   for (const value of [undefined, null, false, true, "1800000000", "invalid", 0, -1,
     1.5, NaN, Infinity, timestamp + 1, now]) {
     assert.equal(lastOnlineText(value, "en", now), null);
+  }
+});
+
+test("data freshness uses explicit successful fetch timestamps and the oldest source", () => {
+  const timestamp = "2026-11-05T12:00:00.123456+00:00";
+  const now = Date.parse("2026-11-05T12:03:00.123Z");
+  assert.equal(successfulUpdateText(timestamp, "de", now), "Erfolgreich aktualisiert vor 3 Minuten");
+  assert.equal(successfulUpdateText(timestamp, "en", now), "Successfully updated 3 minutes ago");
+  assert.equal(successfulUpdateText(timestamp, "en", Date.parse(timestamp)), "Successfully updated just now");
+  assert.equal(successfulUpdateText("2026-11-04T13:00:00+01:00", "en", now), "Successfully updated 1 day ago");
+  for (const value of [undefined, null, 0, false, true, 1800000000, "invalid", "2026-11-05", "2026-11-05T12:00:00", "2026-11-06T12:00:00Z"]) {
+    assert.equal(successfulUpdateText(value, "en", now), null);
+  }
+  const fresh = { state: "0", attributes: { last_successful_update: timestamp } };
+  const old = { state: "none", attributes: { last_successful_update: "2026-11-04T12:00:00Z" } };
+  assert.equal(oldestSuccessfulUpdate([fresh, old], now), "2026-11-04T12:00:00.000Z");
+  assert.equal(oldestSuccessfulUpdate([fresh], now), "2026-11-05T12:00:00.123Z");
+  for (const states of [[], [undefined], [fresh, { state: "unavailable", attributes: old.attributes }],
+    [fresh, { state: "unknown" }], [fresh, { state: "0", attributes: {} }],
+    [{ state: "0", attributes: {}, last_changed: timestamp, last_updated: timestamp }]]) {
+    assert.equal(oldestSuccessfulUpdate(states, now), null);
   }
 });
 
@@ -81,6 +111,51 @@ test("friends filter includes active presence states without inventing offline s
   assert.deepEqual(collectionItems(friends, { sort: "status", onlineOnly: true }).map((item) => item.personaname), ["Jamie", "Zoe"]);
   assert.equal(collectionItems(friends, { query: "missing" }).length, 0);
   assert.equal(friends[0].personaname, "Zoe");
+});
+
+test("playtime filters use exact, disjoint minute boundaries and compose with search", () => {
+  const games = [0, 1, 2, 59, 60, 599, 600, 2999, 3000].map((minutes) =>
+    Object.freeze({ name: `Game ${minutes}`, hours: Math.round(minutes / 6) / 10, playtime_minutes: minutes }));
+  Object.freeze(games);
+  assert.equal(libraryFiltersAvailable(games), true);
+  const filtered = (playtimeFilter, query = "") => collectionItems(games, { playtimeFilter, query }).map((item) => item.playtime_minutes).sort((a, b) => a - b);
+  assert.deepEqual(filtered("unplayed"), [0]);
+  assert.deepEqual(filtered("played"), [1, 2, 59, 60, 599, 600, 2999, 3000]);
+  assert.deepEqual(filtered("under_1_hour"), [1, 2, 59]);
+  assert.deepEqual(filtered("1_to_10_hours"), [60, 599]);
+  assert.deepEqual(filtered("10_to_50_hours"), [600, 2999]);
+  assert.deepEqual(filtered("50_hours_or_more"), [3000]);
+  assert.deepEqual(filtered("played", "GAME 2"), [2, 2999]);
+  assert.deepEqual(filtered("unplayed", "missing"), []);
+  assert.deepEqual(collectionItems(games.slice(0, 3), { sort: "hours" }).map((item) => item.playtime_minutes), [2, 1, 0]);
+});
+
+test("legacy and invalid minutes never become unplayed or range-filter matches", () => {
+  assert.equal(libraryFiltersAvailable(null), false);
+  for (const value of [undefined, null, true, false, -1, 1.5, "0", NaN, Infinity]) {
+    const game = { name: "Unknown", hours: 0, playtime_minutes: value };
+    assert.equal(libraryFiltersAvailable([{ playtime_minutes: 0 }, game]), false);
+    assert.equal(collectionItems([game], { playtimeFilter: "all" }).length, 1);
+    for (const playtimeFilter of LIBRARY_FILTERS.filter((value) => value !== "all")) {
+      assert.deepEqual(collectionItems([game], { playtimeFilter }), []);
+    }
+  }
+});
+
+test("Steam game and friend links accept identifiers and restrict profile origins", () => {
+  assert.equal(steamItemUrl({ appid: 101 }), "https://store.steampowered.com/app/101/");
+  assert.equal(steamItemUrl({ gameid: "102" }), "https://store.steampowered.com/app/102/");
+  assert.equal(steamItemUrl({ profileurl: "https://steamcommunity.com/id/fictional-steam-tracker-alex/" }, true),
+    "https://steamcommunity.com/id/fictional-steam-tracker-alex/");
+  for (const appid of [undefined, null, true, 0, -1, 1.5, "101/../../login", "javascript:alert(1)", "1e3", "01", Number.MAX_SAFE_INTEGER + 1]) {
+    assert.equal(steamItemUrl({ appid }), "");
+  }
+  for (const profileurl of ["javascript:alert(1)", "https://evil.example/id/name", "https://steamcommunity.com.evil.example/id/name",
+    "https://user:secret@steamcommunity.com/id/name", "http://steamcommunity.com/id/name",
+    "https://steamcommunity.com/id/name?redirect=evil", "https://steamcommunity.com/linkfilter/?url=evil", null]) {
+    assert.equal(steamItemUrl({ profileurl }, true), "");
+  }
+  assert.equal(steamItemUrl(null), "");
 });
 
 test("German and English expose the same labels and follow HA's language", () => {
