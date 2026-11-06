@@ -1,4 +1,4 @@
-/** Steam Tracker Card v0.9.5 · MIT License · No runtime dependencies. */
+/** Steam Tracker Card v0.9.8 · MIT License · No runtime dependencies. */
 
 export const ROLES = ["status", "profile", "game", "recent_games", "recent_achievements", "playtime", "global_stats", "friends"];
 export const VIEWS = ["profile", "current_game", "recent_games", "library_stats", "player_stats", "top_games", "friends", "games"];
@@ -25,6 +25,14 @@ export const TRANSLATIONS = {
     data_status_hint: "Oldest successful update of the displayed sensors",
     unlocked: "Unlocked achievements", possible: "Possible achievements", perfect: "Perfect games",
     completion: "Average completion", badges: "Badges", card_badges: "Game badges",
+    overall_completion: "Overall achievement rate", remaining_achievements: "Locked achievements",
+    completion_hint: "Average of each game's completion; each game has equal weight",
+    overall_completion_hint: "Unlocked achievements divided by all possible achievements",
+    completion_distribution: "Completion distribution", games_without_achievements: "Games without achievements",
+    completion_not_started: "0%", completion_under_25: ">0–<25%", completion_25_to_50: "25–<50%",
+    completion_50_to_75: "50–<75%", completion_75_to_100: "75–<100%", completion_complete: "100%",
+    completion_candidates: "Next completion candidates", remaining: "remaining",
+    no_completion_candidates: "No incomplete games with achievements",
     search_games: "Search games", search_friends: "Search friends", name_order: "Name A–Z",
     hours_order: "Most played", all_friends: "All friends", online_only: "Online only",
     library_sort: "Default library sort", library_filter: "Default library filter", playtime_filter: "Playtime filter",
@@ -77,6 +85,14 @@ export const TRANSLATIONS = {
     data_status_hint: "Ältester erfolgreicher Abruf der angezeigten Sensoren",
     unlocked: "Freigeschaltete Erfolge", possible: "Mögliche Erfolge", perfect: "Perfekte Spiele",
     completion: "Durchschnittlicher Abschluss", badges: "Abzeichen", card_badges: "Spielabzeichen",
+    overall_completion: "Gesamt-Erfolgsquote", remaining_achievements: "Gesperrte Erfolge",
+    completion_hint: "Durchschnitt der Spielabschlüsse; jedes Spiel zählt gleich viel",
+    overall_completion_hint: "Freigeschaltete Erfolge geteilt durch alle möglichen Erfolge",
+    completion_distribution: "Abschlussverteilung", games_without_achievements: "Spiele ohne Erfolge",
+    completion_not_started: "0 %", completion_under_25: ">0–<25 %", completion_25_to_50: "25–<50 %",
+    completion_50_to_75: "50–<75 %", completion_75_to_100: "75–<100 %", completion_complete: "100 %",
+    completion_candidates: "Nächste Abschlusskandidaten", remaining: "verbleibend",
+    no_completion_candidates: "Keine unvollständigen Spiele mit Erfolgen",
     search_games: "Spiele suchen", search_friends: "Freunde suchen", name_order: "Name A–Z",
     hours_order: "Meistgespielt", all_friends: "Alle Freunde", online_only: "Nur online",
     library_sort: "Standardsortierung der Bibliothek", library_filter: "Standardfilter der Bibliothek", playtime_filter: "Spielzeitfilter",
@@ -317,6 +333,42 @@ export function oldestSuccessfulUpdate(states, now = Date.now()) {
   return new Date(Math.min(...timestamps)).toISOString();
 }
 
+export const COMPLETION_GROUPS = ["not_started", "under_25", "25_to_50", "50_to_75", "75_to_100", "complete"];
+
+export function achievementTotals(data) {
+  const unlocked = data.achievements_total, possible = data.achievements_possible;
+  const remaining = data.achievements_remaining, percent = data.overall_completion_rate;
+  if (![unlocked, possible, remaining].every((value) => Number.isSafeInteger(value) && value >= 0)
+    || unlocked > possible || remaining !== possible - unlocked) return null;
+  if (possible === 0) return percent === null ? { remaining, percent: null } : null;
+  return typeof percent === "number" && Number.isFinite(percent) && percent >= 0 && percent <= 100
+    && Math.abs(percent - unlocked / possible * 100) <= .050000001 ? { remaining, percent } : null;
+}
+
+export function completionDistribution(data) {
+  const total = data.games_with_achievements;
+  const counts = COMPLETION_GROUPS.map((key) => data.completion_distribution?.[key]);
+  if (!Number.isSafeInteger(total) || total < 0
+    || !counts.every((count) => Number.isSafeInteger(count) && count >= 0)
+    || counts.reduce((sum, count) => sum + count, 0) !== total
+    || counts.at(-1) !== data.perfect_games) return null;
+  return { total, counts };
+}
+
+export function completionCandidates(value) {
+  if (!Array.isArray(value) || value.length > 5) return null;
+  const ids = new Set();
+  for (const game of value) {
+    if (!game || typeof game !== "object" || !Number.isSafeInteger(game.appid) || game.appid <= 0
+      || (game.name != null && typeof game.name !== "string")
+      || !Number.isSafeInteger(game.unlocked) || !Number.isSafeInteger(game.total)
+      || game.unlocked < 0 || game.total <= game.unlocked
+      || game.remaining !== game.total - game.unlocked || ids.has(game.appid)) return null;
+    ids.add(game.appid);
+  }
+  return value;
+}
+
 export function safeUrl(value, allowLocal = false) {
   if (typeof value !== "string" || !value.trim()) return "";
   try {
@@ -485,6 +537,10 @@ const CARD_STYLES = `
   .distribution-row { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(45px,1fr) auto; align-items:center; gap:10px; margin-top:10px; font-size:11px; color:var(--st-muted); }
   .distribution-label { overflow-wrap:anywhere; } .distribution-count { min-width:2ch; text-align:right; font-variant-numeric:tabular-nums; color:var(--st-ink); }
   .distribution-row .progress { margin:0; } .compact .distribution { margin-top:12px; padding-top:10px; }
+  .completion-candidates .game-row { justify-content:space-between; padding:8px 0; gap:12px; }
+  .completion-candidates .game-row + .game-row { border-top:1px solid var(--st-line); }
+  .candidate-progress,.candidate-empty { font-size:11px; color:var(--st-muted); margin:4px 0 0; }
+  .completion-candidates .row-value { white-space:normal; text-align:right; }
   .collection-tools { display:flex; gap:8px; margin-bottom:16px; }
   .collection-tools input,.collection-tools select { min-width:0; min-height:36px; border:1px solid var(--st-line); border-radius:8px; background:var(--st-surface); color:var(--st-ink); padding:7px 9px; font:inherit; font-size:12px; }
   .collection-tools input { flex:1; width:50%; } .collection-tools select { max-width:45%; }
@@ -822,7 +878,7 @@ export class SteamTrackerCard extends HTMLElementBase {
     body.append(list, element("div", "footnote", this._t.last_two_weeks));
   }
 
-  _statistics(body, state) {
+  _statistics(body, state, entityId) {
     const data = state.attributes;
     const library = this._config.view === "library_stats";
     const stats = library ? [
@@ -843,11 +899,15 @@ export class SteamTrackerCard extends HTMLElementBase {
       ]) {
         if (nonnegative(data[attribute]) !== null) stats.push([label, data[attribute], unit]);
       }
+    } else {
+      const totals = achievementTotals(data);
+      if (totals) stats.push(["overall_completion", totals.percent, "%"], ["remaining_achievements", totals.remaining]);
     }
     for (const [label, value, unit] of this._config.layout === "single_line" ? stats.slice(0, 3) : stats) {
       const tile = element("div", "stat");
       const formatted = `${this._number(nonnegative(value), unit ? 1 : 0)}${unit ? ` ${unit}` : ""}`;
       tile.title = `${this._t[label]}: ${formatted}`;
+      if (this._t[`${label}_hint`]) tile.title += ` · ${this._t[`${label}_hint`]}`;
       tile.setAttribute("aria-label", tile.title);
       const number = element("strong", "stat-value", formatted);
       const shortLabel = { total_hours: "", unlocked: this._t.achievements, completion: "", perfect: this._t.perfect };
@@ -857,6 +917,57 @@ export class SteamTrackerCard extends HTMLElementBase {
     }
     body.append(grid);
     if (library && this._config.layout !== "single_line") this._libraryDistribution(body, data);
+    if (!library && this._config.layout !== "single_line") {
+      this._completionDistribution(body, data);
+      this._completionCandidates(body, data, entityId);
+    }
+  }
+
+  _completionDistribution(body, data) {
+    const distribution = completionDistribution(data);
+    if (!distribution) return;
+    const { total, counts } = distribution;
+    const section = element("section", "distribution completion-distribution");
+    section.setAttribute("aria-label", this._t.completion_distribution);
+    section.append(element("h3", "", this._t.completion_distribution));
+    COMPLETION_GROUPS.forEach((key, index) => {
+      const label = this._t[`completion_${key}`], count = counts[index];
+      const row = element("div", "distribution-row");
+      row.append(element("span", "distribution-label", label));
+      this._progress(row, total ? count / total * 100 : 0,
+        `${label}: ${this._number(count)} / ${this._number(total)}`);
+      row.append(element("span", "distribution-count", this._number(count)));
+      section.append(row);
+    });
+    if (Number.isSafeInteger(data.games_without_achievements) && data.games_without_achievements >= 0) {
+      section.append(element("p", "candidate-progress",
+        `${this._t.games_without_achievements}: ${this._number(data.games_without_achievements)}`));
+    }
+    body.append(section);
+  }
+
+  _completionCandidates(body, data, entityId) {
+    const candidates = completionCandidates(data.completion_candidates);
+    if (candidates === null) return;
+    const section = element("section", "distribution completion-candidates");
+    section.setAttribute("aria-label", this._t.completion_candidates);
+    section.append(element("h3", "", this._t.completion_candidates));
+    if (!candidates.length) section.append(element("p", "candidate-empty", this._t.no_completion_candidates));
+    const list = element("div", "candidate-list");
+    list.setAttribute("role", "list");
+    for (const game of candidates) {
+      const row = element("div", "game-row");
+      row.setAttribute("role", "listitem");
+      const content = element("div", "game-content");
+      const title = element("h3");
+      title.append(this._itemName(game.name || "—", game, entityId));
+      content.append(title, element("p", "candidate-progress",
+        `${this._number(game.unlocked)} / ${this._number(game.total)} ${this._t.achievements}`));
+      row.append(content, element("span", "row-value", `${this._number(game.remaining)} ${this._t.remaining}`));
+      list.append(row);
+    }
+    section.append(list);
+    body.append(section);
   }
 
   _libraryDistribution(body, data) {
@@ -1041,7 +1152,7 @@ export class SteamTrackerCard extends HTMLElementBase {
       if (kind !== "ready") this._empty(body, this._t[kind], this._t[`${kind}_hint`], "info", entities[role]);
       else if (this._config.view === "current_game") this._currentGame(body, state, entities.game);
       else if (this._config.view === "recent_games") this._recentGames(body, state, entities);
-      else if (["library_stats", "player_stats"].includes(this._config.view)) this._statistics(body, state);
+      else if (["library_stats", "player_stats"].includes(this._config.view)) this._statistics(body, state, entities[role]);
       else if (this._config.view === "top_games") this._topGames(body, state, entities.playtime);
       else this._collection(body, state, entities[role]);
     }

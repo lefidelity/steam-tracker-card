@@ -6,6 +6,11 @@ dashboard. Includes a visual editor, English and German, and light/dark theme su
 
 [Deutsche Anleitung](docs/README_de.md)
 
+The integration documents sensor states, attribute types, and empty/error values
+in its [English sensor reference](https://github.com/lefidelity/steam-tracker/blob/main/docs/sensors_en.md)
+and [German sensor reference](https://github.com/lefidelity/steam-tracker/blob/main/docs/sensors_de.md).
+The integration can also be used independently of this card.
+
 ## Views
 
 | View | Content |
@@ -95,7 +100,7 @@ Assistant instance are still pending.
 1. Copy `dist/steam-tracker-card.js` to
    `<HA configuration>/www/steam-tracker-card.js`.
 2. If `www` was just created, restart Home Assistant.
-3. Add `/local/steam-tracker-card.js?v=0.9.5` as a **JavaScript module** under
+3. Add `/local/steam-tracker-card.js?v=0.9.8` as a **JavaScript module** under
    **Settings → Dashboards → Resources**.
 4. Reload the browser, then select **Steam Tracker Card** in the card picker.
 
@@ -174,6 +179,36 @@ entities:
 | `library_filter` | `all` | `all`, `played`, `unplayed`, `under_1_hour`, `1_to_10_hours`, `10_to_50_hours`, `50_hours_or_more`; full-library default |
 | `item_action` | `none` | `none`, `steam`, `more-info`; click a game or friend name |
 | `entities` | Automatic | Overrides for `status`, `profile`, `game`, `recent_games`, `recent_achievements`, `playtime`, `global_stats`, `friends` |
+
+### Additional player statistics (0.9.8)
+
+With integration 0.9.8 and card 0.9.8, `player_stats` adds **Overall achievement
+rate** and **Locked achievements**, six completion-distribution bars, and up to
+five **Next completion candidates**. Detailed and compact layouts show the
+additions automatically; single-line keeps its three original metrics. Older
+sensors keep the existing six tiles; invalid or incomplete additions are hidden.
+No extra Steam requests are needed.
+
+Overall achievement rate is unlocked / possible achievements. Average completion
+continues to weight each game equally. For games at 1/1 and 0/99 these are 1% and
+50%, respectively. When no achievements are possible, the overall rate is shown
+as unavailable rather than 0%; confirmed zero counts remain visible.
+
+The six groups use exact progress: 0%, >0–<25%, 25–<50%, 50–<75%, 75–<100%, and
+100%. Counts must sum to the number of games with achievements and the completed
+group must match perfect games. Games without achievements appear separately.
+Candidates are ranked by fewest locked achievements, then highest exact progress,
+name, and app ID. Completed games and games without achievements are excluded;
+unstarted games can qualify. Names support the existing `item_action` setting.
+The recent-games `limit` does not truncate the five candidates. Empty candidate
+lists display an explicit message.
+
+These additions consume `achievements_remaining`, `overall_completion_rate`,
+`games_with_achievements`, `games_without_achievements`, `completion_distribution`,
+and `completion_candidates` from integration 0.9.8; 0.9.5 alone
+does not provide them. Integration and card are updated separately.
+
+![Player statistics additions with fictional games](docs/images/player-statistics.png)
 
 All view values are listed in the views table above. For example, a compact
 friends card and a single-line library summary:
@@ -321,8 +356,8 @@ Integration and card are separate repositories with independent versions:
 prefix does not require changes to sensor IDs or attributes.
 
 The card repository is [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card).
-Integration 0.9.5 and card 0.9.5 are installed and updated separately.
-Version 0.9.5 is distributed as a standalone JavaScript release asset. HACS
+Integration 0.9.8 and card 0.9.8 are installed and updated separately.
+Version 0.9.8 is distributed as a standalone JavaScript release asset. HACS
 installation and Home Assistant frontend checks remain pending. The matching
 `dist/steam-tracker-card.js` and `hacs.json` use the card's
 repository layout. No CI or publishing configuration is included.

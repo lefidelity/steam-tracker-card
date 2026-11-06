@@ -6,6 +6,11 @@ Mit visuellem Editor, Deutsch/Englisch und Unterstützung für helle und dunkle 
 
 [English documentation and full configuration reference](../README.md)
 
+Zustände, Attributtypen und Leer-/Fehlerwerte beschreibt die Integration in der
+[deutschen Sensorreferenz](https://github.com/lefidelity/steam-tracker/blob/main/docs/sensors_de.md)
+und der [englischen Referenz](https://github.com/lefidelity/steam-tracker/blob/main/docs/sensors_en.md).
+Die Integration kann auch unabhängig von dieser Karte verwendet werden.
+
 ![Alle acht Karten in Steam-Blau, Voll, Englisch mit erfundenen Beispieldaten](preview.png)
 
 [Bild-Dokumentation: alle Ansichten, Darstellungen, Sprachen und Layouts](visual-guide.md).
@@ -103,7 +108,7 @@ Tests in einer echten Home-Assistant-Instanz stehen noch aus.
    `<HA-Konfigurationsordner>/www/steam-tracker-card.js` kopieren.
 2. Wenn `www` neu angelegt wurde, Home Assistant neu starten.
 3. Unter **Einstellungen → Dashboards → Ressourcen**
-   `/local/steam-tracker-card.js?v=0.9.5` als **JavaScript-Modul** hinzufügen.
+   `/local/steam-tracker-card.js?v=0.9.8` als **JavaScript-Modul** hinzufügen.
 4. Browser neu laden und die Karte über die Kartenauswahl hinzufügen.
 
 Nur eine Ressource registrieren. Bei manuellen Updates den Versionsparameter
@@ -164,6 +169,39 @@ beziehungsweise nicht verfügbar, bleibt die Zeile verborgen. Ältere Sensoren
 können weiterhin ohne Datenstand genutzt werden.
 
 ![Optional data freshness with fictional player statistics](images/data-status.png)
+
+### Erweiterte Spieler-Statistik (0.9.8)
+
+Mit Integration 0.9.8 und Karte 0.9.8 zeigt `player_stats` zusätzlich die
+**Gesamt-Erfolgsquote**, **Gesperrte Erfolge**, sechs Balken zur Abschlussverteilung
+und bis zu fünf **Nächste Abschlusskandidaten**. Ausführliche und kompakte
+Darstellung zeigen die Ergänzungen automatisch; der Einzeiler behält seine drei
+bisherigen Kennzahlen. Ältere Sensoren behalten die bisherigen sechs Kacheln.
+Ungültige oder unvollständige Ergänzungen bleiben verborgen. Zusätzliche
+Steam-Abfragen sind nicht nötig.
+
+Die Gesamt-Erfolgsquote berechnet freigeschaltete / mögliche Erfolge. Beim
+durchschnittlichen Abschluss zählt jedes Spiel gleich viel: Spiele mit 1/1 und
+0/99 ergeben insgesamt 1 %, im Durchschnitt aber 50 %. Sind keine Erfolge
+möglich, erscheint die Gesamtquote als unbekannt; bestätigte Nullwerte bleiben
+sichtbar.
+
+Die Gruppen verwenden ungerundete Fortschritte: 0 %, >0–<25 %, 25–<50 %,
+50–<75 %, 75–<100 % und 100 %. Ihre Summe muss der Anzahl der Spiele mit Erfolgen
+entsprechen, die letzte Gruppe der Zahl perfekter Spiele. Spiele ohne Erfolge
+stehen separat. Kandidaten werden nach verbleibenden Erfolgen, dann höherem
+exaktem Fortschritt, Namen und App-ID sortiert. Vollständige Spiele und Spiele
+ohne Erfolge sind ausgeschlossen; Spiele ohne freigeschalteten Erfolg können
+Kandidaten sein. Die vorhandene Einstellung `item_action` gilt auch für ihre
+Namen. `limit` für kürzlich gespielte Spiele begrenzt die fünf Kandidaten nicht.
+Eine leere Kandidatenliste wird ausdrücklich angezeigt.
+
+Die Ergänzungen nutzen `achievements_remaining`, `overall_completion_rate`,
+`games_with_achievements`, `games_without_achievements`, `completion_distribution`
+und `completion_candidates` aus Integration 0.9.8. Version 0.9.5
+allein liefert diese Attribute nicht; Integration und Karte separat aktualisieren.
+
+![Player statistics additions with fictional games](images/player-statistics.png)
 
 ### Manuelle Sensorzuweisung
 
@@ -278,8 +316,8 @@ Die beiden Projekte heißen `steam-tracker` und `steam-tracker-card`, ohne
 Sensor-IDs und Attribute müssen wegen des Repository-Namens nicht geändert werden.
 
 Die Karte hat mit [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card)
-ein eigenes Repository und eine unabhängige Version. Integration 0.9.5 und
-Karte 0.9.5 werden separat installiert und aktualisiert. Version 0.9.5 wird als
+ein eigenes Repository und eine unabhängige Version. Integration 0.9.8 und
+Karte 0.9.8 werden separat installiert und aktualisiert. Version 0.9.8 wird als
 einzelne JavaScript-Datei im Release bereitgestellt. HACS-Installation und
 Home-Assistant-Laufzeitprüfungen stehen noch aus.
 

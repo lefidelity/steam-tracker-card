@@ -6,6 +6,7 @@ import {
   VIEWS, VIEW_ROLES, ROLES, collectionItems, lastOnlineText,
   LIBRARY_FILTERS, libraryFiltersAvailable, steamItemUrl,
   successfulUpdateText, oldestSuccessfulUpdate,
+  achievementTotals, completionDistribution, completionCandidates,
 } from "../dist/steam-tracker-card.js";
 
 const entry = (overrides = {}) => ({
@@ -38,6 +39,54 @@ test("configuration validates choices, sensor IDs, and list bounds", () => {
   const original = { entities: { game: "sensor.custom_game" } };
   normalizeConfig(original).entities.game = "sensor.changed";
   assert.equal(original.entities.game, "sensor.custom_game");
+});
+
+test("achievement totals distinguish zero progress, absent denominators and inconsistent data", () => {
+  const data = { achievements_total: 1, achievements_possible: 100,
+    achievements_remaining: 99, overall_completion_rate: 1 };
+  assert.deepEqual(achievementTotals(data), { remaining: 99, percent: 1 });
+  assert.deepEqual(achievementTotals({ achievements_total: 0, achievements_possible: 0,
+    achievements_remaining: 0, overall_completion_rate: null }), { remaining: 0, percent: null });
+  assert.deepEqual(achievementTotals({ ...data, achievements_total: 0,
+    achievements_remaining: 100, overall_completion_rate: 0 }), { remaining: 100, percent: 0 });
+  assert.deepEqual(achievementTotals({ achievements_total: 1, achievements_possible: 400,
+    achievements_remaining: 399, overall_completion_rate: .2 }), { remaining: 399, percent: .2 });
+  for (const fields of [{}, { achievements_remaining: null }, { achievements_remaining: 98 },
+    { achievements_total: true }, { achievements_possible: "100" },
+    { overall_completion_rate: 50 }, { overall_completion_rate: 101 },
+    { overall_completion_rate: null }, { achievements_total: 101 },
+    { achievements_remaining: -1 }, { overall_completion_rate: NaN }]) {
+    assert.equal(achievementTotals(Object.keys(fields).length ? { ...data, ...fields } : {}), null);
+  }
+});
+
+test("completion groups require complete integer counts matching games and perfect games", () => {
+  const data = { games_with_achievements: 6, perfect_games: 1,
+    completion_distribution: { not_started: 1, under_25: 1, "25_to_50": 1,
+      "50_to_75": 1, "75_to_100": 1, complete: 1 } };
+  assert.deepEqual(completionDistribution(data), { total: 6, counts: [1, 1, 1, 1, 1, 1] });
+  assert.equal(completionDistribution({}), null);
+  for (const bad of [null, -1, true, "1", .5, undefined]) {
+    assert.equal(completionDistribution({ ...data,
+      completion_distribution: { ...data.completion_distribution, under_25: bad } }), null);
+  }
+  assert.equal(completionDistribution({ ...data, games_with_achievements: 7 }), null);
+  assert.equal(completionDistribution({ ...data, perfect_games: 2 }), null);
+});
+
+test("completion candidates preserve literal text and reject invalid, duplicate or finished games", () => {
+  const game = Object.freeze({ appid: 1, name: '<img src=x onerror="bad()">', unlocked: 0, total: 1, remaining: 1 });
+  const candidates = Object.freeze([game]);
+  assert.equal(completionCandidates(candidates), candidates);
+  assert.deepEqual(completionCandidates([]), []);
+  for (const value of [undefined, null, {}, [null], [game, game],
+    Array.from({ length: 6 }, (_, index) => ({ ...game, appid: index + 1 }))]) {
+    assert.equal(completionCandidates(value), null);
+  }
+  for (const fields of [{ appid: "javascript:bad()" }, { appid: true }, { name: {} },
+    { unlocked: true }, { total: 0 }, { unlocked: 1 }, { remaining: 0 }, { total: 1.5 }]) {
+    assert.equal(completionCandidates([{ ...game, ...fields }]), null);
+  }
 });
 
 test("last online formats Steam timestamps and rejects missing, invalid or future data", () => {

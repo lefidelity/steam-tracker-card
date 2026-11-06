@@ -44,7 +44,16 @@ function data() {
         { appid: 106, name: "Little Garden", hours: 0.5, playtime_minutes: 30 },
         { appid: 107, name: "Uncharted Pages", hours: 0, playtime_minutes: 0 }] }),
     "sensor.demo_stats": state("40", { achievements_total: 40, achievements_possible: 84,
-      perfect_games: 0, avg_completion_rate: 48, badge_count: 12, card_badge_count: 5 }),
+      perfect_games: 0, avg_completion_rate: 48, badge_count: 12, card_badge_count: 5,
+      achievements_remaining: 44, overall_completion_rate: 47.6,
+      games_with_achievements: 3, games_without_achievements: 4,
+      completion_distribution: { not_started: 1, under_25: 0, "25_to_50": 0,
+        "50_to_75": 1, "75_to_100": 1, complete: 0 },
+      completion_candidates: [
+        { appid: 105, name: "Orbit Runner", unlocked: 8, total: 10, remaining: 2, percent: 80 },
+        { appid: 101, name: "Beyond the Blue", unlocked: 32, total: 50, remaining: 18, percent: 64 },
+        { appid: 102, name: "The Last Outpost", unlocked: 0, total: 24, remaining: 24, percent: 0 },
+      ] }),
     "sensor.demo_friends": state("3", { friends: [
       { personaname: "Alex", status: "Online", avatar: art("avatar"), game: "Beyond the Blue", profileurl: "https://steamcommunity.com/id/fictional-steam-tracker-alex/" },
       { personaname: "Jamie", status: "Away", avatar: art("avatar"), game: null, profileurl: "https://steamcommunity.com/id/fictional-steam-tracker-jamie/" },
@@ -65,7 +74,11 @@ function data() {
       playtime_distribution: { unplayed: 0, under_1_hour: 0, "1_to_10_hours": 0,
         "10_to_50_hours": 0, "50_hours_or_more": 0 } });
     states["sensor.demo_stats"] = state("0", { achievements_total: 0, achievements_possible: 0,
-      perfect_games: 0, avg_completion_rate: 0, badge_count: 0, card_badge_count: 0 });
+      perfect_games: 0, avg_completion_rate: 0, badge_count: 0, card_badge_count: 0,
+      achievements_remaining: 0, overall_completion_rate: null,
+      games_with_achievements: 0, games_without_achievements: 0,
+      completion_distribution: { not_started: 0, under_25: 0, "25_to_50": 0,
+        "50_to_75": 0, "75_to_100": 0, complete: 0 }, completion_candidates: [] });
     states["sensor.demo_friends"] = state("0", { friends: [] });
   }
   if (scenario === "missing") for (const id of Object.keys(states)) delete states[id];

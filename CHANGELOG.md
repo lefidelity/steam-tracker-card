@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.9.8 - 2026-11-06
+
+### Changes
+
+- Link both sensor references in the integration repository. Its documentation
+  now replaces retired dashboards/third-party card examples with complete
+  English/German sensor contracts and small companion-card configurations.
+- Extend player statistics with overall achievement rate, locked achievements,
+  six exact completion groups, a separate count of games without achievements,
+  and up to five completion candidates. Consume new integration attributes with
+  no Steam requests; preserve older sensors and original single-line metrics.
+- Validate totals, distribution counts, and candidate records before rendering.
+  Preserve zero values, use safe text and existing name actions, and provide
+  German/English labels, fictional preview data, and compatibility documentation.
+
+### Installation and update
+
+- Install Steam Tracker Card 0.9.8 separately from integration 0.9.8 and reload
+  the browser. Manual installations can use `/local/steam-tracker-card.js?v=0.9.8`
+  as a JavaScript module to refresh the cache.
+- The new player-statistics additions require integration 0.9.8. Existing card
+  configurations, manual assignments, and older supported sensor data remain
+  usable; single-line summaries retain their three original metrics.
+- The integration's English/German sensor references replace the old complete
+  dashboards and third-party card examples. The card needs no Steam API key.
+
+### Validation
+
+- JavaScript syntax and 21 logic tests passed, including missing/invalid totals,
+  Python rounding ties, distribution consistency, and candidate validation.
+- Playwright passed with both languages, three layouts, legacy/empty/unavailable
+  data, mobile sizes, safe text, Steam links, sensor-detail actions, and cleanup.
+- The matching integration passed 60 retained mocked tests after retiring the
+  seven checks for removed YAML templates. Sensor request-budget checks remain;
+  new reference examples and documentation links were validated separately.
+  No external preview requests.
+- New player statistics have not yet been installed in a live Home Assistant.
+
 ## 0.9.5 - 2026-11-05
 
 ### Changes

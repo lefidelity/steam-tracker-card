@@ -230,6 +230,80 @@ try {
   await library.evaluate((node) => node.setConfig({ ...node._config, language: "de" }));
   console.log("PASS: new library metrics, five distribution bars, both languages and older sensor compatibility");
   assert.match(await text(page.locator("#player_stats")), /Perfekte Spiele/);
+  const playerStats = page.locator("#player_stats");
+  await playerStats.evaluate((node) => { window.playerStatsHass = node._hass; });
+  const setPlayerStats = async (changes = {}, state = "40", legacy = false) => playerStats.evaluate((node, { changes, state, legacy }) => {
+    const attributes = { ...window.playerStatsHass.states["sensor.demo_stats"].attributes, ...changes };
+    if (legacy) for (const key of ["achievements_remaining", "overall_completion_rate", "games_with_achievements",
+      "games_without_achievements", "completion_distribution", "completion_candidates"]) delete attributes[key];
+    node.hass = { ...window.playerStatsHass, states: { ...window.playerStatsHass.states,
+      "sensor.demo_stats": { state, attributes } } };
+  }, { changes, state, legacy });
+  for (const language of ["en", "de"]) {
+    for (const layout of ["detailed", "compact", "single_line"]) {
+      await playerStats.evaluate((node, config) => node.setConfig({ ...node._config, ...config, limit: 1 }), { language, layout });
+      assert.equal(await playerStats.locator(".stat").count(), layout === "single_line" ? 3 : 8);
+      assert.equal(await playerStats.locator(".completion-distribution").count(), layout === "single_line" ? 0 : 1);
+      assert.equal(await playerStats.locator(".completion-candidates .game-row").count(), layout === "single_line" ? 0 : 3);
+      if (layout !== "single_line") {
+        assert.deepEqual(await playerStats.locator(".distribution-count").allTextContents(), ["1", "0", "0", "1", "1", "0"]);
+        assert.match(await text(playerStats), language === "en" ? /Overall achievement rate/ : /Gesamt-Erfolgsquote/);
+        assert.equal(await playerStats.locator(".completion-distribution [role=progressbar]").count(), 6);
+        assert.equal(await playerStats.locator(".completion-candidates h3").nth(1).innerText(), "Orbit Runner");
+      }
+    }
+  }
+  await playerStats.evaluate((node) => node.setConfig({ ...node._config, language: "en", layout: "detailed", item_action: "steam" }));
+  assert.equal(await playerStats.locator(".completion-candidates a").first().getAttribute("href"), "https://store.steampowered.com/app/105/");
+  await playerStats.evaluate((node) => node.setConfig({ ...node._config, item_action: "more-info" }));
+  await playerStats.evaluate((node) => node.addEventListener("hass-more-info", (event) => { window.candidateEntity = event.detail.entityId; }, { once: true }));
+  await playerStats.locator(".completion-candidates button").first().click();
+  assert.equal(await page.evaluate(() => window.candidateEntity), "sensor.demo_stats");
+  await setPlayerStats({}, "40", true);
+  assert.equal(await playerStats.locator(".stat").count(), 6);
+  assert.equal(await playerStats.locator(".distribution").count(), 0);
+  for (const changes of [{ achievements_remaining: null }, { achievements_remaining: 1 }, { overall_completion_rate: 101 }]) {
+    await setPlayerStats(changes);
+    assert.equal(await playerStats.locator(".stat").count(), 6);
+  }
+  for (const distribution of [{}, { not_started: -1 }, { not_started: 3, under_25: 0, "25_to_50": 0,
+    "50_to_75": 0, "75_to_100": 0, complete: 1 }]) {
+    await setPlayerStats({ completion_distribution: distribution });
+    assert.equal(await playerStats.locator(".completion-distribution").count(), 0);
+  }
+  for (const candidates of [null, [{ appid: 1, name: "Invalid", unlocked: 10, total: 10, remaining: 0 }]]) {
+    await setPlayerStats({ completion_candidates: candidates });
+    assert.equal(await playerStats.locator(".completion-candidates").count(), 0);
+  }
+  await setPlayerStats({ completion_candidates: [
+    { appid: 1, name: '<img src=x onerror="window.candidateInjected=true">', unlocked: 0, total: 1, remaining: 1 },
+  ] });
+  assert.equal(await playerStats.locator(".completion-candidates img").count(), 0);
+  assert.match(await text(playerStats), /<img src=x/);
+  assert.equal(await page.evaluate(() => window.candidateInjected), undefined);
+  await setPlayerStats({ completion_candidates: Array.from({ length: 5 }, (_, index) => ({
+    appid: index + 1, name: `Fictional candidate ${index}`, unlocked: 0, total: index + 1, remaining: index + 1,
+  })) });
+  assert.equal(await playerStats.locator(".completion-candidates .game-row").count(), 5);
+  await setPlayerStats({ achievements_total: 0, achievements_possible: 0, perfect_games: 0,
+    avg_completion_rate: 0, achievements_remaining: 0, overall_completion_rate: null,
+    games_with_achievements: 0, games_without_achievements: 2,
+    completion_distribution: { not_started: 0, under_25: 0, "25_to_50": 0, "50_to_75": 0, "75_to_100": 0, complete: 0 },
+    completion_candidates: [],
+  }, "0");
+  assert.equal(await playerStats.locator(".stat").count(), 8);
+  assert.equal(await playerStats.locator(".completion-distribution [aria-valuenow='0']").count(), 6);
+  assert.match(await text(playerStats), /No incomplete games/);
+  assert.match(await text(playerStats), /Games without achievements: 2/);
+  await setPlayerStats({}, "unavailable");
+  assert.equal(await playerStats.locator(".stat,.distribution").count(), 0);
+  await setPlayerStats();
+  if (values.screenshot) await playerStats.screenshot({ path: values.screenshot.replace(/(\.[^.]+)$/, "-player-stats$1") });
+  await playerStats.evaluate((node) => {
+    node.hass = window.playerStatsHass;
+    node.setConfig({ ...node._config, language: "de", item_action: "none", limit: 3 });
+  });
+  console.log("PASS: achievement totals, six completion groups, candidates, both languages/layouts, legacy/invalid/empty data and safe actions");
   assert.equal(await games.locator('.game-row').count(), 7);
   await games.getByRole("searchbox").fill("uncharted");
   assert.equal(await games.locator('.game-row').count(), 1);
