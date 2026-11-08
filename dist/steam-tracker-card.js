@@ -1,4 +1,29 @@
-/** Steam Tracker Card v0.9.8 · MIT License · No runtime dependencies. */
+/** Steam Tracker Card v0.9.9 · MIT License · No runtime dependencies. */
+
+/*!
+ * @license
+ * MIT License
+ *
+ * Copyright (c) 2026 Steam Tracker Card contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 export const ROLES = ["status", "profile", "game", "recent_games", "recent_achievements", "playtime", "global_stats", "friends"];
 export const VIEWS = ["profile", "current_game", "recent_games", "library_stats", "player_stats", "top_games", "friends", "games"];
@@ -14,24 +39,26 @@ export const TRANSLATIONS = {
     profile: "Profile", current_game: "Now playing", recent_games: "Recently played",
     library_stats: "Library statistics", player_stats: "Player statistics", top_games: "Top 5 games",
     friends: "Friends", games: "All games", global_stats: "Global statistics", single_line: "Single line",
-    game_count: "Games", total_hours: "Total playtime", top_hours: "Top 5 playtime", pile_of_shame: "Under 1 hour",
-    played_percentage: "Played library", played_games: "Played games", unplayed_games: "Unplayed games", top_share: "Top 5 share",
+    game_count: "Total games", total_hours: "Total playtime", top_hours: "Top 5 playtime", pile_of_shame: "Played under 1 h",
+    played_percentage: "Played games", played_games: "Played games", unplayed_games: "Unplayed games", top_share: "Top 5 share",
     playtime_distribution: "Playtime distribution", distribution_unplayed: "Unplayed",
-    distribution_under_1_hour: "Played under 1 h", distribution_1_to_10_hours: "Under 10 h",
+    distribution_under_1_hour: "Under 1 h", distribution_1_to_10_hours: "Under 10 h",
     distribution_10_to_50_hours: "Under 50 h", distribution_50_hours_or_more: "At least 50 h",
     distribution_1_to_10_hours_hint: "1 to under 10 hours", distribution_10_to_50_hours_hint: "10 to under 50 hours",
     distribution_50_hours_or_more_hint: "50 hours or more",
     show_data_status: "Show data freshness", successfully_updated: "Successfully updated",
     data_status_hint: "Oldest successful update of the displayed sensors",
     unlocked: "Unlocked achievements", possible: "Possible achievements", perfect: "Perfect games",
-    completion: "Average completion", badges: "Badges", card_badges: "Game badges",
-    overall_completion: "Overall achievement rate", remaining_achievements: "Locked achievements",
+    completion: "ø Achievement progress / game", badges: "Badges", card_badges: "Game badges",
+    overall_completion: "Unlocked achievements", remaining_achievements: "Locked achievements",
     completion_hint: "Average of each game's completion; each game has equal weight",
     overall_completion_hint: "Unlocked achievements divided by all possible achievements",
     completion_distribution: "Completion distribution", games_without_achievements: "Games without achievements",
-    completion_not_started: "0%", completion_under_25: ">0–<25%", completion_25_to_50: "25–<50%",
-    completion_50_to_75: "50–<75%", completion_75_to_100: "75–<100%", completion_complete: "100%",
-    completion_candidates: "Next completion candidates", remaining: "remaining",
+    completion_not_started: "0%", completion_under_25: "Under 25%", completion_25_to_50: "Under 50%",
+    completion_50_to_75: "Under 75%", completion_75_to_100: "Under 100%", completion_complete: "100%",
+    completion_under_25_hint: "Over 0% to under 25%", completion_25_to_50_hint: "25% to under 50%",
+    completion_50_to_75_hint: "50% to under 75%", completion_75_to_100_hint: "75% to under 100%",
+    completion_candidates: "Closest to 100%", remaining: "remaining",
     no_completion_candidates: "No incomplete games with achievements",
     search_games: "Search games", search_friends: "Search friends", name_order: "Name A–Z",
     hours_order: "Most played", all_friends: "All friends", online_only: "Online only",
@@ -66,7 +93,7 @@ export const TRANSLATIONS = {
     lifetime: "All time", achievements: "Achievements", no_achievements: "No achievements",
     unknown_achievements: "Achievement data unavailable", profile_link: "Open Steam profile",
     player: "Steam player", online: "Online", offline: "Offline", busy: "Busy", away: "Away",
-    snooze: "Snooze", trade: "Looking to trade", play: "Looking to play", unexpected_status: "Unknown status",
+    snooze: "Idle", trade: "Looking to trade", play: "Looking to play", unexpected_status: "Unknown status",
     more_info: "Sensor details", editor_hint: "Use one card per view. Add more cards to build your dashboard.",
     invalid_config: "Invalid Steam Tracker Card configuration",
   },
@@ -74,24 +101,26 @@ export const TRANSLATIONS = {
     profile: "Profil", current_game: "Aktuelles Spiel", recent_games: "Kürzlich gespielt",
     library_stats: "Bibliothek-Statistik", player_stats: "Spieler-Statistik", top_games: "Top-5-Spiele",
     friends: "Freunde", games: "Spiele-Gesamtübersicht", global_stats: "Gesamtstatistik", single_line: "Einzeiler",
-    game_count: "Spiele", total_hours: "Gesamtspielzeit", top_hours: "Top-5-Spielzeit", pile_of_shame: "Unter 1 Stunde",
-    played_percentage: "Spielquote", played_games: "Gespielte Spiele", unplayed_games: "Ungespielte Spiele", top_share: "Top-5-Anteil",
+    game_count: "Spiele insgesamt", total_hours: "Gesamtspielzeit", top_hours: "Top-5-Spielzeit", pile_of_shame: "Unter 1 h gespielt",
+    played_percentage: "Gespielte Spiele", played_games: "Gespielte Spiele", unplayed_games: "Ungespielte Spiele", top_share: "Top-5-Anteil",
     playtime_distribution: "Spielzeit-Verteilung", distribution_unplayed: "Ungespielt",
-    distribution_under_1_hour: "Gespielt unter 1 h", distribution_1_to_10_hours: "unter 10 h",
+    distribution_under_1_hour: "unter 1 h", distribution_1_to_10_hours: "unter 10 h",
     distribution_10_to_50_hours: "unter 50 h", distribution_50_hours_or_more: "ab 50 h",
     distribution_1_to_10_hours_hint: "1 bis unter 10 Stunden", distribution_10_to_50_hours_hint: "10 bis unter 50 Stunden",
     distribution_50_hours_or_more_hint: "50 Stunden oder mehr",
     show_data_status: "Datenstand anzeigen", successfully_updated: "Erfolgreich aktualisiert",
     data_status_hint: "Ältester erfolgreicher Abruf der angezeigten Sensoren",
     unlocked: "Freigeschaltete Erfolge", possible: "Mögliche Erfolge", perfect: "Perfekte Spiele",
-    completion: "Durchschnittlicher Abschluss", badges: "Abzeichen", card_badges: "Spielabzeichen",
-    overall_completion: "Gesamt-Erfolgsquote", remaining_achievements: "Gesperrte Erfolge",
+    completion: "ø Erfolgsfortschritt / Spiel", badges: "Abzeichen", card_badges: "Spielabzeichen",
+    overall_completion: "Freigeschaltete Erfolge", remaining_achievements: "Gesperrte Erfolge",
     completion_hint: "Durchschnitt der Spielabschlüsse; jedes Spiel zählt gleich viel",
     overall_completion_hint: "Freigeschaltete Erfolge geteilt durch alle möglichen Erfolge",
     completion_distribution: "Abschlussverteilung", games_without_achievements: "Spiele ohne Erfolge",
-    completion_not_started: "0 %", completion_under_25: ">0–<25 %", completion_25_to_50: "25–<50 %",
-    completion_50_to_75: "50–<75 %", completion_75_to_100: "75–<100 %", completion_complete: "100 %",
-    completion_candidates: "Nächste Abschlusskandidaten", remaining: "verbleibend",
+    completion_not_started: "0%", completion_under_25: "unter 25%", completion_25_to_50: "unter 50%",
+    completion_50_to_75: "unter 75%", completion_75_to_100: "unter 100%", completion_complete: "100%",
+    completion_under_25_hint: "Über 0% bis unter 25%", completion_25_to_50_hint: "25% bis unter 50%",
+    completion_50_to_75_hint: "50% bis unter 75%", completion_75_to_100_hint: "75% bis unter 100%",
+    completion_candidates: "Am nächsten dran an 100%", remaining: "verbleibend",
     no_completion_candidates: "Keine unvollständigen Spiele mit Erfolgen",
     search_games: "Spiele suchen", search_friends: "Freunde suchen", name_order: "Name A–Z",
     hours_order: "Meistgespielt", all_friends: "Alle Freunde", online_only: "Nur online",
@@ -126,7 +155,7 @@ export const TRANSLATIONS = {
     lifetime: "Insgesamt", achievements: "Erfolge", no_achievements: "Keine Erfolge vorhanden",
     unknown_achievements: "Erfolgsdaten nicht verfügbar", profile_link: "Steam-Profil öffnen",
     player: "Steam-Spieler", online: "Online", offline: "Offline", busy: "Beschäftigt", away: "Abwesend",
-    snooze: "Schlummernd", trade: "Möchte handeln", play: "Möchte spielen", unexpected_status: "Status unbekannt",
+    snooze: "Inaktiv", trade: "Möchte handeln", play: "Möchte spielen", unexpected_status: "Status unbekannt",
     more_info: "Sensordetails", editor_hint: "Eine Ansicht pro Karte. Füge weitere Karten für dein eigenes Dashboard hinzu.",
     invalid_config: "Ungültige Konfiguration der Steam Tracker Card",
   },
@@ -540,6 +569,7 @@ const CARD_STYLES = `
   .completion-candidates .game-row { justify-content:space-between; padding:8px 0; gap:12px; }
   .completion-candidates .game-row + .game-row { border-top:1px solid var(--st-line); }
   .candidate-progress,.candidate-empty { font-size:11px; color:var(--st-muted); margin:4px 0 0; }
+  .completion-distribution .candidate-progress { margin-top:16px; }
   .completion-candidates .row-value { white-space:normal; text-align:right; }
   .collection-tools { display:flex; gap:8px; margin-bottom:16px; }
   .collection-tools input,.collection-tools select { min-width:0; min-height:36px; border:1px solid var(--st-line); border-radius:8px; background:var(--st-surface); color:var(--st-ink); padding:7px 9px; font:inherit; font-size:12px; }
@@ -857,9 +887,8 @@ export class SteamTrackerCard extends HTMLElementBase {
       const times = element("div", "row-times");
       const recent = element("span");
       recent.append(element("strong", "", `${this._number(nonnegative(game.playtime_2weeks_h), 1)} ${this._t.hours}`));
-      if (this._config.layout !== "single_line") recent.append(document.createTextNode(` · ${this._t.last_two_weeks}`));
+      if (this._config.layout === "detailed") recent.append(document.createTextNode(` / ${this._number(nonnegative(game.playtime_total_h), 1)} ${this._t.hours} ${this._t.lifetime.toLowerCase()}`));
       times.append(recent);
-      if (this._config.layout === "detailed") times.append(element("span", "", `${this._number(nonnegative(game.playtime_total_h), 1)} ${this._t.hours} ${this._t.lifetime.toLowerCase()}`));
       content.append(times);
       if (this._config.show_achievements && this._config.layout !== "single_line") {
         const progress = achievementProgress(achievementMap.get(String(game.appid)));
@@ -885,25 +914,32 @@ export class SteamTrackerCard extends HTMLElementBase {
       ["game_count", data.game_count], ["total_hours", data.total_playtime_hours, this._t.hours],
       ["pile_of_shame", data.pile_of_shame_count], ["top_hours", data.top_5_playtime_hours, this._t.hours],
     ] : [
-      ["unlocked", data.achievements_total], ["perfect", data.perfect_games],
-      ["completion", data.avg_completion_rate, "%"], ["possible", data.achievements_possible],
+      ["possible", data.achievements_possible], ["unlocked", data.achievements_total],
+      ["completion", data.avg_completion_rate, "%"], ["perfect", data.perfect_games],
       ["badges", data.badge_count], ["card_badges", data.card_badge_count],
     ];
     const grid = element("div", "stat-grid");
     if (library) {
       for (const [attribute, label, unit] of [
-        ["played_percentage", "played_percentage", "%"],
-        ["top_5_playtime_percentage", "top_share", "%"],
         ["unplayed_game_count", "unplayed_games"],
+        ["top_5_playtime_percentage", "top_share", "%"],
+        ["played_percentage", "played_percentage", "%"],
         ["played_game_count", "played_games"],
       ]) {
         if (nonnegative(data[attribute]) !== null) stats.push([label, data[attribute], unit]);
       }
     } else {
       const totals = achievementTotals(data);
-      if (totals) stats.push(["overall_completion", totals.percent, "%"], ["remaining_achievements", totals.remaining]);
+      if (totals) {
+        stats.splice(2, 0, ["remaining_achievements", totals.remaining]);
+        stats.splice(4, 0, ["overall_completion", totals.percent, "%"]);
+      }
     }
-    for (const [label, value, unit] of this._config.layout === "single_line" ? stats.slice(0, 3) : stats) {
+    const visibleStats = this._config.layout !== "single_line" ? stats : library ? stats.slice(0, 3) : [
+      ["unlocked", data.achievements_total], ["perfect", data.perfect_games],
+      ["completion", data.avg_completion_rate, "%"],
+    ];
+    for (const [label, value, unit] of visibleStats) {
       const tile = element("div", "stat");
       const formatted = `${this._number(nonnegative(value), unit ? 1 : 0)}${unit ? ` ${unit}` : ""}`;
       tile.title = `${this._t[label]}: ${formatted}`;
@@ -933,9 +969,16 @@ export class SteamTrackerCard extends HTMLElementBase {
     COMPLETION_GROUPS.forEach((key, index) => {
       const label = this._t[`completion_${key}`], count = counts[index];
       const row = element("div", "distribution-row");
-      row.append(element("span", "distribution-label", label));
+      const caption = element("span", "distribution-label", label);
+      const hint = this._t[`completion_${key}_hint`];
+      if (hint) {
+        caption.title = hint;
+        caption.setAttribute("aria-label", hint);
+        caption.tabIndex = 0;
+      }
+      row.append(caption);
       this._progress(row, total ? count / total * 100 : 0,
-        `${label}: ${this._number(count)} / ${this._number(total)}`);
+        `${hint || label}: ${this._number(count)} / ${this._number(total)}`);
       row.append(element("span", "distribution-count", this._number(count)));
       section.append(row);
     });

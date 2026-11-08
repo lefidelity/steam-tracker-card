@@ -69,6 +69,14 @@ try {
   assert.equal(new Set(headingPaths).size, 6);
   assert.match(await text(recent), /The Last Outpost/);
   assert.match(await text(recent), /0 \/ 24/);
+  for (const language of ["de", "en"]) {
+    await recent.evaluate((node, language) => node.setConfig({ ...node._config, language }), language);
+    const times = await recent.locator(".row-times").allTextContents();
+    assert.ok(times.every((line) => / h \/ [\d.,]+ h (insgesamt|all time)$/.test(line)), times.join("; "));
+    assert.ok(times.every((line) => !/Letzte 2 Wochen|Last 2 weeks/.test(line)));
+    assert.equal(await recent.locator(".footnote").innerText(), language === "de" ? "Letzte 2 Wochen" : "Last 2 weeks");
+  }
+  await recent.evaluate((node) => node.setConfig({ ...node._config, language: "de" }));
   assert.match(await text(recent), /Keine Erfolge vorhanden/);
   assert.equal(await profile.locator('[role="progressbar"]').getAttribute("aria-valuenow"), "40");
   assert.match(await text(profile), /Fortschritt zu Level 25/);
@@ -173,17 +181,17 @@ try {
   assert.match(await text(top), /Erfolgsdaten nicht verfügbar/);
   const library = page.locator("#library_stats");
   assert.match(await text(library), /337,8/);
-  assert.match(await text(library), /Spielquote/);
+  assert.match(await text(library), /Gespielte Spiele/);
   assert.match(await text(library), /85,7 %/);
   assert.match(await text(library), /Ungespielte Spiele/);
   assert.match(await text(library), /99,9 %/);
   assert.equal(await library.locator(".stat").count(), 8);
   assert.deepEqual(await library.locator(".stat-label").allTextContents(), [
-    "Spiele", "Gesamtspielzeit", "Unter 1 Stunde", "Top-5-Spielzeit", "Spielquote",
-    "Top-5-Anteil", "Ungespielte Spiele", "Gespielte Spiele",
+    "Spiele insgesamt", "Gesamtspielzeit", "Unter 1 h gespielt", "Top-5-Spielzeit", "Ungespielte Spiele",
+    "Top-5-Anteil", "Gespielte Spiele", "Gespielte Spiele",
   ]);
   assert.deepEqual(await library.locator(".distribution-label").allTextContents(), [
-    "Ungespielt", "Gespielt unter 1 h", "unter 10 h", "unter 50 h", "ab 50 h",
+    "Ungespielt", "unter 1 h", "unter 10 h", "unter 50 h", "ab 50 h",
   ]);
   assert.deepEqual((await library.locator(".distribution-label").evaluateAll((labels) => labels.map((label) => label.title))).slice(2), [
     "1 bis unter 10 Stunden", "10 bis unter 50 Stunden", "50 Stunden oder mehr",
@@ -204,7 +212,7 @@ try {
   });
   assert.equal(await library.locator(".stat").count(), 4);
   assert.equal(await library.locator(".distribution").count(), 0);
-  assert.doesNotMatch(await text(library), /Spielquote|Ungespielte Spiele/);
+  assert.doesNotMatch(await text(library), /Gespielte Spiele|Ungespielte Spiele/);
   for (const distribution of [{}, { unplayed: -1 }, { unplayed: 7 }]) {
     await library.evaluate((node, distribution) => {
       node.hass = { ...window.libraryHass, states: { ...window.libraryHass.states,
@@ -219,7 +227,7 @@ try {
     node.hass = window.libraryHass;
     node.setConfig({ ...node._config, language: "en" });
   });
-  assert.match(await text(library), /Played library/);
+  assert.match(await text(library), /Played games/);
   assert.match(await text(library), /Playtime distribution/);
   assert.deepEqual((await library.locator(".distribution-label").allTextContents()).slice(2), [
     "Under 10 h", "Under 50 h", "At least 50 h",
@@ -246,8 +254,28 @@ try {
       assert.equal(await playerStats.locator(".completion-distribution").count(), layout === "single_line" ? 0 : 1);
       assert.equal(await playerStats.locator(".completion-candidates .game-row").count(), layout === "single_line" ? 0 : 3);
       if (layout !== "single_line") {
+        assert.deepEqual(await playerStats.locator(".stat-label").allTextContents(), language === "en" ? [
+          "Possible achievements", "Unlocked achievements", "Locked achievements", "ø Achievement progress / game",
+          "Unlocked achievements", "Perfect games", "Badges", "Game badges",
+        ] : [
+          "Mögliche Erfolge", "Freigeschaltete Erfolge", "Gesperrte Erfolge", "ø Erfolgsfortschritt / Spiel",
+          "Freigeschaltete Erfolge", "Perfekte Spiele", "Abzeichen", "Spielabzeichen",
+        ]);
+        const tiles = await playerStats.locator(".stat").evaluateAll((nodes) => nodes.map((node) => {
+          const { top, left } = node.getBoundingClientRect();
+          return { top, left };
+        }));
+        for (let index = 0; index < tiles.length; index += 2) {
+          assert.equal(tiles[index].top, tiles[index + 1].top);
+          assert.ok(tiles[index].left < tiles[index + 1].left);
+        }
+        assert.equal(await playerStats.locator(".completion-candidates > h3").innerText(),
+          language === "en" ? "Closest to 100%" : "Am nächsten dran an 100%");
+        assert.deepEqual(await playerStats.locator(".completion-distribution .distribution-label").allTextContents(),
+          language === "en" ? ["0%", "Under 25%", "Under 50%", "Under 75%", "Under 100%", "100%"]
+            : ["0%", "unter 25%", "unter 50%", "unter 75%", "unter 100%", "100%"]);
         assert.deepEqual(await playerStats.locator(".distribution-count").allTextContents(), ["1", "0", "0", "1", "1", "0"]);
-        assert.match(await text(playerStats), language === "en" ? /Overall achievement rate/ : /Gesamt-Erfolgsquote/);
+        assert.match(await text(playerStats), language === "en" ? /ø Achievement progress \/ game/ : /ø Erfolgsfortschritt \/ Spiel/);
         assert.equal(await playerStats.locator(".completion-distribution [role=progressbar]").count(), 6);
         assert.equal(await playerStats.locator(".completion-candidates h3").nth(1).innerText(), "Orbit Runner");
       }

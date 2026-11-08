@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.9.9 - 2026-11-08
+
+### Changes
+
+- Display Steam's `Snooze` presence as "Idle" in English and "Inaktiv" in German
+  for friends and profiles. Preserve the integration's raw `Snooze` sensor value
+  and keep `Away` / "Abwesend" distinct.
+- Shorten recent-game playtime rows, keeping lifetime hours and the two-week
+  footer. Update library labels and swap played percentage with unplayed games.
+- Arrange player-statistics tiles in four pairs and rename completion candidates
+  to "Closest to 100%" / "Am nächsten dran an 100%". Keep English/German labels
+  and documentation aligned; preserve single-line metrics and sensor contracts.
+- Shorten completion-group labels and explain exact ranges with accessible
+  tooltips. Retain all six distinct groups, including the under-100% group.
+- Label average progress as "ø Achievement progress / game" and the overall
+  percentage as "Unlocked achievements", with matching German labels and no
+  explanatory subtitles. Add spacing above games without achievements.
+- Include the full MIT license and existing copyright notice in the standalone
+  JavaScript file, matching the repository's `LICENSE`.
+- Link the license and document its inclusion in the English/German READMEs.
+
+### Distribution
+
+- Bump the source version and JavaScript banner to 0.9.9 alongside integration
+  0.9.9. Commit and push source changes without publishing GitHub releases or assets.
+- Refresh manual-installation cache examples to `?v=0.9.9`. Existing sensor
+  contracts and the minimum integration version for each feature remain unchanged.
+
+### Validation
+
+- JavaScript syntax and all 21 logic tests passed. Browser checks passed for
+  both languages, paired tile order, recent-game hours, six completion groups,
+  mobile layouts, older/invalid data, safe rendering, and subscription cleanup.
+- The embedded MIT text matches `LICENSE`; Git whitespace checks passed. Browser
+  checks made no external requests. Integration Python code and tests are unchanged;
+  Python syntax and integration/HACS JSON checks passed.
+
 ## 0.9.8 - 2026-11-06
 
 ### Changes

@@ -49,7 +49,10 @@ Die kürzeren Verteilungsbeschriftungen lauten **unter 10 h**, **unter 50 h** un
 Tooltips und zugängliche Beschriftungen erklären **1 bis unter 10 Stunden**,
 **10 bis unter 50 Stunden** und **50 Stunden oder mehr**. Genau 50 Stunden
 gehören bereits zur letzten Gruppe.
-Die Kachel Top-5-Anteil steht neben der Spielquote, oberhalb der gespielten Spiele.
+Die Kachel **Ungespielte Spiele** steht neben dem **Top-5-Anteil**. Darunter
+zeigen die beiden Kacheln **Gespielte Spiele** den Prozentwert und die Anzahl.
+Die weiteren Beschriftungen lauten **Spiele insgesamt** und **Unter 1 h gespielt**;
+die kürzeste gespielte Zeitgruppe heißt **unter 1 h**.
 
 Die Überschriften nutzen Controller für das aktuelle Spiel, Uhr für kürzlich
 gespielte Spiele, Diagramm für Bibliothek-Statistik, Pokal für Top-5-Spiele,
@@ -108,7 +111,7 @@ Tests in einer echten Home-Assistant-Instanz stehen noch aus.
    `<HA-Konfigurationsordner>/www/steam-tracker-card.js` kopieren.
 2. Wenn `www` neu angelegt wurde, Home Assistant neu starten.
 3. Unter **Einstellungen → Dashboards → Ressourcen**
-   `/local/steam-tracker-card.js?v=0.9.8` als **JavaScript-Modul** hinzufügen.
+   `/local/steam-tracker-card.js?v=0.9.9` als **JavaScript-Modul** hinzufügen.
 4. Browser neu laden und die Karte über die Kartenauswahl hinzufügen.
 
 Nur eine Ressource registrieren. Bei manuellen Updates den Versionsparameter
@@ -145,6 +148,10 @@ laufendes Spiel oder bei fehlenden, unbekannten beziehungsweise nicht verfügbar
 Spieldaten entfällt die Zeile. Dafür sind keine zusätzlichen Steam-Abfragen nötig.
 Der XP-Text lautet **Fortschritt zu Level …**.
 
+Freunde und Profile zeigen Steams Status `Snooze` als **Inaktiv** an. `Away`
+bleibt **Abwesend**; die zugrunde liegenden Sensorwerte der Integration bleiben
+unverändert.
+
 ### Datenstand
 
 Die Checkbox **Datenstand anzeigen** (`show_data_status: true`) ergänzt in jeder
@@ -170,15 +177,24 @@ können weiterhin ohne Datenstand genutzt werden.
 
 ![Optional data freshness with fictional player statistics](images/data-status.png)
 
-### Erweiterte Spieler-Statistik (0.9.8)
+### Spieler-Statistik
 
-Mit Integration 0.9.8 und Karte 0.9.8 zeigt `player_stats` zusätzlich die
-**Gesamt-Erfolgsquote**, **Gesperrte Erfolge**, sechs Balken zur Abschlussverteilung
-und bis zu fünf **Nächste Abschlusskandidaten**. Ausführliche und kompakte
+Mit Integration ab 0.9.8 zeigt die aktuelle Karte in `player_stats` zusätzlich
+den Prozentwert **Freigeschaltete Erfolge**, **Gesperrte Erfolge**, sechs Balken zur
+Abschlussverteilung und unter **Am nächsten dran an 100%** bis zu fünf
+Abschlusskandidaten. Ausführliche und kompakte
 Darstellung zeigen die Ergänzungen automatisch; der Einzeiler behält seine drei
 bisherigen Kennzahlen. Ältere Sensoren behalten die bisherigen sechs Kacheln.
 Ungültige oder unvollständige Ergänzungen bleiben verborgen. Zusätzliche
 Steam-Abfragen sind nicht nötig.
+
+Ausführlich und Kompakt ordnen die Kacheln in vier Zeilen an: mögliche und
+freigeschaltete Erfolge; gesperrte Erfolge und **ø Erfolgsfortschritt / Spiel**;
+**Freigeschaltete Erfolge** als Prozentwert und perfekte Spiele; Abzeichen und
+Spielabzeichen. Anzahl und Prozentwert tragen dieselbe Beschriftung; der
+Prozentwert enthält `%`. Zusätzliche erklärende Unterzeilen werden nicht angezeigt.
+Bei kürzlich gespielten Titeln zeigt die ausführliche Darstellung beispielsweise
+`1,5 h / 240 h insgesamt`. **Letzte 2 Wochen** steht im Footer statt an jedem Titel.
 
 Die Gesamt-Erfolgsquote berechnet freigeschaltete / mögliche Erfolge. Beim
 durchschnittlichen Abschluss zählt jedes Spiel gleich viel: Spiele mit 1/1 und
@@ -187,7 +203,9 @@ möglich, erscheint die Gesamtquote als unbekannt; bestätigte Nullwerte bleiben
 sichtbar.
 
 Die Gruppen verwenden ungerundete Fortschritte: 0 %, >0–<25 %, 25–<50 %,
-50–<75 %, 75–<100 % und 100 %. Ihre Summe muss der Anzahl der Spiele mit Erfolgen
+50–<75 %, 75–<100 % und 100 %. Die kurzen Labels lauten **0%**, **unter 25%**,
+**unter 50%**, **unter 75%**, **unter 100%** und **100%**. Tooltips erklären die
+genauen, getrennten Bereiche. Ihre Summe muss der Anzahl der Spiele mit Erfolgen
 entsprechen, die letzte Gruppe der Zahl perfekter Spiele. Spiele ohne Erfolge
 stehen separat. Kandidaten werden nach verbleibenden Erfolgen, dann höherem
 exaktem Fortschritt, Namen und App-ID sortiert. Vollständige Spiele und Spiele
@@ -316,9 +334,18 @@ Die beiden Projekte heißen `steam-tracker` und `steam-tracker-card`, ohne
 Sensor-IDs und Attribute müssen wegen des Repository-Namens nicht geändert werden.
 
 Die Karte hat mit [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card)
-ein eigenes Repository und eine unabhängige Version. Integration 0.9.8 und
-Karte 0.9.8 werden separat installiert und aktualisiert. Version 0.9.8 wird als
-einzelne JavaScript-Datei im Release bereitgestellt. HACS-Installation und
+ein eigenes Repository und eine unabhängige Version. Die aktuelle Quellcode-Version
+ist für beide Projekte 0.9.9; beide werden separat installiert und aktualisiert.
+Für 0.9.9 werden kein GitHub-Release und keine Release-Dateien veröffentlicht.
+Zur manuellen Installation aus dem Quellcode `dist/steam-tracker-card.js` kopieren.
+HACS-Installation und
 Home-Assistant-Laufzeitprüfungen stehen noch aus.
 
-MIT-Lizenz. Kein offizielles Produkt von Valve, Steam, Home Assistant oder HACS.
+## Lizenz
+
+Steam Tracker Card wird unter der [MIT-Lizenz](../LICENSE) bereitgestellt.
+Der vollständige Lizenztext und der Copyright-Hinweis sind auch in
+`dist/steam-tracker-card.js` enthalten und werden dadurch mit der einzelnen
+JavaScript-Datei ausgeliefert.
+
+Kein offizielles Produkt von Valve, Steam, Home Assistant oder HACS.

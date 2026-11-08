@@ -36,13 +36,18 @@ The shorter distribution labels are **Under 10 h**, **Under 50 h**, and
 **At least 50 h**; the underlying groups remain 1–<10, 10–<50, and ≥50 hours.
 Tooltips and accessible labels explain **1 to under 10 hours**, **10 to under
 50 hours**, and **50 hours or more**. Exactly 50 hours belongs to the final group.
-The top-five share tile appears next to played percentage, above played games.
+The unplayed-games tile appears next to the top-five share. Below them, the two
+**Played games** tiles show the played percentage and the played-game count.
+The other library labels are **Total games** and **Played under 1 h**; the
+shortest played-time distribution group is labeled **Under 1 h**.
 
 View headings use a controller for the current game, a clock for recently played,
 a chart for library statistics, a trophy for top-five games, people for friends,
 and books for the full library. Current-game artwork leads directly into the
 game name and playtime. Recently played and top-five lists have separators
 between entries, with artwork aligned to the top of each game title.
+Detailed recently played rows show hours as `1.5 h / 240 h all time`. The
+last-two-weeks label appears in the footer instead of repeating on every row.
 
 Use a detailed, compact, or single-line layout, follow your Home Assistant theme, or enable
 the optional Steam blue appearance. The card has **no runtime dependencies** and
@@ -100,7 +105,7 @@ Assistant instance are still pending.
 1. Copy `dist/steam-tracker-card.js` to
    `<HA configuration>/www/steam-tracker-card.js`.
 2. If `www` was just created, restart Home Assistant.
-3. Add `/local/steam-tracker-card.js?v=0.9.8` as a **JavaScript module** under
+3. Add `/local/steam-tracker-card.js?v=0.9.9` as a **JavaScript module** under
    **Settings → Dashboards → Resources**.
 4. Reload the browser, then select **Steam Tracker Card** in the card picker.
 
@@ -134,6 +139,9 @@ from that account's current-game sensor instead. This also covers active presenc
 states such as Away or Busy. Missing, unknown, unavailable, or idle game data hides
 the line without affecting the rest of the profile; no extra Steam requests are needed.
 The XP label reads **Progress to level …**.
+
+Friends and profiles display Steam's `Snooze` status as **Idle**. `Away` remains
+**Away**; the integration's underlying sensor values stay unchanged.
 
 If discovery is unavailable or you use legacy YAML sensors, open **Manual sensor
 assignment** in the editor. Manual assignments override automatic assignments.
@@ -180,14 +188,21 @@ entities:
 | `item_action` | `none` | `none`, `steam`, `more-info`; click a game or friend name |
 | `entities` | Automatic | Overrides for `status`, `profile`, `game`, `recent_games`, `recent_achievements`, `playtime`, `global_stats`, `friends` |
 
-### Additional player statistics (0.9.8)
+### Player statistics
 
-With integration 0.9.8 and card 0.9.8, `player_stats` adds **Overall achievement
-rate** and **Locked achievements**, six completion-distribution bars, and up to
-five **Next completion candidates**. Detailed and compact layouts show the
+With integration 0.9.8 or newer, the current card's `player_stats` view adds the percentage of
+**Unlocked achievements** and **Locked achievements**, six completion-distribution
+bars, and up to five games **Closest to 100%**. Detailed and compact layouts show the
 additions automatically; single-line keeps its three original metrics. Older
 sensors keep the existing six tiles; invalid or incomplete additions are hidden.
 No extra Steam requests are needed.
+
+The detailed and compact player-statistics tiles use four rows, with each pair
+sharing a row: possible/unlocked achievements, locked achievements/average
+achievement progress per game, unlocked-achievement percentage/perfect games,
+and badges/game badges. The average is labeled **ø Achievement progress / game**;
+**Unlocked achievements** labels both the count and the percentage tile. The
+percentage value includes `%`. These labels have no explanatory subtitles.
 
 Overall achievement rate is unlocked / possible achievements. Average completion
 continues to weight each game equally. For games at 1/1 and 0/99 these are 1% and
@@ -195,7 +210,9 @@ continues to weight each game equally. For games at 1/1 and 0/99 these are 1% an
 as unavailable rather than 0%; confirmed zero counts remain visible.
 
 The six groups use exact progress: 0%, >0–<25%, 25–<50%, 50–<75%, 75–<100%, and
-100%. Counts must sum to the number of games with achievements and the completed
+100%. Their short labels are **0%**, **Under 25%**, **Under 50%**, **Under 75%**,
+**Under 100%**, and **100%**. Tooltips explain the exact, separate ranges.
+Counts must sum to the number of games with achievements and the completed
 group must match perfect games. Games without achievements appear separately.
 Candidates are ranked by fewest locked achievements, then highest exact progress,
 name, and app ID. Completed games and games without achievements are excluded;
@@ -356,10 +373,17 @@ Integration and card are separate repositories with independent versions:
 prefix does not require changes to sensor IDs or attributes.
 
 The card repository is [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card).
-Integration 0.9.8 and card 0.9.8 are installed and updated separately.
-Version 0.9.8 is distributed as a standalone JavaScript release asset. HACS
+The current source version is 0.9.9 for both projects; install and update each
+separately. No GitHub release or release asset is published for 0.9.9.
+For manual installation from source, copy `dist/steam-tracker-card.js`. HACS
 installation and Home Assistant frontend checks remain pending. The matching
 `dist/steam-tracker-card.js` and `hacs.json` use the card's
 repository layout. No CI or publishing configuration is included.
 
-MIT licensed. Not affiliated with Valve, Steam, Home Assistant, or HACS.
+## License
+
+Steam Tracker Card is distributed under the [MIT License](LICENSE).
+The full license and copyright notice are also embedded in
+`dist/steam-tracker-card.js` so they accompany the standalone release asset.
+
+Not affiliated with Valve, Steam, Home Assistant, or HACS.
