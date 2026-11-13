@@ -1,1 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430"><defs><linearGradient id="a" x2="1" y2="1"><stop stop-color="#1d5163"/><stop offset="1" stop-color="#0c1428"/></linearGradient><radialGradient id="b"><stop stop-color="#a5eddc"/><stop offset="1" stop-color="#307082"/></radialGradient></defs><path fill="url(#a)" d="M0 0h920v430H0z"/><circle cx="665" cy="172" r="105" fill="url(#b)"/><ellipse cx="665" cy="180" rx="198" ry="26" fill="none" stroke="#b5ece4" stroke-width="5" opacity=".5" transform="rotate(-24 665 180)"/><g fill="#c1e4ee"><circle cx="98" cy="61" r="2"/><circle cx="193" cy="174" r="2"/><circle cx="389" cy="57" r="2"/><circle cx="485" cy="115" r="1"/><circle cx="826" cy="80" r="2"/><circle cx="875" cy="226" r="1"/><circle cx="306" cy="124" r="1"/></g><path d="M0 368 152 296 274 348 420 266 546 328 664 286 920 373v57H0Z" fill="#102a3a"/><path d="m0 418 230-61 196 45 230-62 264 61v29H0Z" fill="#091e2c"/><text x="50" y="237" fill="#f4f8ef" font-family="system-ui,sans-serif" font-size="51" font-weight="700" letter-spacing="7">BEYOND</text><text x="54" y="278" fill="#aed9df" font-family="system-ui,sans-serif" font-size="22" letter-spacing="13">THE BLUE</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430">
+  <defs>
+    <linearGradient id="a" x2="1" y2="1">
+      <stop stop-color="#1d5163"/>
+      <stop offset="1" stop-color="#0c1428"/>
+    </linearGradient>
+    <radialGradient id="b">
+      <stop stop-color="#a5eddc"/>
+      <stop offset="1" stop-color="#307082"/>
+    </radialGradient>
+  </defs>
+  <path fill="url(#a)" d="M0 0h920v430H0z"/>
+  <path d="M467 180a198 26 0 0 1 396 0" fill="none" stroke="#b5ece4" stroke-width="5" opacity=".5" transform="rotate(-24 665 180)"/>
+  <circle cx="665" cy="172" r="105" fill="url(#b)"/>
+  <path d="M467 180a198 26 0 0 0 396 0" fill="none" stroke="#b5ece4" stroke-width="5" opacity=".5" transform="rotate(-24 665 180)"/>
+  <g fill="#c1e4ee">
+    <circle cx="98" cy="61" r="2"/>
+    <circle cx="193" cy="174" r="2"/>
+    <circle cx="389" cy="57" r="2"/>
+    <circle cx="485" cy="115" r="1"/>
+    <circle cx="826" cy="80" r="2"/>
+    <circle cx="875" cy="226" r="1"/>
+    <circle cx="306" cy="124" r="1"/>
+  </g>
+  <path d="M0 368 152 296 274 348 420 266 546 328 664 286 920 373v57H0Z" fill="#102a3a"/>
+  <path d="m0 418 230-61 196 45 230-62 264 61v29H0Z" fill="#091e2c"/>
+  <text x="50" y="237" fill="#f4f8ef" font-family="system-ui,sans-serif" font-size="51" font-weight="700" letter-spacing="7">BEYOND</text>
+  <text x="54" y="278" fill="#aed9df" font-family="system-ui,sans-serif" font-size="22" letter-spacing="13">THE BLUE</text>
+</svg>

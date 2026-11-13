@@ -1,4 +1,4 @@
-/** Steam Tracker Card v0.9.9 · MIT License · No runtime dependencies. */
+/** Steam Tracker Card v1.0.0 · MIT License · No runtime dependencies. */
 
 /*!
  * @license

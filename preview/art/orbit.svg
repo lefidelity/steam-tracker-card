@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430">
+  <defs>
+    <linearGradient id="sky" x2="1" y2="1">
+      <stop stop-color="#30203e"/>
+      <stop offset="1" stop-color="#101b32"/>
+    </linearGradient>
+    <linearGradient id="exhaust" x2="0" y2="1">
+      <stop stop-color="#ffd38b"/>
+      <stop offset="1" stop-color="#ee795c" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h920v430H0z"/>
+  <g fill="#e8d8cd">
+    <circle cx="97" cy="76" r="2"/>
+    <circle cx="296" cy="61" r="1"/>
+    <circle cx="443" cy="108" r="2"/>
+    <circle cx="843" cy="69" r="2"/>
+    <circle cx="859" cy="313" r="1"/>
+    <circle cx="377" cy="365" r="1"/>
+    <circle cx="102" cy="332" r="1"/>
+  </g>
+  <g fill="none" transform="rotate(-27 660 216)">
+    <ellipse cx="660" cy="216" rx="185" ry="93" stroke="#ee9871" stroke-width="4" opacity=".8"/>
+    <ellipse cx="660" cy="216" rx="157" ry="65" stroke="#edc89a" stroke-width="2" opacity=".45" stroke-dasharray="12 13"/>
+  </g>
+  <path fill="#edc89a" d="m641 182 8 25 25 8-25 8-8 25-8-25-25-8 25-8z"/>
+  <path fill="none" stroke="#ee9871" stroke-width="3" stroke-linecap="round" opacity=".6" d="m451 317 47-23m-28 43 38-19m-16 39 30-15"/>
+  <g transform="rotate(35 760 158)">
+    <path fill="url(#exhaust)" d="m741 216 19 89 19-89z"/>
+    <path fill="#d36d61" d="m738 164-23 47 28-8zm44 0 23 47-28-8z"/>
+    <path fill="#f4e9d6" d="M760 82q-34 37-24 107l10 28h28l10-28q10-70-24-107z"/>
+    <path fill="#c5c4cb" d="M760 82v135h14l10-28q10-70-24-107z"/>
+    <path fill="#ee9871" d="M760 82q-16 17-22 40h44q-6-23-22-40z"/>
+    <circle cx="760" cy="155" r="17" fill="#293d53"/>
+    <circle cx="760" cy="155" r="10" fill="#8bb8c6"/>
+    <path fill="#ee9871" d="M742 199h36l-4 18h-28z"/>
+  </g>
+  <text x="52" y="198" fill="#f7ead8" font-family="system-ui,sans-serif" font-size="57" font-weight="750" letter-spacing="7">ORBIT</text>
+  <text x="56" y="247" fill="#eead83" font-family="system-ui,sans-serif" font-size="30" font-weight="650" letter-spacing="8">RUNNER</text>
+</svg>

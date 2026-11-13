@@ -1,281 +1,246 @@
 # Steam Tracker Card
 
-Eine konfigurierbare Lovelace-Karte für **Steam Tracker**: Karte hinzufügen,
-Steam-Konto und Ansicht auswählen, mehrere Karten zum eigenen Dashboard kombinieren.
-Mit visuellem Editor, Deutsch/Englisch und Unterstützung für helle und dunkle Themes.
+Eine Home-Assistant-Dashboardkarte für [Steam Tracker](https://github.com/lefidelity/steam-tracker).
+Im visuellen Editor Konto und Ansicht wählen; mehrere Karten lassen sich zu einem Dashboard kombinieren.
 
-[English documentation and full configuration reference](../README.md)
+**Quellcode-Version: 1.0.0** · [English documentation](../README.md) · [Bildübersicht](visual-guide.md)
 
-Zustände, Attributtypen und Leer-/Fehlerwerte beschreibt die Integration in der
-[deutschen Sensorreferenz](https://github.com/lefidelity/steam-tracker/blob/main/docs/sensors_de.md)
-und der [englischen Referenz](https://github.com/lefidelity/steam-tracker/blob/main/docs/sensors_en.md).
-Die Integration kann auch unabhängig von dieser Karte verwendet werden.
-
-![Alle acht Karten in Steam-Blau, Voll, Englisch mit erfundenen Beispieldaten](preview.png)
-
-[Bild-Dokumentation: alle Ansichten, Darstellungen, Sprachen und Layouts](visual-guide.md).
-Direkt zu [Steam-Blau / Deutsch](visual-guide/steam-de.md),
-[Home-Assistant-Theme / Deutsch](visual-guide/theme-de.md),
-[Steam-Blau / Englisch](visual-guide/steam-en.md) oder
-[Home-Assistant-Theme / Englisch](visual-guide/theme-en.md).
-Die Galerie zeigt 96 Einzelbilder: Voll (`detailed`), Kompakt (`compact`) und
-Einzeilig (`single_line`) für jede Ansicht nebeneinander. Ein Klick auf das Bild
-öffnet die volle Auflösung. Das Home-Assistant-Theme nutzt eine helle Referenz;
-die Farben im eigenen Dashboard hängen vom gewählten Theme ab.
-
-## Ansichten
-
-| Ansicht | Inhalt |
-| --- | --- |
-| Profil (`profile`) | Avatar, Spielername, Status, Level und XP-Fortschritt |
-| Aktuelles Spiel (`current_game`) | Spielbild, Titel und Gesamtspielzeit |
-| Kürzlich gespielt (`recent_games`) | Spiele der letzten zwei Wochen, Spielzeiten und optional Erfolge |
-| Bibliothek-Statistik (`library_stats`) | Spieleanzahl, Spielzeit, Spielquote, ungespielte Spiele, Top-5-Anteil und Spielzeit-Verteilung |
-| Spieler-Statistik (`player_stats`) | Erfolge, perfekte Spiele, durchschnittlicher Abschluss und Abzeichen |
-| Top-5-Spiele (`top_games`) | Die fünf meistgespielten Spiele mit Spielzeit und optional Erfolgen |
-| Freunde (`friends`) | Freunde mit Status und aktuellem Spiel; Suche und Online-Filter |
-| Spiele-Gesamtübersicht (`games`) | Vollständige Bibliothek mit Spielzeiten, Suche und Sortierung |
-
-Mit den erweiterten Sensordaten zeigt die Bibliothek-Statistik zusätzlich die
-Spielquote, gespielte und ungespielte Spiele und den Top-5-Anteil an der Gesamtzeit.
-Ausführlich und Kompakt enthalten fünf Balken: ungespielt, gespielt unter einer
-Stunde, 1–<10 Stunden, 10–<50 Stunden und mindestens 50 Stunden. Jeder Balken zeigt
-den Anteil an der gesamten Bibliothek und daneben die Spieleanzahl. Ob ein Spiel
-ungespielt ist, bestimmen die exakten Steam-Minuten. Leere Bibliotheken zeigen
-Nullwerte; bei älteren Sensoren erscheinen die Ergänzungen nach dem Update der
-Integration. Der Einzeiler behält seine drei bisherigen Hauptkennzahlen.
-Die kürzeren Verteilungsbeschriftungen lauten **unter 10 h**, **unter 50 h** und
-**ab 50 h**. Die Zeitgruppen bleiben 1–<10, 10–<50 und ≥50 Stunden.
-Tooltips und zugängliche Beschriftungen erklären **1 bis unter 10 Stunden**,
-**10 bis unter 50 Stunden** und **50 Stunden oder mehr**. Genau 50 Stunden
-gehören bereits zur letzten Gruppe.
-Die Kachel **Ungespielte Spiele** steht neben dem **Top-5-Anteil**. Darunter
-zeigen die beiden Kacheln **Gespielte Spiele** den Prozentwert und die Anzahl.
-Die weiteren Beschriftungen lauten **Spiele insgesamt** und **Unter 1 h gespielt**;
-die kürzeste gespielte Zeitgruppe heißt **unter 1 h**.
-
-Die Überschriften nutzen Controller für das aktuelle Spiel, Uhr für kürzlich
-gespielte Spiele, Diagramm für Bibliothek-Statistik, Pokal für Top-5-Spiele,
-Personen für Freunde und Bücher für die Spiele-Gesamtübersicht. Unter dem
-aktuellen Spielbild folgen direkt Spielname und Spielzeit. Kürzlich gespielte
-und Top-5-Spiele haben Trennlinien zwischen den Einträgen; Bilder und Spieltitel
-sind oben bündig ausgerichtet.
-
-Ausführlich, Kompakt oder Einzeiler; Home-Assistant-Theme oder Steam-Blau.
-Zusätzliche Karten wie button-card, bar-card oder card-mod werden nicht benötigt.
-
-**Kompakt** zeigt kleine Bilder, engere Abstände und Profil beziehungsweise
-aktuelles Spiel nebeneinander statt untereinander. **Einzeiler** reduziert Profil,
-aktuelles Spiel und Statistiken auf eine Zeile; Listen zeigen eine Zeile pro
-Eintrag. Bei Statistiken bleiben die drei wichtigsten Kennzahlen sichtbar,
-XP-Details und Erfolgsaufschlüsselungen entfallen. Freunde und Spiele behalten
-ihre Suchfelder und werden bei langen Listen scrollbar. Die Begrenzung für
-kürzlich gespielte Spiele kürzt diese vollständigen Listen nicht. Suche und
-Listenfilter gelten lokal für die Karte. Nach dem Neuladen gelten wieder die
-im Editor gespeicherten Bibliotheksvorgaben.
+![Eight card views in Steam blue, English, with fictional data](preview.png)
 
 ## Voraussetzungen
 
-- Home Assistant ab 2025.10. Browserprüfungen nutzen eine Simulation;
-  die Installation in einer echten Home-Assistant-Oberfläche muss noch geprüft werden.
-- Die [Steam-Tracker-Integration](https://github.com/lefidelity/steam-tracker).
-  Die automatische Kontozuordnung nutzt Sensor-Unique-IDs und Kontogeräte
-  (Integration 0.6.0 oder neuer). Ältere registrierte Sensoren können
-  über den Konfigurationseintrag gruppiert werden; YAML-Sensoren lassen sich
-  manuell zuweisen.
-- Die Integration muss auf die Steam-Daten zugreifen können. Die Karte behebt
-  keine Zugangsdaten- oder Privatsphäre-Probleme.
+- Home Assistant **2025.10.0 oder neuer**.
+- Die Steam-Tracker-Integration. Integration **1.0.0** liefert alle beschriebenen
+  Attribute; ältere Versionen sind unter [Kompatibilität](#kompatibilität) aufgeführt.
+- Die Integration muss auf die gewünschten Steam-Daten zugreifen können.
+  Die Karte liest Home-Assistant-Sensoren und benötigt keinen API-Key.
+
+Integration und Karte werden getrennt installiert. Die Integration funktioniert
+auch ohne diese Karte. Zustände, Attribute und Aktualisierungsintervalle stehen in der
+[deutschen Sensorreferenz](https://github.com/lefidelity/steam-tracker/blob/main/docs/sensors_de.md)
+und der [englischen Referenz](https://github.com/lefidelity/steam-tracker/blob/main/docs/sensors_en.md).
 
 ## Installation
 
-Das Repository ist [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card).
-Ein Eintrag in der HACS-Standardliste besteht noch nicht. HACS-Validierung und
-Tests in einer echten Home-Assistant-Instanz stehen noch aus.
-
 ### HACS
 
-1. `https://github.com/lefidelity/steam-tracker-card` als
-   benutzerdefiniertes Repository vom Typ **Dashboard** hinzufügen.
-2. Karte herunterladen.
-3. Unter **Einstellungen → Dashboards → Ressourcen** prüfen, ob
+1. Falls die Karte nicht gelistet ist, in HACS
+   `https://github.com/lefidelity/steam-tracker-card` als benutzerdefiniertes
+   Repository vom Typ **Dashboard** hinzufügen.
+2. Steam Tracker Card herunterladen.
+3. Unter **Einstellungen > Dashboards > Ressourcen** prüfen, ob
    `/hacsfiles/steam-tracker-card/steam-tracker-card.js` als **JavaScript-Modul**
-   eingetragen wurde. Falls nötig, selbst hinzufügen. Eventuell muss der
-   erweiterte Modus aktiviert sein.
+   eingetragen ist. Falls nötig, hinzufügen. Das Ressourcenmenü kann den
+   erweiterten Modus im Home-Assistant-Benutzerprofil voraussetzen.
 4. Browser neu laden und **Steam Tracker Card** zum Dashboard hinzufügen.
 
-[![Steam Tracker Card in HACS öffnen](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lefidelity&repository=steam-tracker-card&category=plugin)
+[![Open Steam Tracker Card in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lefidelity&repository=steam-tracker-card&category=plugin)
 
 ### Manuell
 
-1. `dist/steam-tracker-card.js` nach
-   `<HA-Konfigurationsordner>/www/steam-tracker-card.js` kopieren.
-2. Wenn `www` neu angelegt wurde, Home Assistant neu starten.
-3. Unter **Einstellungen → Dashboards → Ressourcen**
-   `/local/steam-tracker-card.js?v=0.9.9` als **JavaScript-Modul** hinzufügen.
-4. Browser neu laden und die Karte über die Kartenauswahl hinzufügen.
+1. `dist/steam-tracker-card.js` aus dem Quellcode oder die JavaScript-Datei eines
+   Releases nach `<HA-Konfigurationsordner>/www/steam-tracker-card.js` kopieren.
+2. Falls `www` neu angelegt wurde, Home Assistant neu starten.
+3. Unter **Einstellungen > Dashboards > Ressourcen**
+   `/local/steam-tracker-card.js?v=1.0.0` als **JavaScript-Modul** eintragen.
+4. Browser neu laden und die Karte hinzufügen.
 
-Nur eine Ressource registrieren. Bei manuellen Updates den Versionsparameter
-der URL ändern und den Browser neu laden.
+Die Ressource nur einmal registrieren, entweder über den HACS- oder den manuellen
+Pfad. Bei manuellen Updates die Datei ersetzen und den Versionsparameter ändern,
+damit der Browser die neue Datei lädt.
 
-## Bedienung
+## Ansichten und Darstellungen
 
-Im visuellen Editor **Konto** und **Ansicht** wählen. Ein einziges erkanntes Konto
-wird automatisch verwendet. Bei mehreren Konten ist eine explizite Auswahl nötig.
-Umbenannte Entity-IDs werden über die Registrierung erkannt. Bei gleichen
-Kontonamen hilft ein eindeutiger Name für das jeweilige Kontogerät.
+| `view` | Inhalt |
+| --- | --- |
+| `profile` | Avatar, Name, Status, Steam-Level und XP-Fortschritt |
+| `current_game` | Aktuelles Spiel mit Bild, Titel und Gesamtspielzeit |
+| `recent_games` | Bis zu fünf kürzlich gespielte Spiele, Zwei-Wochen-Spielzeit und optional Erfolge |
+| `library_stats` | Spieleanzahlen, Stunden, Anteil gespielter Spiele, Top-5-Anteil und Spielzeit-Verteilung |
+| `player_stats` | Erfolgsanzahlen und -quoten, Abschlussgruppen, Kandidaten und Abzeichen |
+| `top_games` | Bis zu fünf meistgespielte Spiele, Gesamtstunden und optional Erfolge |
+| `friends` | Freunde mit Status und aktuellem Spiel; Suche und Online-Filter |
+| `games` | Gesamte Bibliothek; Suche, Sortierung und minutengenaue Spielzeitfilter |
 
-Titel, Darstellung, Aussehen, Sprache und Bilder sind einstellbar. Für kürzlich
-gespielte Spiele gibt es zusätzlich Anzahl (1–5), Sortierung und Erfolge.
-**Benutzernamen anzeigen** steuert den Kontonamen rechts oben; der Spielername
-im Profil bleibt sichtbar. **Titel anzeigen** blendet Überschrift und Symbol
-unabhängig davon ein oder aus. Ein eigener Titel bleibt beim Ausblenden gespeichert.
-Beide Optionen sind standardmäßig aktiv (`show_username: true`, `show_title: true`).
-Im Einzeiler bleibt die Kopfzeile wie bisher verborgen.
-Auch bei den Top-5-Spielen lassen sich Erfolge ein- und ausblenden; diese Ansicht
-zeigt immer bis zu fünf Spiele. Alle acht Sensorrollen können manuell zugewiesen werden.
-Die Integration liefert derzeit höchstens fünf kürzlich gespielte Spiele;
-Sortierung und Begrenzung wirken nur auf diese Liste. „Steam-Reihenfolge“ behält
-die Reihenfolge der API bei.
+**Ausführlich** zeigt die meisten Informationen. **Kompakt** nutzt kleinere Bilder
+und engere Abstände. **Einzeiler** zeigt je Listeneintrag eine Zeile beziehungsweise
+eine Zusammenfassungszeile für Profil, aktuelles Spiel und Statistiken.
+Die Bibliothekszusammenfassung enthält Spieleanzahl, Gesamtstunden und Spiele
+unter einer Stunde; die Spielerzusammenfassung enthält freigeschaltete Erfolge,
+perfekte Spiele und durchschnittlichen Erfolgsfortschritt.
 
-Bei Offline-Profilen steht in Ausführlich und Kompakt **Zuletzt online vor …**
-direkt unter dem Status. Dafür nutzt die Karte `lastlogoff` aus dem Statussensor
-und aktualisiert die relative Zeit jede Minute ohne Steam-Abfragen. Fehlende,
-ungültige oder zukünftige Zeitstempel werden ausgeblendet; bei Online-Profilen
-erscheint keine frühere Abmeldezeit. Läuft bei einem online verbundenen Spieler
-ein Spiel, steht an derselben Stelle **Spielt: <Spielname>** aus dem Spielsensor
-dieses Kontos. Das gilt auch für Status wie Abwesend oder Beschäftigt. Ohne
-laufendes Spiel oder bei fehlenden, unbekannten beziehungsweise nicht verfügbaren
-Spieldaten entfällt die Zeile. Dafür sind keine zusätzlichen Steam-Abfragen nötig.
-Der XP-Text lautet **Fortschritt zu Level …**.
+Freunde und die gesamte Bibliothek werden bei langen Listen scrollbar. Die
+Begrenzung kürzlich gespielter Spiele kürzt diese Listen nicht. Als Aussehen
+stehen das Home-Assistant-Theme und **Steam-Blau** zur Wahl. Weitere Custom Cards
+werden nicht benötigt.
 
-Freunde und Profile zeigen Steams Status `Snooze` als **Inaktiv** an. `Away`
-bleibt **Abwesend**; die zugrunde liegenden Sensorwerte der Integration bleiben
-unverändert.
+Die [Bildübersicht](visual-guide.md) vergleicht alle 96 Kombinationen aus Ansicht,
+Darstellung, Sprache und Aussehen. Konten und Spielgrafiken sind erfunden.
 
-### Datenstand
+## Kontoauswahl und Konfiguration
 
-Die Checkbox **Datenstand anzeigen** (`show_data_status: true`) ergänzt in jeder
-Ansicht und Darstellung eine Zeile wie **Erfolgreich aktualisiert vor 3 Minuten**.
-Sie ist standardmäßig aus. Der Tooltip zeigt Datum und Uhrzeit; die relative Zeit
-aktualisiert sich lokal jede Minute ohne Steam-Abfragen. Beim Entfernen der Karte
-stoppt der Timer.
+Im visuellen Editor **Steam-Konto** und **Ansicht** wählen. Ein einziges erkanntes
+Konto wird automatisch verwendet; bei mehreren Konten ist eine Auswahl nötig.
+Die Erkennung nutzt die Entitätsregistrierung und funktioniert auch mit
+umbenannten Entity-IDs. Bei gleichen Kontonamen helfen eindeutige Namen für die
+jeweiligen Kontogeräte in Home Assistant.
 
-Dafür muss auch die Integration aktualisiert werden: Ihr neues Attribut
-`last_successful_update` enthält den Zeitpunkt eines erfolgreichen, geprüften
-Abrufs, auch bei unveränderten Werten und bestätigt leeren Ergebnissen.
-Das Attribut ist ab Integration 0.9.5 verfügbar.
-`last_changed` und `last_updated` werden nicht als Ersatz verwendet.
-Der 15-Sekunden-Cache der Integration für Status und aktuelles Spiel behält
-den ursprünglichen Abrufzeitpunkt. Ein Cache-Treffer setzt den Datenstand nicht neu.
+**Benutzernamen anzeigen** steuert den Kontonamen in der Kopfzeile; der Spielername
+im Profil bleibt sichtbar. **Titel anzeigen** steuert Überschrift und Symbol.
+Ein eigener Titel bleibt beim Ausblenden gespeichert. Im Einzeiler ist die
+Kopfzeile unabhängig von diesen Einstellungen verborgen.
 
-Bei mehreren Datenquellen gilt der älteste erfolgreiche Abruf der angezeigten
-Sensoren: im Profil Status und Level sowie das eingeblendete aktuelle Spiel;
-bei kürzlich gespielten Spielen zusätzlich die eingeblendeten Erfolge.
-Fehlt einer beteiligten Quelle ein gültiger Zeitstempel oder ist sie unbekannt
-beziehungsweise nicht verfügbar, bleibt die Zeile verborgen. Ältere Sensoren
-können weiterhin ohne Datenstand genutzt werden.
+Unter **Sensoren manuell zuweisen** lassen sich Sensoren desselben Kontos zuordnen.
+Das funktioniert auch mit alten YAML-Sensoren oder ohne Zugriff auf die
+Entitäts- und Geräteregistrierungen.
 
-![Optional data freshness with fictional player statistics](images/data-status.png)
+```yaml
+type: custom:steam-tracker-card
+view: profile
+appearance: steam
+layout: detailed
+```
+
+Bei mehreren Konten das Konto im Editor wählen, damit er den richtigen
+`account`-Wert speichert. Dieser ist eine interne Konto-ID, kein Anzeigename.
+
+```yaml
+type: custom:steam-tracker-card
+view: recent_games
+limit: 3
+sort: playtime
+show_achievements: true
+entities:
+  recent_games: sensor.steam_tracker_recent
+  recent_achievements: sensor.steam_tracker_recent_achievements
+```
+
+Bei manueller Zuordnung die tatsächlichen Entity-IDs verwenden.
+
+| Option | Standard | Werte / Bedeutung |
+| --- | --- | --- |
+| `view` | `profile` | Eine der acht Ansichten oben |
+| `account` | Automatisch bei einem Konto | Vom visuellen Editor gespeicherte Konto-ID |
+| `title` | Ansichtstitel | Eigener Text |
+| `show_title` | `true` | Überschrift und Symbol anzeigen |
+| `show_username` | `true` | Kontonamen in der Kopfzeile anzeigen |
+| `show_data_status` | `false` | Letzten erfolgreichen Abruf anzeigen |
+| `layout` | `detailed` | `detailed`, `compact`, `single_line` |
+| `appearance` | `theme` | `theme`, `steam` |
+| `language` | `auto` | `auto`, `de`, `en`; andere Home-Assistant-Sprachen verwenden Englisch |
+| `show_images` | `true` | Bilder in Ansichten mit Bildunterstützung anzeigen |
+| `show_achievements` | `true` | Erfolge kürzlich gespielter und Top-5-Spiele; im Einzeiler verborgen |
+| `limit` | `3` | Ganzzahl 1–5; nur kürzlich gespielte Spiele |
+| `sort` | `recent` | Reihenfolge kürzlicher Spiele: `recent` (Steam-Reihenfolge), `playtime` (zwei Wochen), `total` (gesamt) |
+| `library_sort` | `hours` | Bibliotheksvorgabe: `hours` (meistgespielt), `name` (A–Z) |
+| `library_filter` | `all` | Bibliotheksvorgabe: `all`, `played`, `unplayed`, `under_1_hour`, `1_to_10_hours`, `10_to_50_hours`, `50_hours_or_more` |
+| `item_action` | `none` | `none`, `steam`, `more-info`; Aktion beim Auswählen eines Spiel-/Freundesnamens |
+| `entities` | Automatisch | Sensorzuordnung: `status`, `profile`, `game`, `recent_games`, `recent_achievements`, `playtime`, `global_stats`, `friends` |
+
+### Profil und kürzlich gespielte Spiele
+
+Ein Offline-Profil zeigt **Zuletzt online …**, wenn der Statussensor einen
+gültigen `lastlogoff` liefert. Bei einem verbundenen Spieler mit laufendem Spiel
+steht dort **Spielt: <Spielname>**. Der Status `Snooze` heißt in der Karte
+**Inaktiv**, `Away` heißt **Abwesend**. Die Sensorwerte ändern sich dadurch nicht.
+
+Kürzlich gespielte Spiele verwenden die Liste der Integration mit höchstens
+fünf Einträgen. Sortiert wird nur innerhalb dieser Liste; **Steam-Reihenfolge**
+behält die Reihenfolge der Antwort bei. Ausführliche Zeilen zeigen beispielsweise
+`1,5 h / 240 h insgesamt`, mit **Letzte 2 Wochen** im Footer. Kompakt und Einzeiler
+zeigen nur die Zwei-Wochen-Spielzeit. Die Erfolge beschreiben den gesamten
+Spielfortschritt, nicht nur neu freigeschaltete Erfolge der letzten zwei Wochen.
+
+### Bibliothek-Statistik
+
+Die beiden Kacheln **Gespielte Spiele** zeigen den Prozentwert und die Anzahl.
+Ab einer erfassten Minute zählt ein Spiel als gespielt, auch wenn gerundete
+Stunden `0,0` anzeigen. Die Kachel **Unter 1 h gespielt** zählt auch ungespielte
+Spiele. Der Verteilungsbalken **unter 1 h** zählt dagegen nur Spiele mit 1–59 Minuten.
+
+| Verteilungslabel | Gesamte Spielminuten |
+| --- | --- |
+| Ungespielt | 0 |
+| unter 1 h | 1–59 |
+| unter 10 h | 60–599 |
+| unter 50 h | 600–2999 |
+| ab 50 h | Ab 3000 |
+
+Die Balken zeigen den Anteil an der Bibliothek und die Spieleanzahl. Der
+**Top-5-Anteil** ist der Anteil der fünf meistgespielten Spiele an allen erfassten
+Minuten. Leere Bibliotheken zeigen null Anzahlen und Prozentwerte. Tooltips
+erklären die genauen Zeitbereiche.
 
 ### Spieler-Statistik
 
-Mit Integration ab 0.9.8 zeigt die aktuelle Karte in `player_stats` zusätzlich
-den Prozentwert **Freigeschaltete Erfolge**, **Gesperrte Erfolge**, sechs Balken zur
-Abschlussverteilung und unter **Am nächsten dran an 100%** bis zu fünf
-Abschlusskandidaten. Ausführliche und kompakte
-Darstellung zeigen die Ergänzungen automatisch; der Einzeiler behält seine drei
-bisherigen Kennzahlen. Ältere Sensoren behalten die bisherigen sechs Kacheln.
-Ungültige oder unvollständige Ergänzungen bleiben verborgen. Zusätzliche
-Steam-Abfragen sind nicht nötig.
+Ausführlich und Kompakt verwenden diese Kachelpaare:
 
-Ausführlich und Kompakt ordnen die Kacheln in vier Zeilen an: mögliche und
-freigeschaltete Erfolge; gesperrte Erfolge und **ø Erfolgsfortschritt / Spiel**;
-**Freigeschaltete Erfolge** als Prozentwert und perfekte Spiele; Abzeichen und
-Spielabzeichen. Anzahl und Prozentwert tragen dieselbe Beschriftung; der
-Prozentwert enthält `%`. Zusätzliche erklärende Unterzeilen werden nicht angezeigt.
-Bei kürzlich gespielten Titeln zeigt die ausführliche Darstellung beispielsweise
-`1,5 h / 240 h insgesamt`. **Letzte 2 Wochen** steht im Footer statt an jedem Titel.
+| Links | Rechts |
+| --- | --- |
+| Mögliche Erfolge | Freigeschaltete Erfolge (Anzahl) |
+| Gesperrte Erfolge | ø Erfolgsfortschritt / Spiel |
+| Freigeschaltete Erfolge (Prozentwert) | Perfekte Spiele |
+| Abzeichen | Spielabzeichen |
 
-Die Gesamt-Erfolgsquote berechnet freigeschaltete / mögliche Erfolge. Beim
-durchschnittlichen Abschluss zählt jedes Spiel gleich viel: Spiele mit 1/1 und
-0/99 ergeben insgesamt 1 %, im Durchschnitt aber 50 %. Sind keine Erfolge
-möglich, erscheint die Gesamtquote als unbekannt; bestätigte Nullwerte bleiben
-sichtbar.
+**ø Erfolgsfortschritt / Spiel** mittelt die Abschlussquoten aller Spiele mit
+Erfolgen. Jedes Spiel zählt gleich viel, auch eines ohne freigeschalteten Erfolg.
+**Freigeschaltete Erfolge** als Prozentwert teilt alle freigeschalteten durch alle
+möglichen Erfolge. Bei Spielen mit 1/1 und 0/99 ergeben sich durchschnittlich
+50 Prozent und insgesamt 1 Prozent.
 
-Die Gruppen verwenden ungerundete Fortschritte: 0 %, >0–<25 %, 25–<50 %,
+Spiele ohne Erfolge zählen bei beiden Quoten und perfekten Spielen nicht mit.
+Sind keine Erfolge möglich, zeigt die Gesamtquote `—`; der Durchschnitt der
+Integration ist dann 0. **Spielabzeichen** zählt Spiel-/Sammelkartenabzeichen,
+keine einzelnen Sammelkarten.
+
+Die Abschlussbalken verwenden sechs getrennte Gruppen: 0 %, >0–<25 %, 25–<50 %,
 50–<75 %, 75–<100 % und 100 %. Die kurzen Labels lauten **0%**, **unter 25%**,
 **unter 50%**, **unter 75%**, **unter 100%** und **100%**. Tooltips erklären die
-genauen, getrennten Bereiche. Ihre Summe muss der Anzahl der Spiele mit Erfolgen
-entsprechen, die letzte Gruppe der Zahl perfekter Spiele. Spiele ohne Erfolge
-stehen separat. Kandidaten werden nach verbleibenden Erfolgen, dann höherem
-exaktem Fortschritt, Namen und App-ID sortiert. Vollständige Spiele und Spiele
-ohne Erfolge sind ausgeschlossen; Spiele ohne freigeschalteten Erfolg können
-Kandidaten sein. Die vorhandene Einstellung `item_action` gilt auch für ihre
-Namen. `limit` für kürzlich gespielte Spiele begrenzt die fünf Kandidaten nicht.
-Eine leere Kandidatenliste wird ausdrücklich angezeigt.
+genauen Grenzen. Spiele ohne Erfolge stehen unterhalb der Balken.
 
-Die Ergänzungen nutzen `achievements_remaining`, `overall_completion_rate`,
-`games_with_achievements`, `games_without_achievements`, `completion_distribution`
-und `completion_candidates` aus Integration 0.9.8. Version 0.9.5
-allein liefert diese Attribute nicht; Integration und Karte separat aktualisieren.
+**Am nächsten dran an 100%** zeigt bis zu fünf unvollständige Spiele mit den
+wenigsten fehlenden Erfolgen. Bei Gleichstand zählt der höhere exakte Fortschritt,
+dann Name und App-ID. Spiele ohne freigeschalteten Erfolg können dazugehören;
+abgeschlossene Spiele und Spiele ohne Erfolge nicht. Die Reihenfolge schätzt
+weder die Schwierigkeit noch die benötigte Zeit bis zum Abschluss.
 
-![Player statistics additions with fictional games](images/player-statistics.png)
+![Player statistics with fictional data](images/player-statistics.png)
 
-### Manuelle Sensorzuweisung
+### Datenstand
 
-Unter **Sensoren manuell zuweisen** können einzelne Zuordnungen überschrieben
-werden. Das funktioniert auch bei älteren YAML-Sensoren oder fehlendem Zugriff
-auf die Registrierungen. Ein API-Key gehört nicht in die Kartenkonfiguration.
+**Datenstand anzeigen** beziehungsweise `show_data_status: true` blendet einen
+Footer wie **Erfolgreich aktualisiert vor 3 Minuten** ein. Sein Tooltip zeigt den
+genauen Zeitpunkt. Der Text aktualisiert sich lokal jede Minute ohne Steam-Abfragen.
 
-```yaml
-type: custom:steam-tracker-card
-view: current_game
-appearance: steam
-entities:
-  game: sensor.steam_tracker_game
-```
+Der Footer nutzt `last_successful_update`. Bei mehreren Sensoren gilt der älteste
+Zeitpunkt der angezeigten Quellen: im Profil Status und Level sowie das
+eingeblendete aktuelle Spiel; bei kürzlich gespielten Spielen zusätzlich die
+angezeigten Erfolgsdaten. Fehlt eine Quelle, ist sie unbekannt/nicht verfügbar
+oder ihr Zeitpunkt fehlt, ist ungültig oder liegt in der Zukunft, bleibt der
+Footer verborgen. `last_changed` und `last_updated` werden nicht verwendet.
+Ein Cache-Treffer für Status/Spiel behält den ursprünglichen Abrufzeitpunkt.
 
-Alle Optionen und weitere Beispiele stehen in der [englischen Referenz](../README.md#configure-in-the-visual-editor).
+![Data freshness with fictional player statistics](images/data-status.png)
 
-```yaml
-type: custom:steam-tracker-card
-view: friends
-layout: compact
-```
+### Bibliotheksfilter und Namensaktionen
 
-```yaml
-type: custom:steam-tracker-card
-view: library_stats
-layout: single_line
-```
+In der **Spiele-Gesamtübersicht** lassen sich Suche, Sortierung und Spielzeitfilter
+kombinieren. **Standardsortierung der Bibliothek** und **Standardfilter der Bibliothek**
+legen die gespeicherten Vorgaben fest. Änderungen direkt auf der Karte gelten
+bis zum Neuladen. Ein anderes Konto oder geänderte manuelle Sensorzuordnungen
+setzen diese vorübergehende Auswahl zurück.
 
-## Bibliotheksfilter und Klickaktionen
+Die Filter verwenden die Minutenbereiche oben. **Bereits gespielt** bedeutet
+mindestens eine Minute. Fehlende oder ungültige exakte Minutenwerte deaktivieren
+den Spielzeitfilter und lassen alle Spiele sichtbar; Suche und Sortierung bleiben nutzbar.
 
-Version 0.9.5 ergänzt die **Spiele-Gesamtübersicht** um einen
-**Spielzeitfilter**. Suche, Sortierung und Filter lassen sich in allen drei
-Layouts kombinieren. Im Editor legen **Standardsortierung der Bibliothek** und
-**Standardfilter der Bibliothek** die Vorgaben nach dem Laden fest. Eine Auswahl
-direkt auf der Karte gilt bis zum Neuladen; ein Kontowechsel oder eine geänderte
-manuelle Sensorzuordnung setzt diese vorübergehende Auswahl zurück.
-
-Ungespielt bedeutet genau 0 Minuten, bereits gespielt mindestens 1 Minute.
-Die Zeitbereiche sind 1–59, 60–599, 600–2999 und ab 3000 Minuten. Auch eine
-Minute zählt als gespielt, selbst wenn die gerundete Stundenanzeige `0,0` zeigt.
-
-Für aktuelles Spiel, kürzlich gespielte Spiele, Top-5-Spiele, die gesamte
-Bibliothek und Freunde gibt es **Klickaktion für Namen**: **Keine Aktion**,
-**Steam öffnen** oder **Sensordetails**. Spielenamen öffnen den Steam-Shop,
-Freundesnamen das Steam-Community-Profil, jeweils in einem neuen Tab.
-Sensordetails öffnet den zugehörigen Spiel-, Kürzlich-gespielt-, Spielzeit- oder
-Freundes-Sensor des gewählten Kontos, auch bei manueller Zuordnung. Die Aktionen
-lassen sich per Tastatur bedienen und sind standardmäßig deaktiviert.
-
-Bibliothekslinks benötigen `appid`, die Spielzeitfilter exakte `playtime_minutes`
-in allen `all_games`-Einträgen. Diese Felder liefert Integration 0.9.5 oder neuer;
-dafür müssen Integration und Karte gemeinsam aktualisiert werden. Mit älteren oder unvollständigen Daten bleiben alle Spiele
-sichtbar und die Spielzeitfilter sind deaktiviert. Suche, Sortierung und
-Sensordetails bleiben nutzbar. Fehlt eine gültige Spiel-ID oder Profiladresse,
-bleibt der Name bei der Steam-Aktion ohne Link sichtbar.
+Für aktuelles Spiel, kürzlich gespielte Spiele, Top-5-Spiele, die Bibliothek und
+Freunde bietet **Klickaktion für Namen** die Auswahl **Keine Aktion**, **Steam öffnen**
+oder **Sensordetails**. Steam-Links öffnen einen neuen Tab: Spiele den Shop,
+Freunde eine gültige Steam-Profiladresse oder SteamID64. Sensordetails öffnet
+den jeweiligen Kontosensor. Dieselbe Einstellung `item_action` gilt per YAML
+auch für Abschlusskandidaten. Die Aktionen sind per Tastatur bedienbar und
+standardmäßig deaktiviert.
 
 ```yaml
 type: custom:steam-tracker-card
@@ -285,25 +250,38 @@ library_filter: unplayed
 item_action: steam
 ```
 
-```yaml
-type: custom:steam-tracker-card
-view: friends
-item_action: more-info
-```
+## Fehlende Daten und Privatsphäre
 
-## Fehlende Daten
+Fehlende Sensoren, `unknown` und `unavailable` haben unterschiedliche Meldungen.
+Leere Bibliotheken und Freundeslisten sind gültige Ergebnisse. Nullwerte bleiben
+sichtbar; unbekannter Erfolgsfortschritt wird nicht durch null ersetzt.
+Status und Level eines Profils lassen sich auch anzeigen, wenn eine Quelle ausfällt.
 
-Die Karte unterscheidet fehlende Sensoren, noch unbekannte Werte, nicht
-verfügbare Daten und tatsächlich leere Listen. Level 0 und 0 % Erfolge bleiben
-gültige Werte. Bei einem teilweise privaten Profil kann beispielsweise der
-Status sichtbar bleiben, während das Level fehlt.
+Der Filter **Nur online** schließt verbundene Zustände wie Beschäftigt, Abwesend
+und Inaktiv ein. Offline und unbekannter Status werden ausgeschlossen.
 
-Die Karte liest vorhandene Home-Assistant-Sensoren und fragt Steam nicht selbst
-ab. Spielbilder und Avatare werden im normalen Betrieb von den durch die
-Integration angegebenen Bildservern geladen. Die lokale Vorschau nutzt nur
-erfundene Daten und lokale Illustrationen.
+Spielbilder und Avatare lädt der Browser von den Adressen der Sensoren,
+normalerweise Steams Bildserver. Bilder verwenden no-referrer. Die Karte
+speichert und sendet keine Steam-API-Keys; sie nutzt die vorhandene Home-Assistant-Sitzung.
+
+## Kompatibilität
+
+| Funktion | Mindestversion der Integration |
+| --- | --- |
+| Kontogeräte für automatische Auswahl | 0.6.0 |
+| Bibliothekskennzahlen und Spielzeit-Verteilung | 0.7.1 |
+| Minutengenaue Filter, Bibliothekslinks zu Steam, Datenstand | 0.9.5 |
+| Fehlende Erfolge, Gesamtquote, Abschlussgruppen und Kandidaten | 0.9.8 |
+
+Ältere registrierte Sensoren lassen sich auch über Konfigurationseintrag oder
+Unique-IDs gruppieren. YAML-Sensoren können manuell zugewiesen werden. Fehlende
+neue Attribute blenden ihre zusätzlichen Kacheln/Balken aus; Werte werden nicht
+erfunden. Integration und Karte haben unabhängige Versionen und werden separat aktualisiert.
 
 ## Vorschau und Prüfungen
+
+`dist/steam-tracker-card.js` ist Quellcode und auslieferbares Modul. Die Karte
+benötigt weder einen Build-Schritt noch zusätzliche Laufzeitpakete.
 
 Im Projektordner starten:
 
@@ -311,8 +289,8 @@ Im Projektordner starten:
 python -m http.server 8129 --bind 127.0.0.1
 ```
 
-Dann `http://127.0.0.1:8129/preview/index.html` öffnen. Theme, Sprache, Darstellung,
-Datenzustände und mehrere Konten können interaktiv ausprobiert werden.
+Dann `http://127.0.0.1:8129/preview/index.html` öffnen. Die Vorschau verwendet
+erfundene Konten, fünf Spielillustrationen und lokale SVG-Dateien. Sie fragt Steam nicht ab.
 
 Mit Node.js ab Version 20:
 
@@ -321,31 +299,25 @@ node --check dist/steam-tracker-card.js
 node --test tests/card.test.mjs
 ```
 
-Die optionale Browserprüfung mit Playwright ist in der englischen Anleitung
-beschrieben. Für die Laufzeitprüfung sind Tests in Home Assistant nötig,
-insbesondere Speichern/Neuladen des Editors, Kontoauswahl, umbenannte Entitäten,
-eingeschränkte Benutzer sowie Sections- und Masonry-Dashboards.
+Die Browserprüfungen benötigen eine Entwicklungsinstallation von Playwright:
 
-## Namen und Veröffentlichung
+```console
+node tests/browser.mjs
+```
 
-Die beiden Projekte heißen `steam-tracker` und `steam-tracker-card`, ohne
-`hacs-`-Präfix. Das Integrationsrepository ist unter
-`https://github.com/lefidelity/steam-tracker` erreichbar. Die technische Domain bleibt `steam_tracker`;
-Sensor-IDs und Attribute müssen wegen des Repository-Namens nicht geändert werden.
+Optionale Argumente sind `--playwright <Pfad-zu-playwright/index.mjs>`,
+`--browser <Browser-Datei>` und `--screenshot <Ausgabe.png>`. Testbilder in einem
+temporären Ordner ablegen. Das Skript startet und beendet seinen lokalen HTTP-Server.
 
-Die Karte hat mit [lefidelity/steam-tracker-card](https://github.com/lefidelity/steam-tracker-card)
-ein eigenes Repository und eine unabhängige Version. Die aktuelle Quellcode-Version
-ist für beide Projekte 0.9.9; beide werden separat installiert und aktualisiert.
-Für 0.9.9 werden kein GitHub-Release und keine Release-Dateien veröffentlicht.
-Zur manuellen Installation aus dem Quellcode `dist/steam-tracker-card.js` kopieren.
-HACS-Installation und
-Home-Assistant-Laufzeitprüfungen stehen noch aus.
+Automatische Prüfungen nutzen nachgebildete Home-Assistant-Daten. In einer
+Installation insbesondere Editor speichern/neuladen, Kontoauswahl, umbenannte
+Entitäten, eingeschränkte Benutzer, Neuladen der Integration, mobile Darstellungen
+und Sections-/Masonry-Dashboards prüfen. Die HACS-Installation ist eine eigene
+Prüfung neben der Browservorschau.
 
 ## Lizenz
 
-Steam Tracker Card wird unter der [MIT-Lizenz](../LICENSE) bereitgestellt.
-Der vollständige Lizenztext und der Copyright-Hinweis sind auch in
-`dist/steam-tracker-card.js` enthalten und werden dadurch mit der einzelnen
-JavaScript-Datei ausgeliefert.
+[MIT-Lizenz](../LICENSE). Der vollständige Lizenztext und Copyright-Hinweis stehen
+auch in `dist/steam-tracker-card.js` und werden mit der einzelnen Datei ausgeliefert.
 
 Kein offizielles Produkt von Valve, Steam, Home Assistant oder HACS.

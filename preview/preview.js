@@ -14,8 +14,8 @@ const sampleGames = [
   { appid: 102, name: "The Last Outpost", playtime_2weeks_h: 8.2, playtime_total_h: 42.5, logo: art("mountain") },
   { appid: 103, name: "Neon Circuit", playtime_2weeks_h: 3.6, playtime_total_h: 76.2, logo: art("neon") },
 ];
-const topGames = [...sampleGames, { appid: 104, name: "Paper Kingdom", logo: art("mountain") },
-  { appid: 105, name: "Orbit Runner", logo: art("space") }].map((game, index) => ({
+const topGames = [...sampleGames, { appid: 104, name: "Paper Kingdom", logo: art("kingdom") },
+  { appid: 105, name: "Orbit Runner", logo: art("orbit") }].map((game, index) => ({
   ...game, hours: [168.6, 42.5, 76.2, 32, 18][index],
   achievements_unlocked: [32, 0, 0, null, 8][index], achievements_total: [50, 24, 0, null, 10][index],
 }));

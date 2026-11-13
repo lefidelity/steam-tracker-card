@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#f7edd8"/>
+      <stop offset="1" stop-color="#dbc7aa"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h920v430H0z"/>
+  <path fill="#fff8e9" d="m742 48 28 17-28 17-28-17z"/>
+  <path fill="#d8c6a8" d="m742 48 28 17-28 17z"/>
+  <path fill="#b6c7b6" d="m0 335 134-91 144 84 166-115 180 111 124-58 172 76v88H0z"/>
+  <path fill="#8faeaa" d="m0 384 167-62 154 54 202-116 182 97 112-35 103 41v67H0z"/>
+  <path fill="#52777a" d="m447 354 174-85 244 75-102 57H526z"/>
+  <path fill="#36585e" d="m447 354 79 47 237-30 102-27-102 57H526z"/>
+  <path fill="#e6d1ac" d="M539 192h89v143h-89z"/>
+  <path fill="#fff4da" d="m539 192 44-13v156h-44z"/>
+  <path fill="#bd6d60" d="m523 192 60-83 61 83z"/>
+  <path fill="#e7987d" d="m523 192 60-83v83z"/>
+  <path fill="#e6d1ac" d="M738 192h89v143h-89z"/>
+  <path fill="#fff4da" d="m738 192 44-13v156h-44z"/>
+  <path fill="#bd6d60" d="m722 192 60-83 61 83z"/>
+  <path fill="#e7987d" d="m722 192 60-83v83z"/>
+  <path fill="#f7e7c5" d="M609 227h148v108H609z"/>
+  <path fill="#d9c19a" d="m683 227 74 108h-74z"/>
+  <path fill="#fff4da" d="M642 150h82v185h-82z"/>
+  <path fill="#e6d1ac" d="M683 150h41v185h-41z"/>
+  <path fill="#bd6d60" d="m623 150 60-86 60 86z"/>
+  <path fill="#e7987d" d="m623 150 60-86v86z"/>
+  <path fill="#52777a" d="M574 218h18v29h-18zm199 0h18v29h-18zm-99-40h18v29h-18z"/>
+  <path fill="#36585e" d="M663 291h40v44h-40z"/>
+  <path fill="#cdb58f" d="m683 335 20 25-81 70H495z"/>
+  <path fill="#f7e7c5" d="m683 335-61 95H495z"/>
+  <path fill="#36585e" d="m0 407 183-38 140 36 156-30 96 55H0z"/>
+  <path fill="#6d9290" d="m759 401 83-30 78 27v32H718z"/>
+  <text x="52" y="190" fill="#29494f" font-family="system-ui,sans-serif" font-size="55" font-weight="750" letter-spacing="7">PAPER</text>
+  <text x="55" y="242" fill="#52777a" font-family="system-ui,sans-serif" font-size="34" font-weight="650" letter-spacing="5">KINGDOM</text>
+</svg>

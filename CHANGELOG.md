@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.0.0 - 2026-11-13
+
+### Changes
+
+- Update the card version to 1.0.0. Existing configuration options and supported
+  sensor attributes remain compatible with 0.9.9.
+- Review the English/German installation and configuration guides. Document the
+  current statistic labels, exact playtime groups, account selection, and missing
+  data; remove repeated development notes and obsolete version instructions.
+- Give Paper Kingdom and Orbit Runner their own illustrations. Draw the rear
+  half of Beyond the Blue's ring behind the planet.
+- Regenerate all 96 gallery images, three overview images, and the player-statistics
+  and data-freshness illustrations from the current card. Keep both languages and
+  appearances consistent with the 1.0.0 documentation.
+
+### Updating
+
+- Replace the card file and reload the browser. For manual installations use
+  `/local/steam-tracker-card.js?v=1.0.0` as a JavaScript module.
+- Existing configurations remain valid. Integration 1.0.0 supplies all documented
+  attributes; the compatibility table lists minimum versions for older sensors.
+
+### Validation
+
+- JavaScript syntax, all 21 logic tests, and browser checks passed for both
+  languages, all views/layouts, mobile sizes, editor/account behavior, missing
+  data, safe rendering, and cleanup. No external preview requests were made.
+- Checked all 18 public Markdown files across both repositories: 520 local and
+  cross-project links, 23 YAML blocks, and 22 card configurations. Both guides
+  list all 17 supported configuration options.
+- SVG files and PNG captures are valid. Verified the 192 gallery files and 11
+  shared/special image copies across both repositories. Historical changelog
+  entries and the 16 sensor JSON examples are unchanged.
+
 ## 0.9.9 - 2026-11-08
 
 ### Changes
