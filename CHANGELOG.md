@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Update the English/German installation guides for Home Assistant 2026.11's
+  built-in Marketplace under Settings, including custom repositories, automatic
+  dashboard resources, Marketplace badges, and updates.
+- Use `/local/community/` for Marketplace resources and retain HACS instructions
+  for older supported Home Assistant versions. Card behavior, versions, and
+  metadata are unchanged.
+
 ## 1.0.0 - 2026-11-13
 
 ### Changes

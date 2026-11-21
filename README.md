@@ -22,18 +22,38 @@ describe the sensor states, attributes, and update intervals.
 
 ## Installation
 
-### HACS
+### Home Assistant Marketplace (2026.11 and newer)
 
-1. In HACS, add `https://github.com/lefidelity/steam-tracker-card` as a custom
-   repository of type **Dashboard** if the card is not listed.
-2. Download Steam Tracker Card.
-3. Under **Settings > Dashboards > Resources**, check that
-   `/hacsfiles/steam-tracker-card/steam-tracker-card.js` is registered as a
-   **JavaScript module**. Add it if necessary; the resource menu may require
-   advanced mode in your Home Assistant user profile.
+The Marketplace is built into Home Assistant under **Settings > Marketplace**.
+It replaces HACS starting with Home Assistant 2026.11.
+
+1. Open **Settings > Marketplace** as an administrator and search for
+   **Steam Tracker Card**.
+2. If it is not listed, select **Add from link**, enter
+   `https://github.com/lefidelity/steam-tracker-card`, and select **Add**.
+   Connect GitHub when prompted; custom repositories require this connection.
+3. Open **Steam Tracker Card** and select **Install**. The Marketplace registers
+   the dashboard resource automatically unless you manage resources in YAML.
 4. Reload the browser and add **Steam Tracker Card** to a dashboard.
 
-[![Open Steam Tracker Card in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lefidelity&repository=steam-tracker-card&category=plugin)
+[![Open Steam Tracker Card in the Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=lefidelity&repository=steam-tracker-card&category=plugin)
+
+If the resource is missing, register
+`/local/community/steam-tracker-card/steam-tracker-card.js` as a **JavaScript module**
+under **Settings > Dashboards > Resources**. The resource menu may require advanced
+mode in your Home Assistant user profile. If you manage resources in YAML, add the
+resource shown by the install dialog to your YAML configuration instead.
+
+Updates appear under **Settings > Updates**. Reload the browser after updating
+the card. See the [Marketplace documentation](https://www.home-assistant.io/integrations/marketplace/)
+for installation and migration details.
+
+On supported Home Assistant versions before 2026.11, use HACS or manual
+installation. In HACS, add the repository above as a custom **Dashboard** if
+needed and download the card. Its resource path is
+`/hacsfiles/steam-tracker-card/steam-tracker-card.js`. Existing `/hacsfiles/` URLs
+continue to work after migration, but use `/local/community/` for Marketplace
+resources when adding or updating their configuration.
 
 ### Manual installation
 
@@ -44,7 +64,7 @@ describe the sensor states, attributes, and update intervals.
    `/local/steam-tracker-card.js?v=1.0.0` as a **JavaScript module**.
 4. Reload the browser and add the card.
 
-Register the resource once, using either the HACS or manual path. For manual
+Register the resource once, using the path for your installation method. For manual
 updates, replace the file and change the version parameter to clear the browser cache.
 
 ## Views and layouts
@@ -300,7 +320,7 @@ directory for test captures. The script starts and stops its local HTTP server.
 
 Automated checks use mocked Home Assistant data. For a live installation, check
 editor saving/reloading, account selection, renamed entities, restricted users,
-integration reload, mobile layouts, and Sections/Masonry dashboards. HACS
+integration reload, mobile layouts, and Sections/Masonry dashboards. Marketplace
 installation is a separate check from the browser preview.
 
 ## License
@@ -308,4 +328,4 @@ installation is a separate check from the browser preview.
 [MIT License](LICENSE). The complete license and copyright notice are also in
 `dist/steam-tracker-card.js` so they accompany the standalone file.
 
-Not affiliated with Valve, Steam, Home Assistant, or HACS.
+Not affiliated with Valve, Steam, or Home Assistant.

@@ -22,19 +22,40 @@ und der [englischen Referenz](https://github.com/lefidelity/steam-tracker/blob/m
 
 ## Installation
 
-### HACS
+### Home Assistant Marketplace (ab 2026.11)
 
-1. Falls die Karte nicht gelistet ist, in HACS
-   `https://github.com/lefidelity/steam-tracker-card` als benutzerdefiniertes
-   Repository vom Typ **Dashboard** hinzufügen.
-2. Steam Tracker Card herunterladen.
-3. Unter **Einstellungen > Dashboards > Ressourcen** prüfen, ob
-   `/hacsfiles/steam-tracker-card/steam-tracker-card.js` als **JavaScript-Modul**
-   eingetragen ist. Falls nötig, hinzufügen. Das Ressourcenmenü kann den
-   erweiterten Modus im Home-Assistant-Benutzerprofil voraussetzen.
+Der Marketplace ist unter **Einstellungen > Marketplace** in Home Assistant
+integriert. Er ersetzt HACS ab Home Assistant 2026.11.
+
+1. Als Administrator **Einstellungen > Marketplace** öffnen und nach
+   **Steam Tracker Card** suchen.
+2. Falls die Karte nicht gelistet ist, über **Add from link** ein Repository per
+   Link hinzufügen: `https://github.com/lefidelity/steam-tracker-card` eingeben
+   und das Hinzufügen bestätigen. Bei Aufforderung GitHub verbinden; diese
+   Verbindung ist für benutzerdefinierte Repositories erforderlich.
+3. **Steam Tracker Card** öffnen und **Installieren** wählen. Der Marketplace
+   registriert die Dashboard-Ressource automatisch, sofern die Ressourcen nicht
+   in YAML verwaltet werden.
 4. Browser neu laden und **Steam Tracker Card** zum Dashboard hinzufügen.
 
-[![Open Steam Tracker Card in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lefidelity&repository=steam-tracker-card&category=plugin)
+[![Open Steam Tracker Card in the Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=lefidelity&repository=steam-tracker-card&category=plugin)
+
+Falls die Ressource fehlt, unter **Einstellungen > Dashboards > Ressourcen**
+`/local/community/steam-tracker-card/steam-tracker-card.js` als **JavaScript-Modul**
+eintragen. Das Ressourcenmenü kann den erweiterten Modus im
+Home-Assistant-Benutzerprofil voraussetzen. Bei Ressourcenverwaltung in YAML stattdessen die
+im Installationsdialog angezeigte Ressource in die YAML-Konfiguration aufnehmen.
+
+Updates erscheinen unter **Einstellungen > Updates**. Nach einem Kartenupdate
+den Browser neu laden. Die [Marketplace-Dokumentation](https://www.home-assistant.io/integrations/marketplace/)
+erläutert Installation und Migration.
+
+Auf älteren unterstützten Home-Assistant-Versionen vor 2026.11 HACS oder die
+manuelle Installation verwenden. In HACS das oben genannte Repository bei Bedarf
+als benutzerdefiniertes **Dashboard** hinzufügen und die Karte herunterladen.
+Der Ressourcenpfad lautet `/hacsfiles/steam-tracker-card/steam-tracker-card.js`.
+Bestehende `/hacsfiles/`-URLs funktionieren nach der Migration weiter; beim
+Anlegen oder Aktualisieren von Marketplace-Ressourcen `/local/community/` verwenden.
 
 ### Manuell
 
@@ -45,9 +66,9 @@ und der [englischen Referenz](https://github.com/lefidelity/steam-tracker/blob/m
    `/local/steam-tracker-card.js?v=1.0.0` als **JavaScript-Modul** eintragen.
 4. Browser neu laden und die Karte hinzufügen.
 
-Die Ressource nur einmal registrieren, entweder über den HACS- oder den manuellen
-Pfad. Bei manuellen Updates die Datei ersetzen und den Versionsparameter ändern,
-damit der Browser die neue Datei lädt.
+Die Ressource nur einmal mit dem Pfad der gewählten Installationsmethode
+registrieren. Bei manuellen Updates die Datei ersetzen und den Versionsparameter
+ändern, damit der Browser die neue Datei lädt.
 
 ## Ansichten und Darstellungen
 
@@ -312,12 +333,12 @@ temporären Ordner ablegen. Das Skript startet und beendet seinen lokalen HTTP-S
 Automatische Prüfungen nutzen nachgebildete Home-Assistant-Daten. In einer
 Installation insbesondere Editor speichern/neuladen, Kontoauswahl, umbenannte
 Entitäten, eingeschränkte Benutzer, Neuladen der Integration, mobile Darstellungen
-und Sections-/Masonry-Dashboards prüfen. Die HACS-Installation ist eine eigene
-Prüfung neben der Browservorschau.
+und Sections-/Masonry-Dashboards prüfen. Die Marketplace-Installation ist eine
+eigene Prüfung neben der Browservorschau.
 
 ## Lizenz
 
 [MIT-Lizenz](../LICENSE). Der vollständige Lizenztext und Copyright-Hinweis stehen
 auch in `dist/steam-tracker-card.js` und werden mit der einzelnen Datei ausgeliefert.
 
-Kein offizielles Produkt von Valve, Steam, Home Assistant oder HACS.
+Kein offizielles Produkt von Valve, Steam oder Home Assistant.
